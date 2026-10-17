@@ -44,7 +44,7 @@ Keep the corners at the top of the slot sharp. v6 rounded them, and the light lo
 
 v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 14 mm. v5 leaves about 0.5 mm of clearance around it.
 
-## Truck mount (Radium Mach One S): prototype m4
+## Truck mount (Radium Mach One S): prototype m5
 
 A two-part clamp holds the v7 receiver on the truck. The Mach One S hanger has no mounting holes, so the clamp grips a strut directly: the diagonal "rake" above each triangular window in the hanger plate. Left and right are mirror images, one per strut.
 
@@ -70,9 +70,9 @@ Files are in [`out/truck/`](out/truck):
 
 | File | What it is |
 |---|---|
-| `truck_mount_{left,right}_m4_saddle.stl` | Print receiver-face down, which is the best orientation measured (about 13.5 cm³ of support, against 29 cm³ with an arm face down). Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
-| `truck_mount_{left,right}_m4_keeper.stl` | Prints flat with no supports. The nut pockets are on the bed side. |
-| `assembly_m4.obj` (coloured, named parts) and `assembly_m4_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
+| `truck_mount_{left,right}_m5_saddle.stl` | Print receiver-face down, which is the best orientation measured (about 13.5 cm³ of support, against 29 cm³ with an arm face down). Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
+| `truck_mount_{left,right}_m5_keeper.stl` | Prints flat with no supports. The nut pockets are on the bed side. |
+| `assembly_m5.obj` (coloured, named parts) and `assembly_m5_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
 
 Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 
@@ -103,7 +103,8 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Truck mount m1: closed receiver box (it would trap grit), so it was replaced by m2
 - [x] Truck mount m2: modelled with the strut 32 mm across; really 22.5 mm, so it would not clamp
 - [x] Truck mount m3: modelled with the strut 22.5 mm across; really ~9 mm across (22 mm is its front-to-back depth)
-- [ ] Truck mount m4: test-fit the clamp, check the receiver is level, check ground and wheel clearance
+- [x] Truck mount m4: the receiver sat too high, and the screw-access path cut into the webs
+- [ ] Truck mount m5: test-fit the clamp, check the receiver is level, check ground and wheel clearance
 
 ## License
 

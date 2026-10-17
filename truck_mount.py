@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold
 
 import shredlight_mount as receiver
 
-VERSION = 4
+VERSION = 5
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 22.0       # hanger plate thickness
@@ -61,7 +61,8 @@ CHEEK = 3.0          # wall outside each screw
 # --- Receiver pod ---
 POD_REAR = 4.0       # how far the side rails extend behind the receiver, to the webs
 POD_CLEAR = 2.0      # minimum gap from the pod to the plate's front face
-POD_TOP = 10.0       # pod top relative to the strut's skyward face (+ = higher)
+POD_TOP = 0.0        # pod top relative to the strut's skyward face (+ = higher)
+POD_FORWARD = 10.0   # extra distance forward of the minimum, so the webs clear the screw access
 
 # --- Assembly preview only (schematic hanger; nothing here affects the printed parts) ---
 CLAMP_OFFSET = 40.0  # clamp centre from the board centreline, measured across
@@ -191,7 +192,7 @@ def pod_placement(rot):
     t = np.radians(TILT)
     # Plate front face: cos(t) y - sin(t) z = HALF_T; the pod's highest back corner is worst.
     y_back = (HALF_T + POD_CLEAR + np.sin(t) * z_top) / np.cos(t)
-    return np.array([cheek[0], y_back + POD_REAR, zc])
+    return np.array([cheek[0], y_back + POD_REAR + POD_FORWARD, zc])
 
 
 def right_parts():
@@ -218,8 +219,9 @@ def right_parts():
         [-inner, lo[1] - 40, -200]), rrot, roff)
 
     strut = place(along_u(strut_profile(LINER), 400), rot)
-    saddle = (saddle + (webs - channel)) + pod - strut - place(screw_holes() + driver_access(), rot)
-    return {"saddle": saddle, "keeper": keeper}, rot, rrot, roff
+    webs -= channel
+    saddle = (saddle + webs) + pod - strut - place(screw_holes() + driver_access(), rot)
+    return {"saddle": saddle, "keeper": keeper, "webs": webs}, rot, rrot, roff
 
 
 def label_cut(rrot, roff, text):
