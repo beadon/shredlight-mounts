@@ -9,7 +9,7 @@ the plate's plane. The clamp wraps that strut:
           of the plate and it carries the wedge and the receiver pod
   keeper  flat bar slid through the window under the strut; its ends stick out past
           both plate faces, under the saddle's arms, and hold the nuts
-  2x M4 x 30 socket-head screws with nyloc nuts, one in front of the plate, one behind
+  2x M4 x 20 socket-head screws with nyloc nuts, one in front of the plate, one behind
 
 The pod is the v7 receiver's lip plate, slot and barbs, held only by its two side
 rails: the light hangs on the barbs, so there is no bottom wall and no back. Open
@@ -33,25 +33,27 @@ from manifold3d import CrossSection, FillRule, Manifold
 
 import shredlight_mount as receiver
 
-VERSION = 3
+VERSION = 4
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 22.0       # hanger plate thickness
-STRUT_H = 22.5       # strut, window face to skyward face, square to its length (22-23)
-WINDOW_FLAT = 11.0   # flat land on the window-side face, between its chamfers
-TOP_CHAMFER = 5.5    # skyward-face chamfers (~6 measured; modelled smaller so they cannot bind)
+STRUT_H = 9.0        # strut, window face to skyward face, in the hanger's plane
+WINDOW_FLAT = 11.0   # flat on the window-side face, front to back, between its chamfers
+TOP_CHAMFER = 5.5    # skyward-face chamfers, front to back (~6 measured; modelled smaller)
+CHAMFER_DEPTH = 1.5  # how far the chamfers cut into the 9 mm: unmeasured, kept small so they cannot bind
 TILT = 45.0          # plate tilted back from vertical (assumed; check level on the print)
 STRUT_ANGLE = 45.0   # strut angle in the plate's plane (photo estimate)
 
 # --- Clamp ---
 LINER = 1.0          # gap all round the strut for a 1 mm TPU / rubber liner
 PARTING_GAP = 3.0    # gap between the saddle's arms and the keeper so the screws can pull
-LENGTH = 20.0        # along the strut; the keeper must fit the ~35 mm window side
+LENGTH = 20.0        # keeper length along the strut; it must fit the ~35 mm window side
+SADDLE_LENGTH = 30.0 # saddle length along the strut's top face (~55 mm free between beam and block)
 SADDLE_T = 5.0       # saddle thickness over the skyward face
 KEEPER_T = 6.0       # keeper thickness under the strut, inside the window
 SCREW_D = 4.4        # M4 clearance
 HEAD_D = 8.0         # M4 socket head counterbore (also the driver access)
-SCREW_LEN = 30.0
+SCREW_LEN = 20.0
 NUT_AF = 7.3         # M4 nyloc across flats, plus clearance
 NUT_H = 5.0
 CHEEK = 3.0          # wall outside each screw
@@ -59,7 +61,7 @@ CHEEK = 3.0          # wall outside each screw
 # --- Receiver pod ---
 POD_REAR = 4.0       # how far the side rails extend behind the receiver, to the webs
 POD_CLEAR = 2.0      # minimum gap from the pod to the plate's front face
-POD_TOP = 0.0        # pod top relative to the strut's skyward face (+ = higher)
+POD_TOP = 10.0       # pod top relative to the strut's skyward face (+ = higher)
 
 # --- Assembly preview only (schematic hanger; nothing here affects the printed parts) ---
 CLAMP_OFFSET = 40.0  # clamp centre from the board centreline, measured across
@@ -102,10 +104,11 @@ def along_u(cs, length):
 
 def strut_profile(grow=0.0):
     """Strut cross-section in (v, w), grown outward by `grow`."""
-    cw = (PLATE_T - WINDOW_FLAT) / 2  # 45-degree window-side chamfers
+    cw = (PLATE_T - WINDOW_FLAT) / 2  # window-side chamfers, front to back
     ct = TOP_CHAMFER
-    pts = [(0, -WINDOW_FLAT / 2), (0, WINDOW_FLAT / 2), (cw, HALF_T), (STRUT_H - ct, HALF_T),
-           (STRUT_H, HALF_T - ct), (STRUT_H, -HALF_T + ct), (STRUT_H - ct, -HALF_T), (cw, -HALF_T)]
+    d = CHAMFER_DEPTH
+    pts = [(0, -HALF_T + cw), (0, HALF_T - cw), (d, HALF_T), (STRUT_H - d, HALF_T),
+           (STRUT_H, HALF_T - ct), (STRUT_H, -HALF_T + ct), (STRUT_H - d, -HALF_T), (d, -HALF_T)]
     cs = CrossSection([pts], FillRule.EvenOdd)
     return cs.offset(grow) if grow else cs
 
@@ -139,10 +142,10 @@ def driver_access():
 
 def saddle_local():
     top = STRUT_H + SADDLE_T
-    s = box(-LENGTH / 2, LENGTH / 2, ARM_BOTTOM, top, -HALF_W, HALF_W)
+    s = box(-SADDLE_LENGTH / 2, SADDLE_LENGTH / 2, ARM_BOTTOM, top, -HALF_W, HALF_W)
     # Removing the strut (and everything below its window face) leaves the top and two arms.
-    under = box(-LENGTH, LENGTH, -50, 0, -HALF_T - LINER, HALF_T + LINER)
-    return s - along_u(strut_profile(LINER), LENGTH + 2) - under - screw_holes() - driver_access()
+    under = box(-SADDLE_LENGTH, SADDLE_LENGTH, -50, 0, -HALF_T - LINER, HALF_T + LINER)
+    return s - along_u(strut_profile(LINER), SADDLE_LENGTH + 2) - under - screw_holes() - driver_access()
 
 
 def keeper_local():
@@ -201,7 +204,7 @@ def right_parts():
     pod = place(body, rrot, roff)
 
     # Webs: one hull per side rail, from the rail's back edge to the saddle's front cheek.
-    cheek = place(box(-LENGTH / 2, LENGTH / 2, ARM_BOTTOM, STRUT_H + SADDLE_T,
+    cheek = place(box(-SADDLE_LENGTH / 2, SADDLE_LENGTH / 2, ARM_BOTTOM, STRUT_H + SADDLE_T,
                       HALF_W - 1, HALF_W), rot)
     _, _, _, inner, gap = receiver_dims()
     webs = Manifold()
