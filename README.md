@@ -6,7 +6,7 @@ male side of the connection: the light lies on the receiver's face, and its moun
 from the slot's open end (the end the lens points to), hugging the underside of the lip until the
 barbs snap over it.
 
-**Status:** the receiver is final (v7). The truck mount is at prototype m7: m6 aimed about 15° high when held in place, so m7 tips the platform 15° nose-down.
+**Status:** the receiver is final (v7). The truck mount is at prototype m7: m6 aimed about 15° high when held in place, which a 30° hanger tilt (Radium's stated truck angle) accounts for, so m7 is built for 30°.
 
 > **Scope:** designed and fit-tested for the SL-300 only. Other Shredlights models may use
 > different connectors, and supporting them is out of scope for this project.
@@ -58,7 +58,7 @@ The renders come from `render_views.py`. A three-view silhouette drawing of one 
 
 - **Saddle:** an upside-down U that drops over the strut from above. Its front arm takes the screw, and its rear arm ends in a hook pocket. It carries the receiver platform.
 - **Keeper:** a flat bar that slides through the window from the front, under the strut. Its rear end goes into the saddle's hook, and its front end holds the nut.
-- **Receiver platform:** v7's lip, slot and barbs, **face up**, with the slot's open end toward the nose. The light sits on top, lens forward. It is **tipped 15° nose-down** (`PITCH_DOWN`) and **rolled 45° outboard**, so it sits low over the clamp with two webs underneath. The channel under the lip is open at both ends, so grit can get out.
+- **Receiver platform:** v7's lip, slot and barbs, **face up**, with the slot's open end toward the nose. The light sits on top, lens forward. The platform is level front to back, but **rolled 45° outboard**, so it sits low over the clamp with two webs underneath. The channel under the lip is open at both ends, so grit can get out.
 - **Hardware per side:** **1× M5×20 socket-head screw** and an M5 nyloc nut. It's fitted and tightened **through the receiver's own slot** (with the light removed), so no access holes are needed. Add a 1 mm TPU or rubber liner between the clamp and the strut.
 - **Fitting:** drop the saddle over the strut, slide the keeper in through the window from the front until its rear end is in the hook, then fit the screw down through the slot.
 
@@ -71,7 +71,7 @@ The clamp fits around the strut's shape, so it can't rotate on it. The keeper is
 - 11 mm flat on the window-side face and about 6 mm chamfers on the skyward face, both measured front to back. How far the chamfers cut into the 9 mm isn't measured, so they're modelled shallow, so they can't bind
 - window sides about 32 × 30 × 35 mm
 
-**Estimated, not measured:** the plate is tilted back 45° and the strut rises at 45° in the plate's plane (`TILT`, `STRUT_ANGLE`), and the SL-300's beam runs parallel to its mounting face. m6 used those estimates to aim the beam level. Held in place on the truck, it aimed about 15° high. m7 corrects that empirically with `PITCH_DOWN = 15`, rather than guessing which estimate is off. The 45° roll turns only the light's body about the beam; that's `ROLL`.
+**Hanger tilt:** the plate leans back 30° from vertical (`TILT`). Radium gives the R6 rear truck a 30° angle, and that matches the m6 test fit. m6 assumed 45°, and held in place it aimed about 15° high, which is exactly the difference. The aim follows the tilt one for one; the strut's angle within the plate (`STRUT_ANGLE`, estimated at 45°) mostly turns the beam left or right, not up or down. `PITCH_DOWN` (0) is left in for fine-tuning the aim. The 45° roll turns only the light's body about the beam; that's `ROLL`.
 
 Files are in [`out/truck/`](out/truck):
 
@@ -116,8 +116,8 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Truck mount m3: modelled with the strut 22.5 mm across; really ~9 mm across (22 mm is its front-to-back depth)
 - [x] Truck mount m4: the receiver sat too high, and the screw-access path cut into the webs
 - [x] Truck mount m5: the receiver faced forward, but the light lies *on* the platform, so it would have shone at the sky
-- [x] Truck mount m6: held in place on the strut, the light aimed about 15° high
-- [ ] Truck mount m7 (15° nose-down): check the aim, test-fit the clamp and hook, check that the screw goes in through the slot and tightens, check that the light snaps in, and check ground and wheel clearance
+- [x] Truck mount m6: held in place on the strut, the light aimed about 15° high (built for a 45° tilt; the truck is 30°)
+- [ ] Truck mount m7 (built for the 30° tilt): check the aim, test-fit the clamp and hook, check that the screw goes in through the slot and tightens, check that the light snaps in, and check ground and wheel clearance
 - [ ] Print the right side once the left fits
 
 ## License

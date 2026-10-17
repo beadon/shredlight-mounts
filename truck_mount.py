@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Clamp that holds the v7 receiver on a Radium Mach One S truck strut.
 
-The hanger is a 22 mm plate tilted back 45 degrees (its front face looks forward
-and down). Above each triangular window, a strut ("rake") rises at 45 degrees in
+The hanger is a 22 mm plate tilted back 30 degrees from vertical (its front face
+looks forward and down), matching Radium's stated 30 degree truck angle. Above each triangular window, a strut ("rake") rises at 45 degrees in
 the plate's plane. The clamp wraps that strut:
 
   saddle  inverted U dropped over the strut from above; its front arm takes the
@@ -12,9 +12,8 @@ the plate's plane. The clamp wraps that strut:
   1x M5 x 20 socket-head screw with a nyloc nut, in front of the plate, fitted and
           tightened through the receiver's own slot (with the light removed)
 
-The receiver is a platform: v7's lip plate, slot and barbs, face up, tipped
-15 degrees nose-down (the m6 test fit aimed that much high) and rolled outboard about
-its length so it sits low over the clamp. The slot's
+The receiver is a platform: v7's lip plate, slot and barbs, face up and level fore
+and aft, rolled outboard about its length so it sits low over the clamp. The slot's
 open end points at the nose; the light sits on top, lens forward, and slides in from
 the front until the barbs catch. The channel under the lip is open at both ends.
 The right side is modelled; left is mirrored.
@@ -42,7 +41,8 @@ STRUT_H = 9.0        # strut, window face to skyward face, in the hanger's plane
 WINDOW_FLAT = 11.0   # flat on the window-side face, front to back, between its chamfers
 TOP_CHAMFER = 5.5    # skyward-face chamfers, front to back (~6 measured; modelled smaller)
 CHAMFER_DEPTH = 1.5  # how far the chamfers cut into the 9 mm: unmeasured, kept small so they cannot bind
-TILT = 45.0          # plate tilted back from vertical (user's estimate; to be confirmed by a test fit)
+TILT = 30.0          # plate tilted back from vertical: Radium's stated 30 degree truck angle. m6 was
+                     # built for 45 and aimed ~15 degrees high in a test fit, which 30 accounts for
 STRUT_ANGLE = 45.0   # strut angle in the plate's plane (photo estimate)
 
 # --- Clamp ---
@@ -65,8 +65,8 @@ HOOK_CLEAR = 0.4     # sliding clearance around the keeper in the pocket
 
 # --- Receiver platform ---
 ROLL = 45.0          # platform rolled outboard about its length
-PITCH_DOWN = 15.0    # platform's front end tipped toward the ground: the m6 test fit, which
-                     # modelled the beam level, aimed about 15 degrees high (user's estimate)
+PITCH_DOWN = 0.0     # extra nose-down tip for fine-tuning the aim (m7 was first made with
+                     # TILT 45 + PITCH_DOWN 15, which gives the identical part)
 SLOT_POINT = 12.0    # where the screw's path crosses the slot, mm from the receiver's centre
                      # toward its open end (the upper, 14.5 mm wide part of the slot)
 POD_REAR = 4.0       # how far the side rails run below the pocket, into the pedestal

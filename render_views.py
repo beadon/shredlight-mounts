@@ -92,7 +92,7 @@ def assembly_views(path):
     a = render(everything, lights, 180, 5,
                "1. From the nose (the rider's right mount is on the LEFT). Blue = light, estimated size.", W=760, H=520)
     b = render(everything + [(beam, (255, 140, 0)), (level, (120, 120, 120))], lights, 90, 5,
-               f"2. From the rider's right side. Nose to the RIGHT. Orange = beam, {t.PITCH_DOWN:.0f} deg below grey level.",
+               f"2. From the rider's right side. Nose to the RIGHT. Orange = beam, grey = level ({t.PITCH_DOWN:.0f} deg apart).",
                W=760, H=520)
     c = render([(hanger, grey), (rs, red), (rk, green), (path_, (255, 140, 0))], [], 135, 35,
                "3. Right mount from front-right, above. Orange = the M5 screw's path, through the slot.", W=760, H=560)
