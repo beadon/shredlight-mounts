@@ -41,7 +41,7 @@ STRUT_H = 9.0        # strut, window face to skyward face, in the hanger's plane
 WINDOW_FLAT = 11.0   # flat on the window-side face, front to back, between its chamfers
 TOP_CHAMFER = 5.5    # skyward-face chamfers, front to back (~6 measured; modelled smaller)
 CHAMFER_DEPTH = 1.5  # how far the chamfers cut into the 9 mm: unmeasured, kept small so they cannot bind
-TILT = 45.0          # plate tilted back from vertical (confirmed by the user)
+TILT = 45.0          # plate tilted back from vertical (user's estimate; to be confirmed by a test fit)
 STRUT_ANGLE = 45.0   # strut angle in the plate's plane (photo estimate)
 
 # --- Clamp ---

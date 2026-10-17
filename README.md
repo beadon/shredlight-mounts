@@ -65,7 +65,7 @@ The clamp fits around the strut's shape, so it can't rotate on it. The keeper is
 - 11 mm flat on the window-side face and about 6 mm chamfers on the skyward face, both measured front to back. How far the chamfers cut into the 9 mm isn't measured, so they're modelled shallow, so they can't bind
 - window sides about 32 × 30 × 35 mm
 
-**Confirmed:** the plate is tilted back 45° and the strut rises at 45° in the plate's plane (`TILT`, `STRUT_ANGLE`). The SL-300's beam runs parallel to its mounting face. So with the platform level front to back, the beam is level and points straight ahead. The platform's 45° roll turns only the light's body about the beam; that's `ROLL`.
+**Believed correct, to be confirmed by a test fit:** the plate is tilted back 45° and the strut rises at 45° in the plate's plane (`TILT`, `STRUT_ANGLE`), and the SL-300's beam runs parallel to its mounting face. If those hold, the platform is level front to back and the beam is level, pointing straight ahead. The platform's 45° roll turns only the light's body about the beam; that's `ROLL`.
 
 Files are in [`out/truck/`](out/truck):
 
