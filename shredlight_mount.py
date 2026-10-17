@@ -56,6 +56,9 @@ GAP = DEPTH - T  # space under the front lip for the light's flange (3/16")
 #   upper/lower: exact final slot widths in mm (FIT is not added).
 # Optional, in mm: lead_in (45-degree chamfer at the slot entrance, per side) and
 # step_radius (rounds the edges where the 45-degree step meets the lower slot).
+# Snap-fit barbs at the top of each arm, copied from the stock part (all in mm):
+# barb_gap (tip to tip), barb_ledge (top edge down to the flat latching ledge) and
+# barb_flat (vertical flat at the tip; the ramp runs from the top edge down to it).
 VERSIONS = {
     1: {"narrow": 0.0},  # 15.14/11.84 mm, photo-measured: side-to-side play. Obsolete.
     2: {"narrow": 2.0},  # 13.14/9.84 mm: snug, but the upper slot spreads ~1 mm on insert.
@@ -65,6 +68,9 @@ VERSIONS = {
     # v6: holds the light less well, it slides out more easily. Likely the lead-in rounding
     # the sharp top corners that the light's clamp catches on.
     6: {"upper": 14.5, "lower": 10.0, "lead_in": 0.5, "step_radius": 1.5},
+    # v7: v5 + snap-fit barbs (gap from calipers; ledge set above the 5.3-6.1 mm photo
+    # estimates so the light seats fully before it latches).
+    7: {"upper": 14.5, "lower": 10.0, "barb_gap": 12.0, "barb_ledge": 5.0, "barb_flat": 1.0},
 }
 
 # --- Version label, engraved into the front lip below the slot ---
@@ -80,10 +86,11 @@ def slot_half_widths(narrow=0.0, upper=None, lower=None, **_):
     return (SLOT_UPPER_W - narrow) / 2 + FIT, (SLOT_LOWER_W - narrow) / 2 + FIT
 
 
-def slot_profile(uw, lw, lead_in=0.0, step_radius=0.0, **_):
+def slot_profile(uw, lw, lead_in=0.0, step_radius=0.0,
+                 barb_gap=0.0, barb_ledge=0.0, barb_flat=0.0, **_):
     """U-slot in the front face; origin at the bottom-centre of the receiver.
 
-    uw, lw are half-widths in inches; lead_in and step_radius are in mm.
+    uw, lw are half-widths in inches; everything else is in mm.
     """
     step_top = H - SLOT_UPPER_LEN
     step_bot = step_top - (uw - lw)  # 45-degree transition
@@ -102,6 +109,13 @@ def slot_profile(uw, lw, lead_in=0.0, step_radius=0.0, **_):
         r = step_radius / IN
         slot = slot.offset(r, JoinType.Round, circular_segments=32).offset(
             -r, JoinType.Round, circular_segments=32)
+    if barb_gap:
+        # Added after the rounding so the latching ledge stays flat and sharp-cornered.
+        gw, ledge, flat = barb_gap / IN / 2, barb_ledge / IN, barb_flat / IN
+        root = uw + 0.5 / IN  # overlap into the arm
+        barb = [(-root, H), (-uw, H), (-gw, H - ledge + flat), (-gw, H - ledge), (-root, H - ledge)]
+        mirrored = [(-x, y) for x, y in barb]
+        slot = slot - CrossSection([barb, mirrored], FillRule.EvenOdd)
     if DETENT:
         notch = CrossSection.circle(DETENT_RADIUS, 32).translate(
             [uw, H - DETENT_FROM_TOP])
