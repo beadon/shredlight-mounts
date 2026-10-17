@@ -11,8 +11,12 @@ the plate's plane. The clamp wraps that strut:
           both plate faces, under the saddle's arms, and hold the nuts
   2x M4 x 40 socket-head screws with nyloc nuts, one in front of the plate, one behind
 
-The pod holds the receiver with its slot vertical and its face pointing straight
-forward, so the light shines level. The right side is modelled; left is mirrored.
+The pod is the v7 receiver's lip plate, slot and barbs, held only by its two side
+rails: the light hangs on the barbs, so there is no bottom wall and no back. Open
+top, bottom and back mean grit falls straight through and air flows behind the
+light. Two narrow webs tie the rails to the clamp. The slot points straight up and
+the face straight forward, so the light shines level. The right side is modelled;
+left is mirrored.
 
 Frames, all in mm:
   world  X = right, Y = forward (toward the nose), Z = up
@@ -29,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold
 
 import shredlight_mount as receiver
 
-VERSION = 1
+VERSION = 2
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 22.0       # hanger plate thickness
@@ -53,7 +57,7 @@ NUT_H = 5.0
 CHEEK = 3.0          # wall outside each screw
 
 # --- Receiver pod ---
-POD_PAD = 3.0        # back sheet behind the receiver's open pocket
+POD_REAR = 4.0       # how far the side rails extend behind the receiver, to the webs
 POD_CLEAR = 2.0      # minimum gap from the pod to the plate's front face
 POD_TOP = 0.0        # pod top relative to the strut's skyward face (+ = higher)
 
@@ -149,11 +153,22 @@ def receiver_rot():
     return np.array([[-1.0, 0, 0], [0, 0, 1], [0, 1, 0]])
 
 
-def receiver_body():
+def receiver_dims():
+    """Bounds of the v7 receiver, its inner half-width and the flange gap behind the lip."""
     body = receiver.left_mount(**receiver.VERSIONS[7])
     lo, hi = np.array(body.bounding_box()).reshape(2, 3)
-    pad = Manifold.cube([hi[0] - lo[0], hi[1] - lo[1], POD_PAD]).translate([lo[0], lo[1], -POD_PAD])
-    return body + pad, lo, hi
+    inner = (hi[0] - lo[0]) / 2 - receiver.T * receiver.IN
+    gap = (receiver.GAP + receiver.FIT) * receiver.IN
+    return body, lo, hi, inner, gap
+
+
+def receiver_body():
+    """v7 lip and side rails only: the bottom wall is cut away and the rails run back."""
+    body, lo, hi, inner, gap = receiver_dims()
+    body -= Manifold.cube([2 * inner, receiver.T * receiver.IN + 2, gap + 1]).translate([-inner, lo[1] - 1, -1])
+    for x0 in (lo[0], inner):
+        body += Manifold.cube([receiver.T * receiver.IN, hi[1] - lo[1], POD_REAR]).translate([x0, lo[1], -POD_REAR])
+    return body, lo, hi
 
 
 def pod_placement(rot):
@@ -166,7 +181,7 @@ def pod_placement(rot):
     t = np.radians(TILT)
     # Plate front face: cos(t) y - sin(t) z = HALF_T; the pod's highest back corner is worst.
     y_back = (HALF_T + POD_CLEAR + np.sin(t) * z_top) / np.cos(t)
-    return np.array([cheek[0], y_back + POD_PAD, zc])
+    return np.array([cheek[0], y_back + POD_REAR, zc])
 
 
 def right_parts():
@@ -178,15 +193,22 @@ def right_parts():
     rrot, roff = receiver_rot(), pod_placement(rot)
     pod = place(body, rrot, roff)
 
-    # Wedge: hull of the saddle's front cheek face and the pod's back sheet.
+    # Webs: one hull per side rail, from the rail's back edge to the saddle's front cheek.
     cheek = place(box(-LENGTH / 2, LENGTH / 2, ARM_BOTTOM, STRUT_H + SADDLE_T,
                       HALF_W - 1, HALF_W), rot)
-    back = place(Manifold.cube([hi[0] - lo[0], hi[1] - lo[1], 1]).translate([lo[0], lo[1], -POD_PAD]),
-                 rrot, roff)
-    wedge = (cheek + back).hull()
+    _, _, _, inner, gap = receiver_dims()
+    webs = Manifold()
+    for x0 in (lo[0], inner):
+        strip = Manifold.cube([receiver.T * receiver.IN, hi[1] - lo[1], 1]).translate([x0, lo[1], -POD_REAR])
+        webs += (cheek + place(strip, rrot, roff)).hull()
+
+    # Flow channel: clear everything behind the lip between the rails, top to bottom and
+    # all the way back; only the webs outside the rails and the clamp itself remain.
+    channel = place(Manifold.cube([2 * inner, hi[1] - lo[1] + 80, gap + 200]).translate(
+        [-inner, lo[1] - 40, -200]), rrot, roff)
 
     strut = place(along_u(strut_profile(LINER), 400), rot)
-    saddle = saddle + wedge + pod - strut - place(screw_holes() + driver_access(), rot)
+    saddle = (saddle + (webs - channel)) + pod - strut - place(screw_holes() + driver_access(), rot)
     return {"saddle": saddle, "keeper": keeper}, rot, rrot, roff
 
 
