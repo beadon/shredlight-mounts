@@ -9,7 +9,7 @@ the plate's plane. The clamp wraps that strut:
           of the plate and it carries the wedge and the receiver pod
   keeper  flat bar slid through the window under the strut; its ends stick out past
           both plate faces, under the saddle's arms, and hold the nuts
-  2x M4 x 40 socket-head screws with nyloc nuts, one in front of the plate, one behind
+  2x M4 x 30 socket-head screws with nyloc nuts, one in front of the plate, one behind
 
 The pod is the v7 receiver's lip plate, slot and barbs, held only by its two side
 rails: the light hangs on the barbs, so there is no bottom wall and no back. Open
@@ -33,11 +33,11 @@ from manifold3d import CrossSection, FillRule, Manifold
 
 import shredlight_mount as receiver
 
-VERSION = 2
+VERSION = 3
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 22.0       # hanger plate thickness
-STRUT_H = 32.0       # strut, window face to skyward face
+STRUT_H = 22.5       # strut, window face to skyward face, square to its length (22-23)
 WINDOW_FLAT = 11.0   # flat land on the window-side face, between its chamfers
 TOP_CHAMFER = 5.5    # skyward-face chamfers (~6 measured; modelled smaller so they cannot bind)
 TILT = 45.0          # plate tilted back from vertical (assumed; check level on the print)
@@ -51,7 +51,7 @@ SADDLE_T = 5.0       # saddle thickness over the skyward face
 KEEPER_T = 6.0       # keeper thickness under the strut, inside the window
 SCREW_D = 4.4        # M4 clearance
 HEAD_D = 8.0         # M4 socket head counterbore (also the driver access)
-SCREW_LEN = 40.0
+SCREW_LEN = 30.0
 NUT_AF = 7.3         # M4 nyloc across flats, plus clearance
 NUT_H = 5.0
 CHEEK = 3.0          # wall outside each screw
@@ -63,6 +63,7 @@ POD_TOP = 0.0        # pod top relative to the strut's skyward face (+ = higher)
 
 # --- Assembly preview only (schematic hanger; nothing here affects the printed parts) ---
 CLAMP_OFFSET = 40.0  # clamp centre from the board centreline, measured across
+HANGER_H = 65.0      # hanger laid flat, base of the beam to the apex (measured)
 BEAM_H = 14.0        # axle beam height below the windows
 BEAM_HALF = 130.0    # axle beam half-length
 BLOCK_HALF = 18.0    # pivot block half-width
@@ -246,13 +247,12 @@ def schematic_hanger(rot):
     pf = plate_frame()
     t0 = clamp_offset()
     right = place(along_u(strut_profile(), 400), rot).translate(list(t0))
-    # Keep the right strut between the board centreline and the beam's underside.
-    keep = place(box(0, 300, -BEAM_H, 300, -HALF_T, HALF_T), pf)
+    # The struts run from the beam's underside up to the apex, where the pivot block caps them.
+    apex = HANGER_H - BEAM_H
+    keep = place(box(0, 300, -BEAM_H, apex, -HALF_T, HALF_T), pf)
     right = right ^ keep
     struts = right + right.mirror([1, 0, 0])
     beam = place(box(-BEAM_HALF, BEAM_HALF, -BEAM_H, 0, -HALF_T, HALF_T), pf)
-    apex = max((np.linalg.inv(pf) @ np.asarray(vert))[1] for vert in
-               np.asarray(struts.to_mesh().vert_properties)[:, :3])
     block = place(box(-BLOCK_HALF, BLOCK_HALF, 0, apex, -HALF_T, HALF_T), pf)
     return struts + beam + block
 
