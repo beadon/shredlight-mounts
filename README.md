@@ -69,7 +69,7 @@ Files are in [`out/truck/`](out/truck):
 
 | File | What it is |
 |---|---|
-| `truck_mount_{left,right}_m2_saddle.stl` | Print receiver-face down. The clamp section needs supports. |
+| `truck_mount_{left,right}_m2_saddle.stl` | Print receiver-face down, which is the best orientation measured (about 13.5 cm³ of support, against 29 cm³ with an arm face down). Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
 | `truck_mount_{left,right}_m2_keeper.stl` | Prints flat with no supports. The nut pockets are on the bed side. |
 | `*_assembly_*.stl`, `reference_strut_right.stl` | The parts in their mounted positions, for checking fit in Blender. Not for printing. |
 
