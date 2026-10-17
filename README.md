@@ -34,9 +34,11 @@ Each version is engraved on the front lip (e.g. `V2 L`), so a printed part can b
 | v3 | 11.14 / 7.84 mm | Too narrow. The light will not insert. |
 | v4 | 13.00 / 10.00 mm | Works, but the upper slot also spreads about 1 mm. |
 | v5 | 14.50 / 10.00 mm | Upper widened by the measured spread plus clearance. No deformation. **Winning fit.** |
-| v6 | 14.50 / 10.00 mm | v5's fit, plus a rounded lead-in at the slot entrance and 1.5 mm fillets on the step edges. **Being tested.** |
+| v6 | 14.50 / 10.00 mm | v5's fit, plus a rounded lead-in at the slot entrance and 1.5 mm fillets on the step edges. Holds less well, and the light slides out more easily. Not recommended. |
 
-The STLs are in [`out/`](out), in millimetres. Print `shredlight_mount_left_v5.stl` and `shredlight_mount_right_v5.stl` (proven), or v6 once it's confirmed.
+The STLs are in [`out/`](out), in millimetres. Print `shredlight_mount_left_v5.stl` and `shredlight_mount_right_v5.stl`.
+
+Keep the corners at the top of the slot sharp. v6 rounded them, and the light lost its grip.
 
 v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 14 mm. v5 leaves about 0.5 mm of clearance around it.
 
@@ -61,7 +63,7 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 ## Roadmap
 
 - [x] Final slot: v5 (14.5 / 10 mm)
-- [ ] Confirm v6 (v5 + lead-in and step fillets)
+- [x] v6 (lead-in and step fillets): holds worse, so v5 stays
 - [ ] Design what the mount attaches to on the board
 
 ## License
