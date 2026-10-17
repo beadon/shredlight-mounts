@@ -44,16 +44,17 @@ Keep the corners at the top of the slot sharp. v6 rounded them, and the light lo
 
 v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 14 mm. v5 leaves about 0.5 mm of clearance around it.
 
-## Truck mount (Radium Mach One S): prototype m5
+## Truck mount (Radium Mach One S): prototype m6
 
 A two-part clamp holds the v7 receiver on the truck. The Mach One S hanger has no mounting holes, so the clamp grips a strut directly: the diagonal "rake" above each triangular window in the hanger plate. Left and right are mirror images, one per strut.
 
-![Truck mount on its strut](docs/truck_views.png)
+![Truck mount m6, shaded renders](docs/truck_render.png)
 
-- **Saddle:** an upside-down U that drops over the strut from above. Two webs tilt the receiver back by 45°, so the light sits level and points forward.
-- **Receiver:** only v7's lip plate, slot and barbs, on its two side rails. The barbs carry the light, so there's no bottom wall and no back. The space behind the light is open at the top, the bottom and the back, so grit falls straight through and air can flow behind the light.
-- **Keeper:** a flat bar that slides through the window under the strut.
-- **Hardware per side:** 2× M4×20 socket-head screws and 2× M4 nyloc nuts, one screw in front of the plate and one behind. Add a 1 mm TPU or rubber liner between the clamp and the strut to damp vibration and protect the finish.
+- **Saddle:** an upside-down U that drops over the strut from above. Its front arm takes the screw, and its rear arm ends in a hook pocket. It carries the receiver platform.
+- **Keeper:** a flat bar that slides through the window from the front, under the strut. Its rear end goes into the saddle's hook, and its front end holds the nut.
+- **Receiver platform:** v7's lip, slot and barbs, **face up**, with the slot's open end toward the nose. The light sits on top, lens forward. The platform is level front to back, but **rolled 45° outboard**, so it sits low over the clamp with two webs underneath. The channel under the lip is open at both ends, so grit can get out.
+- **Hardware per side:** **1× M5×20 socket-head screw** and an M5 nyloc nut. It's fitted and tightened **through the receiver's own slot** (with the light removed), so no access holes are needed. Add a 1 mm TPU or rubber liner between the clamp and the strut.
+- **Fitting:** drop the saddle over the strut, slide the keeper in through the window from the front until its rear end is in the hook, then fit the screw down through the slot.
 
 The clamp fits around the strut's shape, so it can't rotate on it. The keeper is trapped inside the window, so the clamp can't slide along the strut either. Nothing depends on friction alone.
 
@@ -70,9 +71,9 @@ Files are in [`out/truck/`](out/truck):
 
 | File | What it is |
 |---|---|
-| `truck_mount_{left,right}_m5_saddle.stl` | Print receiver-face down, which is the best orientation measured (about 13.5 cm³ of support, against 29 cm³ with an arm face down). Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
-| `truck_mount_{left,right}_m5_keeper.stl` | Prints flat with no supports. The nut pockets are on the bed side. |
-| `assembly_m5.obj` (coloured, named parts) and `assembly_m5_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
+| `truck_mount_{left,right}_m6_saddle.stl` | Print receiver-face down, which is the best orientation measured (about 13.5 cm³ of support, against 29 cm³ with an arm face down). Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
+| `truck_mount_{left,right}_m6_keeper.stl` | Prints flat with no supports. The nut pockets are on the bed side. |
+| `assembly_m6.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m6_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
 
 Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 
@@ -89,6 +90,7 @@ python3 -m venv .venv
 .venv/bin/python shredlight_mount.py out   # receiver STLs for every version in VERSIONS
 .venv/bin/python truck_mount.py out        # truck clamp STLs (out/truck/)
 .venv/bin/python preview.py docs           # preview images
+.venv/bin/python render_views.py           # shaded truck-mount renders (docs/truck_render.png)
 ```
 
 All dimensions are named constants, in inches, at the top of `shredlight_mount.py`. To add a fit
@@ -104,7 +106,8 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Truck mount m2: modelled with the strut 32 mm across; really 22.5 mm, so it would not clamp
 - [x] Truck mount m3: modelled with the strut 22.5 mm across; really ~9 mm across (22 mm is its front-to-back depth)
 - [x] Truck mount m4: the receiver sat too high, and the screw-access path cut into the webs
-- [ ] Truck mount m5: test-fit the clamp, check the receiver is level, check ground and wheel clearance
+- [x] Truck mount m5: the receiver faced forward, but the light lies *on* the platform, so it would have shone at the sky
+- [ ] Truck mount m6: test-fit the clamp and hook, check the 45° roll looks and works right, check ground and wheel clearance
 
 ## License
 
