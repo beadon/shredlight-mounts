@@ -65,14 +65,14 @@ The clamp fits around the strut's shape, so it can't rotate on it. The keeper is
 - 11 mm flat on the window-side face and about 6 mm chamfers on the skyward face, both measured front to back. How far the chamfers cut into the 9 mm isn't measured, so they're modelled shallow, so they can't bind
 - window sides about 32 × 30 × 35 mm
 
-**Assumed, to be checked on the first print:** the plate is tilted back 45°, and the strut rises at 45° in the plate's plane. Check that the receiver sits level once it's mounted. The angles are `TILT` and `STRUT_ANGLE` in `truck_mount.py`.
+**Assumed, to be checked on the first print:** the plate is tilted back 45°, and the strut rises at 45° in the plate's plane. Check that the platform is level front to back once it's mounted (its 45° roll is intentional; it's `ROLL`). The angles are `TILT` and `STRUT_ANGLE` in `truck_mount.py`.
 
 Files are in [`out/truck/`](out/truck):
 
 | File | What it is |
 |---|---|
-| `truck_mount_{left,right}_m6_saddle.stl` | Print receiver-face down, which is the best orientation measured (about 13.5 cm³ of support, against 29 cm³ with an arm face down). Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
-| `truck_mount_{left,right}_m6_keeper.stl` | Prints flat with no supports. The nut pockets are on the bed side. |
+| `truck_mount_{left,right}_m6_saddle.stl` | Print receiver-face down, so the lip and barbs are on the bed, as for v7. Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
+| `truck_mount_{left,right}_m6_keeper.stl` | Prints flat with no supports. The nut pocket is on the bed side. |
 | `assembly_m6.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m6_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
 
 Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
