@@ -34,11 +34,11 @@ Each version is engraved on the front lip (e.g. `V2 L`), so a printed part can b
 | v2 | 13.14 / 9.84 mm | Snug, but the upper slot spreads about 1 mm when the light goes in. Stresses the part. |
 | v3 | 11.14 / 7.84 mm | Too narrow. The light will not insert. |
 | v4 | 13.00 / 10.00 mm | Works, but the upper slot also spreads about 1 mm. |
-| v5 | 14.50 / 10.00 mm | Upper widened by the measured spread plus clearance. No deformation. **Winning fit.** |
+| v5 | 14.50 / 10.00 mm | Upper widened by the measured spread plus clearance. No deformation and snug, but it holds by friction only. |
 | v6 | 14.50 / 10.00 mm | v5's fit, plus a rounded lead-in at the slot entrance and 1.5 mm fillets on the step edges. Holds less well, and the light slides out more easily. Not recommended. |
-| v7 | 14.50 / 10.00 mm | v5 plus snap-fit barbs copied from the stock part: 12 mm tip-to-tip gap, flat latching ledge 5 mm below the top. **Being tested.** |
+| v7 | 14.50 / 10.00 mm | v5 plus snap-fit barbs copied from the stock part: 12 mm tip-to-tip gap, flat latching ledge 5 mm below the top. Snaps in and is very secure. It only releases with the light's release mechanism. **Winner. Print this one.** |
 
-The STLs are in [`out/`](out), in millimetres. Print `shredlight_mount_left_v5.stl` and `shredlight_mount_right_v5.stl`.
+The STLs are in [`out/`](out), in millimetres. Print `shredlight_mount_left_v7.stl` and `shredlight_mount_right_v7.stl`.
 
 Keep the corners at the top of the slot sharp. v6 rounded them, and the light lost its grip.
 
@@ -66,7 +66,7 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 
 - [x] Final slot: v5 (14.5 / 10 mm)
 - [x] v6 (lead-in and step fillets): holds worse, so v5 stays
-- [ ] Test v7 (v5 + snap-fit barbs)
+- [x] v7 (v5 + snap-fit barbs): **final**. Snaps in and stays put.
 - [ ] Design what the mount attaches to on the board
 
 ## License

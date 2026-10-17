@@ -64,12 +64,13 @@ VERSIONS = {
     2: {"narrow": 2.0},  # 13.14/9.84 mm: snug, but the upper slot spreads ~1 mm on insert.
     3: {"narrow": 4.0},  # 11.14/7.84 mm: too narrow, the light will not insert.
     4: {"upper": 13.0, "lower": 10.0},  # works, but the upper slot also spreads ~1 mm.
-    5: {"upper": 14.5, "lower": 10.0},  # no deformation, snug. Winner.
+    5: {"upper": 14.5, "lower": 10.0},  # no deformation, snug, but no positive latch.
     # v6: holds the light less well, it slides out more easily. Likely the lead-in rounding
     # the sharp top corners that the light's clamp catches on.
     6: {"upper": 14.5, "lower": 10.0, "lead_in": 0.5, "step_radius": 1.5},
     # v7: v5 + snap-fit barbs (gap from calipers; ledge set above the 5.3-6.1 mm photo
-    # estimates so the light seats fully before it latches).
+    # estimates so the light seats fully before it latches). WINNER: snaps in, very
+    # secure, and only releases with the light's release mechanism.
     7: {"upper": 14.5, "lower": 10.0, "barb_gap": 12.0, "barb_ledge": 5.0, "barb_flat": 1.0},
 }
 
