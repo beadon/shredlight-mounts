@@ -30,9 +30,10 @@ Each version is engraved on the front lip (e.g. `V2 L`), so a printed part can b
 | Version | Slot upper / lower | Result |
 |---|---|---|
 | v1 | 15.14 / 11.84 mm | Photo-measured. Side-to-side play. Obsolete. |
-| v2 | 13.14 / 9.84 mm | Comfortably snug. **Current winner.** |
+| v2 | 13.14 / 9.84 mm | Snug, but the upper slot spreads about 1 mm when the light goes in. Stresses the part. |
 | v3 | 11.14 / 7.84 mm | Too narrow. The light will not insert. |
-| v4 | 13.00 / 10.00 mm | Whole-millimetre candidate. Being tested. |
+| v4 | 13.00 / 10.00 mm | Works, but the upper slot is even tighter than v2's. |
+| v5 | 14.50 / 10.00 mm | Upper widened by the measured spread plus clearance. **Being tested.** |
 
 The STLs are in [`out/`](out), in millimetres.
 
@@ -56,7 +57,7 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 
 ## Roadmap
 
-- [ ] Choose v2 or v4 as the final slot
+- [ ] Confirm v5 slides in without spreading, then pick the final slot
 - [ ] Design what the mount attaches to on the board
 
 ## License
