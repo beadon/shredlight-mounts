@@ -2,7 +2,7 @@
 """Clamp that holds the v7 receiver on a Radium Mach One S truck strut.
 
 The hanger is a 22 mm plate tilted back 30 degrees from vertical (its front face
-looks forward and down), matching Radium's stated 30 degree truck angle. Above each triangular window, a strut ("rake") rises at 45 degrees in
+looks forward and down): measured on the front truck, and Radium's stated truck angle. Above each triangular window, a strut ("rake") rises at 45 degrees in
 the plate's plane. The clamp wraps that strut:
 
   saddle  inverted U dropped over the strut from above; its front arm takes the
@@ -41,8 +41,10 @@ STRUT_H = 9.0        # strut, window face to skyward face, in the hanger's plane
 WINDOW_FLAT = 11.0   # flat on the window-side face, front to back, between its chamfers
 TOP_CHAMFER = 5.5    # skyward-face chamfers, front to back (~6 measured; modelled smaller)
 CHAMFER_DEPTH = 1.5  # how far the chamfers cut into the 9 mm: unmeasured, kept small so they cannot bind
-TILT = 30.0          # plate tilted back from vertical: Radium's stated 30 degree truck angle. m6 was
-                     # built for 45 and aimed ~15 degrees high in a test fit, which 30 accounts for
+TILT = 30.0          # plate tilted back from vertical: measured on the FRONT truck with a phone
+                     # inclinometer (reads 0 against a wall), board on level ground. Matches Radium's
+                     # 30 degree truck angle and the m6 test fit (built for 45, aimed ~15 degrees high).
+                     # The rear truck is not measured yet.
 STRUT_ANGLE = 45.0   # strut angle in the plate's plane (photo estimate)
 
 # --- Clamp ---

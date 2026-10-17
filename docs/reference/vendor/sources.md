@@ -19,4 +19,6 @@ Source URL: not recorded.
   https://forum.esk8.news/t/radium-r6-trucks-thane-belts/77112
 - The original listing, https://radium-performance.com/products/radium-prototype-trucks-pre-order,
   returned 404 on 2026-10-17.
-- This was a pre-order of prototype trucks, so the production front truck may differ.
+- This was a pre-order of prototype trucks. On 2026-10-17 the repo owner measured the production
+  front truck's hanger face at 30 degrees from vertical with a phone inclinometer (which reads 0 against
+  a wall), so the listing's "60 degree front" does not describe this board.
