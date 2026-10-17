@@ -1,8 +1,11 @@
 # Shredlight Mounts
 
-3D-printable left and right receivers for [Shredlights](https://shredlights.com) skateboard lights.
-The lights are the male side of the connection: their mounting tongue slides down into
-the receiver from the open top and hugs the underside of the front lip.
+3D-printable left and right receivers for [Shredlights](https://shredlights.com) **SL-300**
+skateboard lights. The lights are the male side of the connection: their mounting tongue slides
+down into the receiver from the open top and hugs the underside of the front lip.
+
+> **Scope:** designed and fit-tested for the SL-300 only. Other Shredlights models may use
+> different connectors, and supporting them is out of scope for this project.
 
 The geometry is a copy of the stock powder-coated sheet-metal bracket, measured from
 photos against a ruler and then refined by test prints. The reference photos are

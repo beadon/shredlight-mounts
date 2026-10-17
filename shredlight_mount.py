@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Parametric 3D-printable Shredlights slide-in mount (left + mirrored right).
+"""Parametric 3D-printable Shredlights SL-300 slide-in mount (left + mirrored right).
+
+Fit-tested against the SL-300 only; other Shredlights models may use different connectors.
 
 Replicates the powder-coated sheet-metal receiver measured from photos:
 a shallow box open at the top, whose front face has a U-shaped slot.
