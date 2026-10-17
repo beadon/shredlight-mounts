@@ -43,6 +43,7 @@ DETENT_RADIUS = 0.035
 
 # --- Printing ---
 FIT = 0.008          # clearance added to the flange gap and each slot edge (~0.2 mm)
+PRINT_FACE_DOWN = True  # export STLs lip-down on the bed, ready to slice without rotating
 
 # The metal part has no back sheet: its walls sit on the deck, which closes the pocket.
 # Set True to close the back in plastic instead (the flange gap stays the same).
@@ -53,12 +54,15 @@ GAP = DEPTH - T  # space under the front lip for the light's flange (3/16")
 # Fit iterations, keyed by the version number engraved on the part. Each gives either
 #   narrow: total slot narrowing in mm from the measured slot (split evenly per side), or
 #   upper/lower: exact final slot widths in mm (FIT is not added).
+# Optional, in mm: lead_in (45-degree chamfer at the slot entrance, per side) and
+# step_radius (rounds the edges where the 45-degree step meets the lower slot).
 VERSIONS = {
     1: {"narrow": 0.0},  # 15.14/11.84 mm, photo-measured: side-to-side play. Obsolete.
     2: {"narrow": 2.0},  # 13.14/9.84 mm: snug, but the upper slot spreads ~1 mm on insert.
     3: {"narrow": 4.0},  # 11.14/7.84 mm: too narrow, the light will not insert.
     4: {"upper": 13.0, "lower": 10.0},  # works, but the upper slot also spreads ~1 mm.
     5: {"upper": 14.5, "lower": 10.0},  # no deformation, snug. Winner.
+    6: {"upper": 14.5, "lower": 10.0, "lead_in": 0.5, "step_radius": 1.5},  # v5 + durability.
 }
 
 # --- Version label, engraved into the front lip below the slot ---
@@ -66,7 +70,7 @@ LABEL_HEIGHT = 0.16  # cap height (~4 mm)
 LABEL_DEPTH = 0.02   # engraving depth (~0.5 mm, of the 1.6 mm lip)
 
 
-def slot_half_widths(narrow=0.0, upper=None, lower=None):
+def slot_half_widths(narrow=0.0, upper=None, lower=None, **_):
     """Half-widths in inches of the upper and lower slot for one VERSIONS entry (mm)."""
     if upper is not None:
         return upper / IN / 2, lower / IN / 2
@@ -74,16 +78,28 @@ def slot_half_widths(narrow=0.0, upper=None, lower=None):
     return (SLOT_UPPER_W - narrow) / 2 + FIT, (SLOT_LOWER_W - narrow) / 2 + FIT
 
 
-def slot_profile(uw, lw):
-    """U-slot in the front face; origin at the bottom-centre of the receiver."""
+def slot_profile(uw, lw, lead_in=0.0, step_radius=0.0, **_):
+    """U-slot in the front face; origin at the bottom-centre of the receiver.
+
+    uw, lw are half-widths in inches; lead_in and step_radius are in mm.
+    """
     step_top = H - SLOT_UPPER_LEN
     step_bot = step_top - (uw - lw)  # 45-degree transition
-    pts = [(-uw, H + 1), (-uw, step_top), (-lw, step_bot), (-lw, SLOT_BOTTOM),
-           (lw, SLOT_BOTTOM), (lw, step_bot), (uw, step_top), (uw, H + 1)]
+    li = lead_in / IN
+    # The lead-in runs at 45 degrees from li below the top edge out past it.
+    top = [(-uw - li - 1, H + 1), (-uw, H - li)] if li else [(-uw, H + 1)]
+    left = top + [(-uw, step_top), (-lw, step_bot), (-lw, SLOT_BOTTOM)]
+    pts = left + [(-x, y) for x, y in reversed(left)]
     slot = CrossSection([pts])
+    # Opening rounds the slot's inside corners: the slot bottom and the top of the step.
     r = SLOT_RADIUS
     slot = slot.offset(-r, JoinType.Round, circular_segments=32).offset(
         r, JoinType.Round, circular_segments=32)
+    if step_radius:
+        # Closing rounds the lip's outside edges at the bottom of the step.
+        r = step_radius / IN
+        slot = slot.offset(r, JoinType.Round, circular_segments=32).offset(
+            -r, JoinType.Round, circular_segments=32)
     if DETENT:
         notch = CrossSection.circle(DETENT_RADIUS, 32).translate(
             [uw, H - DETENT_FROM_TOP])
@@ -117,7 +133,7 @@ def left_mount(**version):
     pocket = Manifold.cube([ow - 2 * T, H, gap + open_back]).translate(
         [-(ow - 2 * T) / 2, y0 + T, back - open_back])
     # Cut from mid-pocket out through the front face only.
-    slot = slot_profile(*slot_half_widths(**version)).translate([0, y0]).extrude(gap / 2 + T + 0.5).translate(
+    slot = slot_profile(*slot_half_widths(**version), **version).translate([0, y0]).extrude(gap / 2 + T + 0.5).translate(
         [0, 0, back + gap / 2])
 
     return (outer - pocket - slot).scale([IN, IN, IN])
@@ -148,8 +164,12 @@ def main():
         for side, body in (("left", left), ("right", left.mirror([1, 0, 0]))):
             m = body - label(f"V{ver} {side[0].upper()}")
             name = f"shredlight_mount_{side}_v{ver}"
-            write_stl(m, out / f"{name}.stl")
             lo, hi = np.array(m.bounding_box()).reshape(2, 3)
+            if PRINT_FACE_DOWN:
+                # Flip about the long (Y) axis: the slot keeps its direction and the text
+                # still reads from the face side; then sit the face on z = 0.
+                m = m.rotate([0, 180, 0]).translate([0, 0, hi[2]])
+            write_stl(m, out / f"{name}.stl")
             print(f"{name}.stl  {hi - lo} mm  slot {2 * uw * IN:.2f}/{2 * lw * IN:.2f} mm  volume {m.volume() / 1000:.2f} cm^3")
 
 
