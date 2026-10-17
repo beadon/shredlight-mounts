@@ -57,8 +57,8 @@ VERSIONS = {
     1: {"narrow": 0.0},  # 15.14/11.84 mm, photo-measured: side-to-side play. Obsolete.
     2: {"narrow": 2.0},  # 13.14/9.84 mm: snug, but the upper slot spreads ~1 mm on insert.
     3: {"narrow": 4.0},  # 11.14/7.84 mm: too narrow, the light will not insert.
-    4: {"upper": 13.0, "lower": 10.0},  # works, but the upper slot is tighter than v2's.
-    5: {"upper": 14.5, "lower": 10.0},  # upper = v2 + 1 mm spread + ~0.4 mm clearance.
+    4: {"upper": 13.0, "lower": 10.0},  # works, but the upper slot also spreads ~1 mm.
+    5: {"upper": 14.5, "lower": 10.0},  # no deformation, snug. Winner.
 }
 
 # --- Version label, engraved into the front lip below the slot ---

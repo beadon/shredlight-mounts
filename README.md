@@ -32,10 +32,12 @@ Each version is engraved on the front lip (e.g. `V2 L`), so a printed part can b
 | v1 | 15.14 / 11.84 mm | Photo-measured. Side-to-side play. Obsolete. |
 | v2 | 13.14 / 9.84 mm | Snug, but the upper slot spreads about 1 mm when the light goes in. Stresses the part. |
 | v3 | 11.14 / 7.84 mm | Too narrow. The light will not insert. |
-| v4 | 13.00 / 10.00 mm | Works, but the upper slot is even tighter than v2's. |
-| v5 | 14.50 / 10.00 mm | Upper widened by the measured spread plus clearance. **Being tested.** |
+| v4 | 13.00 / 10.00 mm | Works, but the upper slot also spreads about 1 mm. |
+| v5 | 14.50 / 10.00 mm | Upper widened by the measured spread plus clearance. No deformation. **Winner. Print this one.** |
 
-The STLs are in [`out/`](out), in millimetres.
+The STLs are in [`out/`](out), in millimetres. To print, use `shredlight_mount_left_v5.stl` and `shredlight_mount_right_v5.stl`.
+
+v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 14 mm. v5 leaves about 0.5 mm of clearance around it.
 
 ## Printing
 
@@ -57,7 +59,7 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 
 ## Roadmap
 
-- [ ] Confirm v5 slides in without spreading, then pick the final slot
+- [x] Final slot: v5 (14.5 / 10 mm)
 - [ ] Design what the mount attaches to on the board
 
 ## License
