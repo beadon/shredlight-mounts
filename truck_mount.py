@@ -61,6 +61,12 @@ POD_REAR = 4.0       # how far the side rails extend behind the receiver, to the
 POD_CLEAR = 2.0      # minimum gap from the pod to the plate's front face
 POD_TOP = 0.0        # pod top relative to the strut's skyward face (+ = higher)
 
+# --- Assembly preview only (schematic hanger; nothing here affects the printed parts) ---
+CLAMP_OFFSET = 40.0  # clamp centre from the board centreline, measured across
+BEAM_H = 14.0        # axle beam height below the windows
+BEAM_HALF = 130.0    # axle beam half-length
+BLOCK_HALF = 18.0    # pivot block half-width
+
 HALF_T = PLATE_T / 2
 SCREW_W = HALF_T + LINER + 1.0 + SCREW_D / 2  # screw axes sit just outside the plate faces
 HALF_W = SCREW_W + SCREW_D / 2 + CHEEK
@@ -222,11 +228,41 @@ def to_bed(m, rot_deg):
     return m.translate([-lo[0], -lo[1], -lo[2]])
 
 
+def plate_frame():
+    """Columns: across the board, up within the tilted plate, and the plate normal."""
+    t = np.radians(TILT)
+    return np.column_stack([[1.0, 0, 0], [0, np.sin(t), np.cos(t)], [0, -np.cos(t), np.sin(t)]])
+
+
+def clamp_offset():
+    """Where the right strut frame's origin sits in the schematic hanger, in world mm."""
+    a = np.radians(STRUT_ANGLE)
+    q0 = LENGTH / 2 * np.sin(a) + 8  # window face a little above the beam at the clamp
+    return plate_frame() @ np.array([CLAMP_OFFSET, q0, 0])
+
+
+def schematic_hanger(rot):
+    """Both struts at their modelled cross-section, plus a box beam and pivot block."""
+    pf = plate_frame()
+    t0 = clamp_offset()
+    right = place(along_u(strut_profile(), 400), rot).translate(list(t0))
+    # Keep the right strut between the board centreline and the beam's underside.
+    keep = place(box(0, 300, -BEAM_H, 300, -HALF_T, HALF_T), pf)
+    right = right ^ keep
+    struts = right + right.mirror([1, 0, 0])
+    beam = place(box(-BEAM_HALF, BEAM_HALF, -BEAM_H, 0, -HALF_T, HALF_T), pf)
+    apex = max((np.linalg.inv(pf) @ np.asarray(vert))[1] for vert in
+               np.asarray(struts.to_mesh().vert_properties)[:, :3])
+    block = place(box(-BLOCK_HALF, BLOCK_HALF, 0, apex, -HALF_T, HALF_T), pf)
+    return struts + beam + block
+
+
 def main():
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "out") / "truck"
     out.mkdir(parents=True, exist_ok=True)
     parts, rot, rrot, roff = right_parts()
     flip = np.diag([-1.0, 1, 1])
+    t0 = clamp_offset()
     for side in ("right", "left"):
         if side == "right":
             saddle, keeper, off = parts["saddle"], parts["keeper"], roff
@@ -236,15 +272,17 @@ def main():
         # Same receiver orientation on both sides, so the text reads correctly on each.
         saddle -= label_cut(rrot, off, f"M{VERSION} {side[0].upper()}")
         tag = f"truck_mount_{side}_m{VERSION}"
-        receiver.write_stl(saddle, out / f"{tag}_assembly_saddle.stl")
-        receiver.write_stl(keeper, out / f"{tag}_assembly_keeper.stl")
+        # Assembly: both sides on one schematic hanger; the left is the mirror image of the
+        # right across the board centreline (x = 0).
+        shift = t0 if side == "right" else flip @ t0
+        receiver.write_stl(saddle.translate(list(shift)), out / f"assembly_m{VERSION}_{side}_saddle.stl")
+        receiver.write_stl(keeper.translate(list(shift)), out / f"assembly_m{VERSION}_{side}_keeper.stl")
         # Print orientations: saddle receiver-face down (forward -> bed), keeper flat side down.
         receiver.write_stl(to_bed(saddle, [-90, 0, 0]), out / f"{tag}_saddle.stl")
         kl = keeper_local() if side == "right" else keeper_local().mirror([1, 0, 0])
         receiver.write_stl(to_bed(kl, [90, 0, 0]), out / f"{tag}_keeper.stl")
         print(f"{tag}: saddle {saddle.volume() / 1000:.1f} cm^3, keeper {keeper.volume() / 1000:.1f} cm^3")
-    strut = place(along_u(strut_profile(), 80), rot)
-    receiver.write_stl(strut, out / "reference_strut_right.stl")
+    receiver.write_stl(schematic_hanger(rot), out / f"assembly_m{VERSION}_hanger_schematic.stl")
 
 
 if __name__ == "__main__":
