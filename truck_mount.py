@@ -257,12 +257,36 @@ def schematic_hanger(rot):
     return struts + beam + block
 
 
+# Blender-friendly colours for the assembly OBJ.
+COLOURS = {"hanger_schematic": (0.55, 0.55, 0.58), "saddle": (0.80, 0.15, 0.12), "keeper": (0.15, 0.60, 0.35)}
+
+
+def write_obj(objects, path):
+    """One OBJ with a named, coloured object per part (plus its .mtl)."""
+    mtl = path.with_suffix(".mtl")
+    with open(mtl, "w") as fh:
+        for name, rgb in COLOURS.items():
+            fh.write(f"newmtl {name}\nKd {rgb[0]} {rgb[1]} {rgb[2]}\n\n")
+    with open(path, "w") as fh:
+        fh.write(f"mtllib {mtl.name}\n")
+        base = 1
+        for name, (m, material) in objects.items():
+            mesh = m.to_mesh()
+            v = np.asarray(mesh.vert_properties)[:, :3]
+            f = np.asarray(mesh.tri_verts) + base
+            fh.write(f"o {name}\nusemtl {material}\n")
+            fh.writelines(f"v {x:.4f} {y:.4f} {z:.4f}\n" for x, y, z in v)
+            fh.writelines(f"f {a} {b} {c}\n" for a, b, c in f)
+            base += len(v)
+
+
 def main():
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "out") / "truck"
     out.mkdir(parents=True, exist_ok=True)
     parts, rot, rrot, roff = right_parts()
     flip = np.diag([-1.0, 1, 1])
     t0 = clamp_offset()
+    scene = {"hanger_schematic": (schematic_hanger(rot), "hanger_schematic")}
     for side in ("right", "left"):
         if side == "right":
             saddle, keeper, off = parts["saddle"], parts["keeper"], roff
@@ -277,12 +301,15 @@ def main():
         shift = t0 if side == "right" else flip @ t0
         receiver.write_stl(saddle.translate(list(shift)), out / f"assembly_m{VERSION}_{side}_saddle.stl")
         receiver.write_stl(keeper.translate(list(shift)), out / f"assembly_m{VERSION}_{side}_keeper.stl")
+        scene[f"{side}_saddle"] = (saddle.translate(list(shift)), "saddle")
+        scene[f"{side}_keeper"] = (keeper.translate(list(shift)), "keeper")
         # Print orientations: saddle receiver-face down (forward -> bed), keeper flat side down.
         receiver.write_stl(to_bed(saddle, [-90, 0, 0]), out / f"{tag}_saddle.stl")
         kl = keeper_local() if side == "right" else keeper_local().mirror([1, 0, 0])
         receiver.write_stl(to_bed(kl, [90, 0, 0]), out / f"{tag}_keeper.stl")
         print(f"{tag}: saddle {saddle.volume() / 1000:.1f} cm^3, keeper {keeper.volume() / 1000:.1f} cm^3")
-    receiver.write_stl(schematic_hanger(rot), out / f"assembly_m{VERSION}_hanger_schematic.stl")
+    receiver.write_stl(scene["hanger_schematic"][0], out / f"assembly_m{VERSION}_hanger_schematic.stl")
+    write_obj(scene, out / f"assembly_m{VERSION}.obj")
 
 
 if __name__ == "__main__":
