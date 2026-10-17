@@ -44,6 +44,36 @@ Keep the corners at the top of the slot sharp. v6 rounded them, and the light lo
 
 v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 14 mm. v5 leaves about 0.5 mm of clearance around it.
 
+## Truck mount (Radium Mach One S): prototype m1
+
+A two-part clamp holds the v7 receiver on the truck. The Mach One S hanger has no mounting holes, so the clamp grips a strut directly: the diagonal "rake" above each triangular window in the hanger plate. Left and right are mirror images, one per strut.
+
+![Truck mount on its strut](docs/truck_views.png)
+
+- **Saddle:** an upside-down U that drops over the strut from above. It carries a 45° wedge and the receiver pod, so the light sits level and points forward.
+- **Keeper:** a flat bar that slides through the window under the strut.
+- **Hardware per side:** 2× M4×40 socket-head screws and 2× M4 nyloc nuts, one screw in front of the plate and one behind. Add a 1 mm TPU or rubber liner between the clamp and the strut to damp vibration and protect the finish.
+
+The clamp fits around the strut's shape, so it can't rotate on it. The keeper is trapped inside the window, so the clamp can't slide along the strut either. Nothing depends on friction alone.
+
+**Measured:**
+- plate 22 mm thick
+- strut 32 mm from the window face to the skyward face
+- 11 mm flat on the window-side face, about 6 mm chamfers on the skyward face
+- window sides about 32 × 30 × 35 mm
+
+**Assumed, to be checked on the first print:** the plate is tilted back 45°, and the strut rises at 45° in the plate's plane. Check that the receiver sits level once it's mounted. The angles are `TILT` and `STRUT_ANGLE` in `truck_mount.py`.
+
+Files are in [`out/truck/`](out/truck):
+
+| File | What it is |
+|---|---|
+| `truck_mount_{left,right}_m1_saddle.stl` | Print receiver-face down. The clamp section needs supports. |
+| `truck_mount_{left,right}_m1_keeper.stl` | Prints flat with no supports. The nut pockets are on the bed side. |
+| `*_assembly_*.stl`, `reference_strut_right.stl` | The parts in their mounted positions, for checking fit in Blender. Not for printing. |
+
+Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
+
 ## Printing
 
 - The STLs are exported lip-down, ready to slice with no rotation. The open back faces up, so nothing needs to bridge. Set `PRINT_FACE_DOWN = False` to export them in model orientation instead.
@@ -54,7 +84,8 @@ v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 
 ```sh
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-.venv/bin/python shredlight_mount.py out   # STLs for every version in VERSIONS
+.venv/bin/python shredlight_mount.py out   # receiver STLs for every version in VERSIONS
+.venv/bin/python truck_mount.py out        # truck clamp STLs (out/truck/)
 .venv/bin/python preview.py docs           # preview images
 ```
 
@@ -67,7 +98,7 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Final slot: v5 (14.5 / 10 mm)
 - [x] v6 (lead-in and step fillets): holds worse, so v5 stays
 - [x] v7 (v5 + snap-fit barbs): **final**. Snaps in and stays put.
-- [ ] Design what the mount attaches to on the board
+- [ ] Truck mount m1: test-fit the clamp, check the receiver is level, check ground and wheel clearance
 
 ## License
 

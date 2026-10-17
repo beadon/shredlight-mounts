@@ -3,6 +3,7 @@
 
 docs/sections.png  slices through the deck side, the flange pocket and the front lip
 docs/versions.png  front lip of every version in VERSIONS, with its engraved label
+docs/truck_views.png  truck mount on its strut: front, side and top silhouettes
 
 Usage:  .venv/bin/python preview.py [outdir]
 """
@@ -16,6 +17,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 import shredlight_mount as s
+import truck_mount
 
 IN = s.IN
 
@@ -58,6 +60,33 @@ def main():
         draw(ax, m, lip_surface, f"v{ver}: slot {2 * uw * IN:.2f} / {2 * lw * IN:.2f} mm")
     fig.tight_layout()
     fig.savefig(out / "versions.png", dpi=80)
+
+    truck_views(out / "truck_views.png")
+
+
+def truck_views(path):
+    parts, rot, _, _ = truck_mount.right_parts()
+    strut = truck_mount.place(truck_mount.along_u(truck_mount.strut_profile(), 90), rot)
+    # Each view maps world (x right, y forward, z up) onto the drawing's x, y.
+    views = {"front (from the nose)": [[1, 0, 0], [0, 0, 1], [0, -1, 0]],
+             "side (from the right; forward is right)": [[0, 1, 0], [0, 0, 1], [1, 0, 0]],
+             "top (forward is up)": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}
+    fig, axs = plt.subplots(1, 3, figsize=(15, 6))
+    for ax, (title, m) in zip(axs, views.items()):
+        m = np.column_stack([np.array(m, float), [0, 0, 0]])
+        for solid, colour, name in ((strut, "#999", "strut"), (parts["keeper"], "#2a7", "keeper"),
+                                    (parts["saddle"], "#c33", "saddle + receiver pod")):
+            for i, p in enumerate(solid.transform(m).project().to_polygons()):
+                p = np.vstack([p, p[:1]])
+                ax.fill(p[:, 0], p[:, 1], color=colour, alpha=0.5, label=name if i == 0 else None)
+                ax.plot(p[:, 0], p[:, 1], color=colour, lw=0.6)
+        ax.set_title(f"{title}, mm")
+        ax.set_aspect("equal")
+        ax.grid(alpha=0.3)
+    axs[0].legend(loc="lower left", fontsize=8)
+    fig.suptitle(f"truck mount m{truck_mount.VERSION}, right side")
+    fig.tight_layout()
+    fig.savefig(path, dpi=75)
 
 
 if __name__ == "__main__":
