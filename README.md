@@ -83,6 +83,11 @@ Files are in [`out/truck/`](out/truck):
 
 Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 
+**Truck angle sources:**
+- Radium's Mach One description: "the R6 Trucks feature a 30 degree angle in the rear truck".
+- Radium's R6 pre-order listing, quoted on the esk8.news forum (June 2023): "60 degree front, 30 degree rear pivot angle" ([thread](https://forum.esk8.news/t/radium-r6-trucks-thane-belts/77112)). The original listing (`radium-performance.com/products/radium-prototype-trucks-pre-order`) now returns 404. If the production front truck really is 60°, it needs its own saddle; see the roadmap.
+- A Radium photo of both trucks is kept in [`docs/reference/vendor/`](docs/reference/vendor). It is **© Radium Performance and not covered by this repo's licence**; see the [notice](docs/reference/vendor/NOTICE.md).
+
 ## Printing
 
 - **Receivers:** exported lip-down, ready to slice with no rotation. The open back faces up, so nothing needs to bridge. Set `PRINT_FACE_DOWN = False` to export them in model orientation instead.
@@ -119,7 +124,8 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Truck mount m6: held in place on the strut, the light aimed about 15° high (built for a 45° tilt; the truck is 30°)
 - [ ] Truck mount m7 (built for the 30° tilt): check the aim, test-fit the clamp and hook, check that the screw goes in through the slot and tightens, check that the light snaps in, and check ground and wheel clearance
 - [ ] Print the right side once the left fits
+- [ ] Confirm the front truck's angle (30° like the rear, or 60° as the pre-order listing says); a 60° front would need a saddle built with `TILT = 60`
 
 ## License
 
-[GPL-3.0](LICENSE). Shredlights is a trademark of its owner. This project is not affiliated with or endorsed by them.
+[GPL-3.0](LICENSE), except `docs/reference/vendor/`, which is © Radium Performance (see its [notice](docs/reference/vendor/NOTICE.md)). Shredlights is a trademark of its owner. This project is not affiliated with or endorsed by them.
