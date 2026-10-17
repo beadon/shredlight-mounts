@@ -1,8 +1,12 @@
 # Shredlight Mounts
 
 3D-printable left and right receivers for [Shredlights](https://shredlights.com) **SL-300**
-skateboard lights. The lights are the male side of the connection: their mounting tongue slides
-down into the receiver from the open top and hugs the underside of the front lip.
+skateboard lights, plus a clamp that mounts them on Radium Mach One S trucks. The lights are the
+male side of the connection: the light lies on the receiver's face, and its mounting tongue slides in
+from the slot's open end (the end the lens points to), hugging the underside of the lip until the
+barbs snap over it.
+
+**Status:** the receiver is final (v7). The truck mount is at prototype m6, and the left side is being test-printed.
 
 > **Scope:** designed and fit-tested for the SL-300 only. Other Shredlights models may use
 > different connectors, and supporting them is out of scope for this project.
@@ -50,6 +54,8 @@ A two-part clamp holds the v7 receiver on the truck. The Mach One S hanger has n
 
 ![Truck mount m6, shaded renders](docs/truck_render.png)
 
+The renders come from `render_views.py`. A three-view silhouette drawing of one mount is in [`docs/truck_views.png`](docs/truck_views.png).
+
 - **Saddle:** an upside-down U that drops over the strut from above. Its front arm takes the screw, and its rear arm ends in a hook pocket. It carries the receiver platform.
 - **Keeper:** a flat bar that slides through the window from the front, under the strut. Its rear end goes into the saddle's hook, and its front end holds the nut.
 - **Receiver platform:** v7's lip, slot and barbs, **face up**, with the slot's open end toward the nose. The light sits on top, lens forward. The platform is level front to back, but **rolled 45° outboard**, so it sits low over the clamp with two webs underneath. The channel under the lip is open at both ends, so grit can get out.
@@ -79,8 +85,9 @@ Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 
 ## Printing
 
-- The STLs are exported lip-down, ready to slice with no rotation. The open back faces up, so nothing needs to bridge. Set `PRINT_FACE_DOWN = False` to export them in model orientation instead.
-- PETG or ASA is recommended. The 1/16" lip carries the load, and PLA creeps when left in the sun.
+- **Receivers:** exported lip-down, ready to slice with no rotation. The open back faces up, so nothing needs to bridge. Set `PRINT_FACE_DOWN = False` to export them in model orientation instead.
+- **Truck mount:** see the file table above. The saddle prints receiver-face down with tree supports, and the keeper prints flat.
+- **Material:** PETG or ASA is recommended. The 1/16" lip carries the load, and PLA creeps when left in the sun or near a hot motor.
 
 ## Building
 
@@ -93,7 +100,9 @@ python3 -m venv .venv
 .venv/bin/python render_views.py           # shaded truck-mount renders (docs/truck_render.png)
 ```
 
-All dimensions are named constants, in inches, at the top of `shredlight_mount.py`. To add a fit
+All receiver dimensions are named constants, in inches, at the top of `shredlight_mount.py`. The
+truck mount's constants are in millimetres, at the top of `truck_mount.py` (strut size, clamp,
+screw, the platform's `ROLL` and `SLOT_POINT`). To add a receiver fit
 version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured slot, or
 `{"upper": mm, "lower": mm}` for exact widths. Optional `lead_in` and `step_radius` (mm) soften the slot edges.
 
@@ -107,7 +116,8 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Truck mount m3: modelled with the strut 22.5 mm across; really ~9 mm across (22 mm is its front-to-back depth)
 - [x] Truck mount m4: the receiver sat too high, and the screw-access path cut into the webs
 - [x] Truck mount m5: the receiver faced forward, but the light lies *on* the platform, so it would have shone at the sky
-- [ ] Truck mount m6: test-fit the clamp and hook, check the 45° roll looks and works right, check ground and wheel clearance
+- [ ] Truck mount m6 (left side printing): test-fit the clamp and hook, check that the screw goes in through the slot, check the platform is level front to back (this tests the 45° tilt and strut-angle estimates), and check that the light snaps in, and check ground and wheel clearance
+- [ ] Print the right side once the left fits
 
 ## License
 
