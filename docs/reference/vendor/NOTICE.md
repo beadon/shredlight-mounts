@@ -8,4 +8,5 @@ truck-mount design can still be checked if their marketing pages change. Do not 
 
 | File | What it is |
 |---|---|
+| `sources.md` | Quotations of Radium's stated truck angles, with where and when they were found. |
 | `radium-r6-trucks_COPYRIGHT-RADIUM-PERFORMANCE.png` | Radium marketing photo of the R6 trucks: rear truck with motor mount and a baseplate marked "30 DEGREE", front truck marked "R6". The copyright is also embedded in the PNG's metadata. |
