@@ -29,7 +29,7 @@ def view_matrix(az, el):
 
 def render(objs, outline, az, el, title, W=900, H=700, scale=None, centre=None):
     R = view_matrix(az, el)
-    allv = np.vstack([tris(m).reshape(-1, 3) for m, _ in objs])
+    allv = np.vstack([tris(m).reshape(-1, 3) for m, _ in objs + outline])
     P = allv @ R.T
     if centre is None: centre = (P.min(0) + P.max(0)) / 2
     if scale is None: scale = 0.85 * min(W / np.ptp(P[:, 0]), H / np.ptp(P[:, 1]))
@@ -79,11 +79,21 @@ def assembly_views(path):
               (t.light_envelope(flip @ rrot @ flip, flip @ roff).translate(list(flip @ t0)), (40, 80, 220))]
     path_ = t.place(t.along_v(Manifold.cylinder(70, 1.0, circular_segments=8)).translate(
         [0, t.head_seat(), t.SCREW_W]), rot).translate(list(t0))
+    # Beam: a thin rod from the lens along the light's axis, and a level one for comparison.
+    _, lo, hi = t.receiver_body()
+    lens = t.place(Manifold.cube([1, 1, 1]).translate([-0.5, hi[1] + t.LIGHT_LENS_PROUD, hi[2] + t.LIGHT_H / 2]),
+                   rrot, roff).translate(list(t0))
+    tip = np.mean(np.array(lens.bounding_box()).reshape(2, 3), axis=0)
+    rod = lambda d: Manifold.cylinder(60, 0.8, circular_segments=8).transform(np.column_stack([
+        np.column_stack([np.cross(d, [1, 0, 0]), [1, 0, 0], d]), tip]))
+    beam, level = rod(rrot[:, 1]), rod(np.array([0, 1.0, 0]))
     grey, red, green = (150, 150, 155), (200, 50, 40), (40, 150, 90)
     everything = [(hanger, grey), (rs, red), (ls, red), (rk, green), (lk, green)]
     a = render(everything, lights, 180, 5,
                "1. From the nose (the rider's right mount is on the LEFT). Blue = light, estimated size.", W=760, H=520)
-    b = render(everything, lights, 90, 5, "2. From the rider's right side. Nose to the RIGHT, ground down.", W=760, H=520)
+    b = render(everything + [(beam, (255, 140, 0)), (level, (120, 120, 120))], lights, 90, 5,
+               f"2. From the rider's right side. Nose to the RIGHT. Orange = beam, {t.PITCH_DOWN:.0f} deg below grey level.",
+               W=760, H=520)
     c = render([(hanger, grey), (rs, red), (rk, green), (path_, (255, 140, 0))], [], 135, 35,
                "3. Right mount from front-right, above. Orange = the M5 screw's path, through the slot.", W=760, H=560)
     big = Image.new("RGB", (1520, 1080), (255, 255, 255))

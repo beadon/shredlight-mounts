@@ -6,7 +6,7 @@ male side of the connection: the light lies on the receiver's face, and its moun
 from the slot's open end (the end the lens points to), hugging the underside of the lip until the
 barbs snap over it.
 
-**Status:** the receiver is final (v7). The truck mount is at prototype m6, and the left side is being test-printed.
+**Status:** the receiver is final (v7). The truck mount is at prototype m7: m6 aimed about 15° high when held in place, so m7 tips the platform 15° nose-down.
 
 > **Scope:** designed and fit-tested for the SL-300 only. Other Shredlights models may use
 > different connectors, and supporting them is out of scope for this project.
@@ -48,17 +48,17 @@ Keep the corners at the top of the slot sharp. v6 rounded them, and the light lo
 
 v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 14 mm. v5 leaves about 0.5 mm of clearance around it.
 
-## Truck mount (Radium Mach One S): prototype m6
+## Truck mount (Radium Mach One S): prototype m7
 
 A two-part clamp holds the v7 receiver on the truck. The Mach One S hanger has no mounting holes, so the clamp grips a strut directly: the diagonal "rake" above each triangular window in the hanger plate. Left and right are mirror images, one per strut.
 
-![Truck mount m6, shaded renders](docs/truck_render.png)
+![Truck mount m7, shaded renders](docs/truck_render.png)
 
 The renders come from `render_views.py`. A three-view silhouette drawing of one mount is in [`docs/truck_views.png`](docs/truck_views.png).
 
 - **Saddle:** an upside-down U that drops over the strut from above. Its front arm takes the screw, and its rear arm ends in a hook pocket. It carries the receiver platform.
 - **Keeper:** a flat bar that slides through the window from the front, under the strut. Its rear end goes into the saddle's hook, and its front end holds the nut.
-- **Receiver platform:** v7's lip, slot and barbs, **face up**, with the slot's open end toward the nose. The light sits on top, lens forward. The platform is level front to back, but **rolled 45° outboard**, so it sits low over the clamp with two webs underneath. The channel under the lip is open at both ends, so grit can get out.
+- **Receiver platform:** v7's lip, slot and barbs, **face up**, with the slot's open end toward the nose. The light sits on top, lens forward. It is **tipped 15° nose-down** (`PITCH_DOWN`) and **rolled 45° outboard**, so it sits low over the clamp with two webs underneath. The channel under the lip is open at both ends, so grit can get out.
 - **Hardware per side:** **1× M5×20 socket-head screw** and an M5 nyloc nut. It's fitted and tightened **through the receiver's own slot** (with the light removed), so no access holes are needed. Add a 1 mm TPU or rubber liner between the clamp and the strut.
 - **Fitting:** drop the saddle over the strut, slide the keeper in through the window from the front until its rear end is in the hook, then fit the screw down through the slot.
 
@@ -71,15 +71,15 @@ The clamp fits around the strut's shape, so it can't rotate on it. The keeper is
 - 11 mm flat on the window-side face and about 6 mm chamfers on the skyward face, both measured front to back. How far the chamfers cut into the 9 mm isn't measured, so they're modelled shallow, so they can't bind
 - window sides about 32 × 30 × 35 mm
 
-**Believed correct, to be confirmed by a test fit:** the plate is tilted back 45° and the strut rises at 45° in the plate's plane (`TILT`, `STRUT_ANGLE`), and the SL-300's beam runs parallel to its mounting face. If those hold, the platform is level front to back and the beam is level, pointing straight ahead. The platform's 45° roll turns only the light's body about the beam; that's `ROLL`.
+**Estimated, not measured:** the plate is tilted back 45° and the strut rises at 45° in the plate's plane (`TILT`, `STRUT_ANGLE`), and the SL-300's beam runs parallel to its mounting face. m6 used those estimates to aim the beam level. Held in place on the truck, it aimed about 15° high. m7 corrects that empirically with `PITCH_DOWN = 15`, rather than guessing which estimate is off. The 45° roll turns only the light's body about the beam; that's `ROLL`.
 
 Files are in [`out/truck/`](out/truck):
 
 | File | What it is |
 |---|---|
-| `truck_mount_{left,right}_m6_saddle.stl` | Print receiver-face down, so the lip and barbs are on the bed, as for v7. Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
-| `truck_mount_{left,right}_m6_keeper.stl` | Prints flat with no supports. The nut pocket is on the bed side. |
-| `assembly_m6.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m6_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
+| `truck_mount_{left,right}_m7_saddle.stl` | Print receiver-face down, so the lip and barbs are on the bed, as for v7. Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
+| `truck_mount_{left,right}_m7_keeper.stl` | Prints flat with no supports. The nut pocket is on the bed side. Unchanged since m6, so a printed m6 keeper works with m7. |
+| `assembly_m7.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m7_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
 
 Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 
@@ -102,7 +102,7 @@ python3 -m venv .venv
 
 All receiver dimensions are named constants, in inches, at the top of `shredlight_mount.py`. The
 truck mount's constants are in millimetres, at the top of `truck_mount.py` (strut size, clamp,
-screw, the platform's `ROLL` and `SLOT_POINT`). To add a receiver fit
+screw, the platform's `ROLL`, `PITCH_DOWN` and `SLOT_POINT`). To add a receiver fit
 version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured slot, or
 `{"upper": mm, "lower": mm}` for exact widths. Optional `lead_in` and `step_radius` (mm) soften the slot edges.
 
@@ -116,7 +116,8 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Truck mount m3: modelled with the strut 22.5 mm across; really ~9 mm across (22 mm is its front-to-back depth)
 - [x] Truck mount m4: the receiver sat too high, and the screw-access path cut into the webs
 - [x] Truck mount m5: the receiver faced forward, but the light lies *on* the platform, so it would have shone at the sky
-- [ ] Truck mount m6 (left side printing): test-fit the clamp and hook, check that the screw goes in through the slot, check the platform is level front to back (this tests the 45° tilt and strut-angle estimates), and check that the light snaps in, and check ground and wheel clearance
+- [x] Truck mount m6: held in place on the strut, the light aimed about 15° high
+- [ ] Truck mount m7 (15° nose-down): check the aim, test-fit the clamp and hook, check that the screw goes in through the slot and tightens, check that the light snaps in, and check ground and wheel clearance
 - [ ] Print the right side once the left fits
 
 ## License

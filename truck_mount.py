@@ -12,8 +12,9 @@ the plate's plane. The clamp wraps that strut:
   1x M5 x 20 socket-head screw with a nyloc nut, in front of the plate, fitted and
           tightened through the receiver's own slot (with the light removed)
 
-The receiver is a platform: v7's lip plate, slot and barbs, face up and level fore
-and aft, rolled outboard about its length so it sits low over the clamp. The slot's
+The receiver is a platform: v7's lip plate, slot and barbs, face up, tipped
+15 degrees nose-down (the m6 test fit aimed that much high) and rolled outboard about
+its length so it sits low over the clamp. The slot's
 open end points at the nose; the light sits on top, lens forward, and slides in from
 the front until the barbs catch. The channel under the lip is open at both ends.
 The right side is modelled; left is mirrored.
@@ -33,7 +34,7 @@ from manifold3d import CrossSection, FillRule, Manifold
 
 import shredlight_mount as receiver
 
-VERSION = 6
+VERSION = 7
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 22.0       # hanger plate thickness
@@ -63,7 +64,9 @@ HOOK_WALL = 3.0      # pocket's outer wall
 HOOK_CLEAR = 0.4     # sliding clearance around the keeper in the pocket
 
 # --- Receiver platform ---
-ROLL = 45.0          # platform rolled outboard about its length (fore-aft stays level)
+ROLL = 45.0          # platform rolled outboard about its length
+PITCH_DOWN = 15.0    # platform's front end tipped toward the ground: the m6 test fit, which
+                     # modelled the beam level, aimed about 15 degrees high (user's estimate)
 SLOT_POINT = 12.0    # where the screw's path crosses the slot, mm from the receiver's centre
                      # toward its open end (the upper, 14.5 mm wide part of the slot)
 POD_REAR = 4.0       # how far the side rails run below the pocket, into the pedestal
@@ -171,10 +174,13 @@ def keeper_local():
     return k - screw_hole() - nut
 
 
-def receiver_rot(roll=None):
-    """Receiver face up, slot's open end (Y) toward the nose, rolled outboard about Y."""
+def receiver_rot(roll=None, pitch_down=None):
+    """Receiver face up, slot's open end (Y) toward the nose, rolled outboard about Y, then
+    tipped nose-down about X so the beam aims below level."""
     r = np.radians(ROLL if roll is None else roll)
-    return np.array([[np.cos(r), 0, np.sin(r)], [0, 1, 0], [-np.sin(r), 0, np.cos(r)]])
+    p = -np.radians(PITCH_DOWN if pitch_down is None else pitch_down)
+    rx = np.array([[1, 0, 0], [0, np.cos(p), -np.sin(p)], [0, np.sin(p), np.cos(p)]])
+    return rx @ np.array([[np.cos(r), 0, np.sin(r)], [0, 1, 0], [-np.sin(r), 0, np.cos(r)]])
 
 
 def receiver_dims():
