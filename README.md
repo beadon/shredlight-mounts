@@ -6,7 +6,7 @@ male side of the connection: the light lies on the receiver's face, and its moun
 from the slot's open end (the end the lens points to), hugging the underside of the lip until the
 barbs snap over it.
 
-**Status:** the receiver is final (v7). The truck mount is at prototype m7: m6 aimed about 15° high when held in place, which a 30° hanger tilt (Radium's stated truck angle) accounts for, so m7 is built for 30°.
+**Status:** the receiver is final (v7). The truck mount is at prototype m8: m7 (built for the measured 30° hanger tilt) remade for caliper measurements of the front truck taken 2026-11-13. The strut is 7.66 mm across, not ~9.
 
 > **Scope:** designed and fit-tested for the SL-300 only. Other Shredlights models may use
 > different connectors, and supporting them is out of scope for this project.
@@ -48,11 +48,11 @@ Keep the corners at the top of the slot sharp. v6 rounded them, and the light lo
 
 v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 14 mm. v5 leaves about 0.5 mm of clearance around it.
 
-## Truck mount (Radium Mach One S): prototype m7
+## Truck mount (Radium Mach One S): prototype m8
 
 A two-part clamp holds the v7 receiver on the truck. The Mach One S hanger has no mounting holes, so the clamp grips a strut directly: the diagonal "rake" above each triangular window in the hanger plate. Left and right are mirror images, one per strut.
 
-![Truck mount m7, shaded renders](docs/truck_render.png)
+![Truck mount m8, shaded renders](docs/truck_render.png)
 
 The renders come from `render_views.py`. A three-view silhouette drawing of one mount is in [`docs/truck_views.png`](docs/truck_views.png).
 
@@ -64,11 +64,14 @@ The renders come from `render_views.py`. A three-view silhouette drawing of one 
 
 The clamp fits around the strut's shape, so it can't rotate on it. The keeper is trapped inside the window, so the clamp can't slide along the strut either. Nothing depends on friction alone.
 
-**Measured:**
-- plate 22 mm thick
-- strut ~9 mm across in the hanger's plane (skyward face to window face) and 22 mm front to back: a flattened hexagon
+**Measured** (calipers on the front truck, 2026-11-13; photos in [`docs/reference/truck/2026-11-13/`](docs/reference/truck/2026-11-13)):
+- plate 21.8 mm thick, front to back
+- strut 7.66 mm across in the hanger's plane (skyward face to window face) on its angled part, and 21.8 mm front to back: a flattened hexagon. m1–m7 used ~9 mm, read from a ruler photo
+- bar below the windows: 12.18 mm from its thicker section to the window cutout
+- the recess around the kingpin is 50.05 mm wide at most
+- strut angle in the plate: head-on photos, corrected for the 30° tilt, give 44–47°, so 45° is kept
 - hanger laid flat: 65 mm from the base to the apex
-- 11 mm flat on the window-side face and about 6 mm chamfers on the skyward face, both measured front to back. How far the chamfers cut into the 9 mm isn't measured, so they're modelled shallow, so they can't bind
+- 11 mm flat on the window-side face and about 6 mm chamfers on the skyward face, both measured front to back. How far the chamfers cut into the strut isn't measured, so they're modelled shallow, so they can't bind
 - window sides about 32 × 30 × 35 mm
 
 **Hanger tilt:** the plate leans back 30° from vertical (`TILT`). This was **measured on the front truck** with a phone inclinometer (it reads 0° against a wall), with the board on level ground. It agrees with Radium's stated 30° angle and with the m6 test fit, which was also on the front truck. The rear truck isn't measured yet. m6 assumed 45°, and held in place it aimed about 15° high, which is exactly the difference. The aim follows the tilt one for one; the strut's angle within the plate (`STRUT_ANGLE`, estimated at 45°) mostly turns the beam left or right, not up or down. `PITCH_DOWN` (0) is left in for fine-tuning the aim. The 45° roll turns only the light's body about the beam; that's `ROLL`.
@@ -77,9 +80,9 @@ Files are in [`out/truck/`](out/truck):
 
 | File | What it is |
 |---|---|
-| `truck_mount_{left,right}_m7_saddle.stl` | Print receiver-face down, so the lip and barbs are on the bed, as for v7. Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
-| `truck_mount_{left,right}_m7_keeper.stl` | Prints flat with no supports. The nut pocket is on the bed side. Unchanged since m6, so a printed m6 keeper works with m7. |
-| `assembly_m7.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m7_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
+| `truck_mount_{left,right}_m8_saddle.stl` | Print receiver-face down, so the lip and barbs are on the bed, as for v7. Use **tree supports, touching the build plate only**, with the overhang threshold around 40°. Many clamp faces sit at exactly 45°, so this keeps them from being supported. |
+| `truck_mount_{left,right}_m8_keeper.stl` | Prints flat with no supports. The nut pocket is on the bed side. It's only 0.2 mm narrower than the m6/m7 keeper (the plate measured 21.8, not 22), so a printed m7 keeper still works. |
+| `assembly_m8.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m8_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
 
 Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 
@@ -122,7 +125,8 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Truck mount m4: the receiver sat too high, and the screw-access path cut into the webs
 - [x] Truck mount m5: the receiver faced forward, but the light lies *on* the platform, so it would have shone at the sky
 - [x] Truck mount m6: held in place on the strut, the light aimed about 15° high (built for a 45° tilt; the truck is 30°)
-- [ ] Truck mount m7 (built for the 30° tilt): check the aim, test-fit the clamp and hook, check that the screw goes in through the slot and tightens, check that the light snaps in, and check ground and wheel clearance
+- [x] Truck mount m7 (built for the 30° tilt): superseded by m8 (strut re-measured at 7.66 mm)
+- [ ] Truck mount m8 (strut 7.66 mm): check the aim, test-fit the clamp and hook, check that the screw goes in through the slot and tightens, check that the light snaps in, and check ground and wheel clearance
 - [ ] Print the right side once the left fits
 - [x] Front truck's hanger tilt: measured 30° from vertical (the 2023 pre-order listing said 60° front)
 - [ ] Measure the rear truck's hanger tilt the same way before mounting lights there; if it isn't 30°, build that saddle with its own `TILT`

@@ -33,19 +33,21 @@ from manifold3d import CrossSection, FillRule, Manifold
 
 import shredlight_mount as receiver
 
-VERSION = 7
+VERSION = 8
 
 # --- Truck (measured by calipers unless noted) ---
-PLATE_T = 22.0       # hanger plate thickness
-STRUT_H = 9.0        # strut, window face to skyward face, in the hanger's plane
+PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
+STRUT_H = 7.66       # strut, window face to skyward face, in the hanger's plane (caliper across the
+                     # angled strut, front truck, 2026-11-13; m1-m7 used ~9 from a ruler photo)
 WINDOW_FLAT = 11.0   # flat on the window-side face, front to back, between its chamfers
 TOP_CHAMFER = 5.5    # skyward-face chamfers, front to back (~6 measured; modelled smaller)
-CHAMFER_DEPTH = 1.5  # how far the chamfers cut into the 9 mm: unmeasured, kept small so they cannot bind
+CHAMFER_DEPTH = 1.5  # how far the chamfers cut into STRUT_H: unmeasured, kept small so they cannot bind
 TILT = 30.0          # plate tilted back from vertical: measured on the FRONT truck with a phone
                      # inclinometer (reads 0 against a wall), board on level ground. Matches Radium's
                      # 30 degree truck angle and the m6 test fit (built for 45, aimed ~15 degrees high).
                      # The rear truck is not measured yet.
-STRUT_ANGLE = 45.0   # strut angle in the plate's plane (photo estimate)
+STRUT_ANGLE = 45.0   # strut angle in the plate's plane (photo estimate; head-on photos of 2026-11-13,
+                     # corrected for the 30 degree tilt, give 44-47)
 
 # --- Clamp ---
 LINER = 1.0          # gap all round the strut for a 1 mm TPU / rubber liner
@@ -83,9 +85,9 @@ LIGHT_LENS_PROUD = 5.0  # lens ahead of the platform's front edge
 # --- Assembly preview only (schematic hanger; nothing here affects the printed parts) ---
 CLAMP_OFFSET = 40.0  # clamp centre from the board centreline, measured across
 HANGER_H = 65.0      # hanger laid flat, base of the beam to the apex (measured)
-BEAM_H = 14.0        # axle beam height below the windows
+BEAM_H = 12.18       # bar below the windows: thicker section to the window cutout (caliper, 2026-11-13)
 BEAM_HALF = 130.0    # axle beam half-length
-BLOCK_HALF = 18.0    # pivot block half-width
+BLOCK_HALF = 25.0    # pivot block half-width: the recess around the kingpin is 50.05 wide at most
 
 HALF_T = PLATE_T / 2
 FACE = HALF_T + LINER                         # clamp faces sit this far from the plate's centre
