@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold
 
 import shredlight_mount as receiver
 
-VERSION = 8
+VERSION = 9
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -75,7 +75,9 @@ SLOT_POINT = 12.0    # where the screw's path crosses the slot, mm from the rece
                      # toward its open end (the upper, 14.5 mm wide part of the slot)
 POD_REAR = 4.0       # how far the side rails run below the pocket, into the pedestal
 PEDESTAL_MARGIN = 3.0  # pedestal reaches this far past the saddle top, along the platform
-WEB_T = 4.0          # thickness of each web joining a side rail to the saddle
+WEB_T = 4.0          # thickness of each web joining a side rail to the saddle (m2-m8, SOLID_PEDESTAL off)
+SOLID_PEDESTAL = True  # m9: fill between platform and saddle so the saddle's underside needs no supports
+KEEPER_PATH_CLEAR = 0.6  # clearance round the keeper's slide-in path through the pedestal
 HANGER_CLEAR = 2.0   # minimum gap to the (schematic) hanger in the assembly check
 
 # Light envelope for the assembly preview only (estimated from a photo, not measured)
@@ -169,6 +171,26 @@ def saddle_local():
     under = box(-SADDLE_LENGTH, SADDLE_LENGTH, -50, 0, -FACE, FACE)
     return (s - along_u(strut_profile(LINER), SADDLE_LENGTH + 2) - under - pocket
             - screw_hole() - driver_access())
+
+
+def saddle_outer_local():
+    """The saddle's outer envelope (body plus hook), before anything is cut out of it."""
+    top = STRUT_H + SADDLE_T
+    hook_bottom = KEEPER_BOTTOM - HOOK_CLEAR - HOOK_T
+    return (box(-SADDLE_LENGTH / 2, SADDLE_LENGTH / 2, ARM_BOTTOM, top, -BACK_W, FRONT_W)
+            + box(-SADDLE_LENGTH / 2, SADDLE_LENGTH / 2, hook_bottom, ARM_BOTTOM, -BACK_W, -FACE))
+
+
+def pedestal_voids_local():
+    """What the solid pedestal must leave open, in the strut frame."""
+    c = KEEPER_PATH_CLEAR
+    plate = box(-200, 200, -200, 0, -FACE, FACE)              # the plate below the strut, and the window
+    # The keeper's slot and its path in from the front (it slides in along -w).
+    path = box(-LENGTH / 2 - c, LENGTH / 2 + c, KEEPER_BOTTOM - c, ARM_BOTTOM,
+               -FACE - HOOK_ENGAGE - HOOK_CLEAR, 200)
+    # Below the keeper, in front of the plate: room for the nut, the screw tip and fingers.
+    below = box(-LENGTH / 2 - c, LENGTH / 2 + c, -200, KEEPER_BOTTOM, -FACE, 200)
+    return plate + path + below
 
 
 def keeper_local():
@@ -267,6 +289,21 @@ def right_parts():
         strip = Manifold.cube([WEB_T, y1 - y0, 1]).translate([x0, y0, -POD_REAR])
         webs += (foot + place(strip, rrot, roff)).hull()
 
+    if SOLID_PEDESTAL:
+        # One solid block from the platform's back up to the saddle, instead of two webs, so
+        # nothing on the saddle's underside overhangs. Everything that must stay open is cut
+        # back out: the plate and window, the keeper's slot and its path in from the front.
+        # Sweep the saddle straight toward the platform (straight down as printed), so the
+        # block's sides are vertical on the bed. Over the flange channel (cut out below) it
+        # leaves a flat roof spanning rail to rail: a bridge, not an overhang.
+        outer = place(saddle_outer_local(), rot)
+        down = rrot[:, 2]                                   # toward the platform's face
+        sweep = (outer + outer.translate(list(150 * down))).hull()
+        # Where the saddle overhangs the platform's outline, the block runs on down to the bed
+        # (the platform's face plane), staying out of the space the light sits in.
+        below_face = place(Manifold.cube([400, 400, 400]).translate([-200, -200, hi[2] - 400]), rrot, roff)
+        webs = (sweep ^ below_face) - place(pedestal_voids_local(), rot)
+
     # Channel under the lip, between the rails, open at both ends: the light's flange
     # slides through it, and grit can leave from the front or the rear.
     channel = place(Manifold.cube([2 * inner, hi[1] - lo[1] + 80, gap + POD_REAR]).translate(
@@ -274,6 +311,23 @@ def right_parts():
 
     strut = place(along_u(strut_profile(LINER), 400), rot)
     access = place(screw_hole() + driver_access(), rot)
+    if SOLID_PEDESTAL:
+        # Under the saddle the channel stops where the saddle's top slab begins, so its roof is
+        # one flat bridge rather than the slab's sloping face (supports in there would be hard
+        # to clear, and the flange slides through it). It still clears the flange gap.
+        under_lip = place(Manifold.cube([2 * inner, hi[1] - lo[1], gap + POD_REAR]).translate(
+            [-inner, lo[1], -POD_REAR]), rrot, roff)
+        dip = saddle ^ under_lip   # only along the platform; past its ends there is no flange
+        roof = -POD_REAR
+        if not dip.is_empty():
+            roof = float(((np.asarray(dip.to_mesh().vert_properties)[:, :3] - roff) @ rrot[:, 2]).max())
+        assert roof < gap, "saddle reaches into the flange gap"
+        channel = place(Manifold.cube([2 * inner, hi[1] - lo[1] + 80, gap - roof]).translate(
+            [-inner, lo[1] - 40, roof]), rrot, roff)
+        # Inside the platform's outline the pedestal stops at the channel roof: the lip, slot,
+        # barbs and rails come from v7 alone, unchanged.
+        webs -= place(Manifold.cube([hi[0] - lo[0], hi[1] - lo[1], hi[2] + 1 - roof]).translate(
+            [lo[0], lo[1], roof]), rrot, roff)
     webs -= channel
     saddle = (saddle + webs) + pod - strut - access
     return {"saddle": saddle, "keeper": keeper, "webs": webs, "pod": pod}, rot, rrot, roff
@@ -364,10 +418,22 @@ def write_obj(objects, path):
             base += len(v)
 
 
+def check_receiver_unchanged(saddle, rrot, roff):
+    """The receiver (lip, slot, barbs, rails, flange gap) must be exactly v7's: nothing added
+    for the clamp may reach into it. m9's first build filled the slot this way."""
+    body, lo, hi = receiver_body()
+    local = saddle.translate(list(-roff)).transform(np.column_stack([np.linalg.inv(rrot), [0, 0, 0]]))
+    zone = Manifold.cube([hi[0] - lo[0], hi[1] - lo[1], hi[2] + 0.001]).translate([lo[0], lo[1], 0])
+    diff = ((local ^ zone) - body).volume() + ((body ^ zone) - local).volume()
+    if diff > 0.01:
+        raise RuntimeError(f"receiver differs from v7 by {diff:.2f} mm^3")
+
+
 def main():
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "out") / "truck"
     out.mkdir(parents=True, exist_ok=True)
     parts, rot, rrot, roff = right_parts()
+    check_receiver_unchanged(parts["saddle"], rrot, roff)
     flip = np.diag([-1.0, 1, 1])
     t0 = clamp_offset()
     scene = {"hanger_schematic": (schematic_hanger(rot), "hanger_schematic")}
