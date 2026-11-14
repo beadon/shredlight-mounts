@@ -9,7 +9,7 @@ the plate's plane. The clamp wraps that strut:
           screw, its rear arm ends in a hook pocket, and it carries the platform
   keeper  flat bar slid through the window from the front, under the strut; its
           rear end goes into the saddle's hook, its front end holds the nut
-  1x M5 x 20 socket-head screw with a nyloc nut, in front of the plate, fitted and
+  1x M4 x 20 socket-head cap screw (ISO 4762) with an M4 nyloc nut, in front of the plate, fitted and
           tightened through the receiver's own slot (with the light removed)
 
 The receiver is a platform: v7's lip plate, slot and barbs, face up and level fore
@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold
 
 import shredlight_mount as receiver
 
-VERSION = 9
+VERSION = 10
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -56,10 +56,10 @@ LENGTH = 20.0        # keeper length along the strut; it must fit the ~35 mm win
 SADDLE_LENGTH = 30.0 # saddle length along the strut's top face (~55 mm free between beam and block)
 SADDLE_T = 5.0       # saddle thickness over the skyward face
 KEEPER_T = 6.0       # keeper thickness under the strut, inside the window
-SCREW_D = 5.5        # M5 clearance
-HEAD_D = 9.0         # M5 socket head (8.5) plus clearance; also the screw's path through the slot
+SCREW_D = 4.5        # M4 clearance (m6-m9: M5, 5.5); M4 matches the rest of the board
+HEAD_D = 8.0         # M4 socket head (7.0) plus clearance; also the screw's and 3 mm hex key's path through the slot
 SCREW_LEN = 20.0
-NUT_AF = 8.3         # M5 nyloc across flats, plus clearance
+NUT_AF = 7.3         # M4 nyloc across flats (7.0), plus clearance
 NUT_H = 5.0
 CHEEK = 3.0          # wall outside the screw
 HOOK_ENGAGE = 5.0    # how far the keeper's rear end reaches into the hook pocket
