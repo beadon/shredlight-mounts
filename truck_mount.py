@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold
 
 import shredlight_mount as receiver
 
-VERSION = 10
+VERSION = 11
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -184,13 +184,15 @@ def saddle_outer_local():
 def pedestal_voids_local():
     """What the solid pedestal must leave open, in the strut frame."""
     c = KEEPER_PATH_CLEAR
-    plate = box(-200, 200, -200, 0, -FACE, FACE)              # the plate below the strut, and the window
-    # The keeper's slot and its path in from the front (it slides in along -w).
+    # Everything below the arms' bottom edge, from the plate's rear face forward, along the whole
+    # saddle: the plate and window, the strut's window-side chamfers, the keeper and nut, and the
+    # space in front. (m9/m10 stopped this at the window face, leaving thin tabs in the chamfer
+    # corners beyond the keeper's ends.)
+    front = box(-200, 200, -200, ARM_BOTTOM, -FACE, 200)
+    # The keeper's slot behind the plate, into the hook pocket (it slides in along -w).
     path = box(-LENGTH / 2 - c, LENGTH / 2 + c, KEEPER_BOTTOM - c, ARM_BOTTOM,
                -FACE - HOOK_ENGAGE - HOOK_CLEAR, 200)
-    # Below the keeper, in front of the plate: room for the nut, the screw tip and fingers.
-    below = box(-LENGTH / 2 - c, LENGTH / 2 + c, -200, KEEPER_BOTTOM, -FACE, 200)
-    return plate + path + below
+    return front + path
 
 
 def keeper_local():
