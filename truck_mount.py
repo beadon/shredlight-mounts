@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold, OpType
 
 import shredlight_mount as receiver
 
-VERSION = 13
+VERSION = 14
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -188,7 +188,7 @@ def saddle_local():
     hook_bottom = KEEPER_BOTTOM - HOOK_CLEAR - HOOK_T
     s += box(-SADDLE_LENGTH / 2, SADDLE_LENGTH / 2, hook_bottom, ARM_BOTTOM, -BACK_W, -FACE)
     # Only HOOK_CLEAR above and below the keeper: the parting gap belongs under the front arm
-    # alone (m1-m13 first build ran the pocket up to the arm's bottom edge too, so the slot was
+    # alone (m1-m13 ran the pocket up to the arm's bottom edge too, so the slot was
     # 8.4 mm for a 5 mm keeper and the keeper's rear end could rock 3 mm).
     pocket = box(-LENGTH / 2 - HOOK_CLEAR, LENGTH / 2 + HOOK_CLEAR, KEEPER_BOTTOM - HOOK_CLEAR,
                  KEEPER_TOP + HOOK_CLEAR, -FACE - HOOK_ENGAGE - HOOK_CLEAR, -FACE + 1)
