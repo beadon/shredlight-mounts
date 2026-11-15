@@ -1,3 +1,6 @@
 .venv/
 __pycache__/
 *.pyc
+*_art.stl
+*_art.obj
+*_art.mtl
