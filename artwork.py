@@ -40,7 +40,7 @@ def mask_outline(mask, px):
     padded = np.pad(mask.astype(float), 1)
     polys = []
     for c in find_contours(padded, 0.5):
-        c = approximate_polygon(c, 0.4)
+        c = approximate_polygon(c, max(0.4, 0.015 / px))   # ~0.015 mm: far below what prints
         if len(c) >= 4:
             polys.append(np.column_stack([c[:, 1] - 1, -(c[:, 0] - 1)]) * px)
     cs = CrossSection(polys, FillRule.EvenOdd)

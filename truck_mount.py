@@ -29,11 +29,11 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from manifold3d import CrossSection, FillRule, Manifold
+from manifold3d import CrossSection, FillRule, Manifold, OpType
 
 import shredlight_mount as receiver
 
-VERSION = 12
+VERSION = 13
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -55,12 +55,20 @@ PARTING_GAP = 3.0    # gap between the saddle's front arm and the keeper so the 
 LENGTH = 20.0        # keeper length along the strut; it must fit the ~35 mm window side
 SADDLE_LENGTH = 30.0 # saddle length along the strut's top face (~55 mm free between beam and block)
 SADDLE_T = 5.0       # saddle thickness over the skyward face
-KEEPER_T = 6.0       # keeper thickness under the strut, inside the window
+KEEPER_T = 5.0       # keeper thickness under the strut, inside the window (m1-m12: 6.0; its slot
+                     # in the saddle's hook shrinks with it)
 SCREW_D = 4.5        # M4 clearance (m6-m9: M5, 5.5); M4 matches the rest of the board
 HEAD_D = 8.0         # M4 socket head (7.0) plus clearance; also the screw's and 3 mm hex key's path through the slot
 SCREW_LEN = 20.0
 NUT_AF = 7.3         # M4 nyloc across flats (7.0), plus clearance
 NUT_H = 5.0
+NUT_CEILING = 1.2    # keeper material left above the nut pocket; the nut stands proud of the
+                     # keeper's underside by whatever doesn't fit (1.2 mm with a 5 mm keeper)
+SCREW_EXTRA_REACH = NUT_H + 1.0  # m13: the screw must catch the whole nut, +1 mm, while the keeper
+                     # still hangs at the bottom of its hook pocket, not only once it's pulled up.
+                     # m12 printed: the screw only touched the nut.
+PLATFORM_ANCHOR = 13.0  # where the platform's screw path starts, above KEEPER_TOP (m12's head
+                     # seat, kept so the light doesn't move when the seat drops)
 CHEEK = 3.0          # wall outside the screw
 HOOK_ENGAGE = 5.0    # how far the keeper's rear end reaches into the hook pocket
 HOOK_T = 3.0         # hook lip under the keeper's rear end
@@ -100,7 +108,8 @@ BLOCK_HALF = 25.0    # pivot block half-width: the recess around the kingpin is 
 
 HALF_T = PLATE_T / 2
 FACE = HALF_T + LINER                         # clamp faces sit this far from the plate's centre
-SCREW_W = FACE + 1.0 + SCREW_D / 2            # screw axis just outside the plate's front face
+SCREW_W = FACE + HEAD_D / 2 + 0.5             # screw axis outside the plate's front face, far enough
+                                              # that the (now lower) head sits wholly on the front arm (m1-m12: FACE + 1 + SCREW_D / 2)
 FRONT_W = SCREW_W + SCREW_D / 2 + CHEEK       # front arm's outer face
 BACK_W = FACE + HOOK_ENGAGE + HOOK_CLEAR + HOOK_WALL  # rear arm's outer face
 KEEPER_TOP = -LINER  # keeper's upper face, pressing the window-side land
@@ -157,8 +166,14 @@ def screw_hole():
     return along_v(Manifold.cylinder(200, SCREW_D / 2, circular_segments=32)).translate([0, -100, SCREW_W])
 
 
+def nut_bottom():
+    return KEEPER_BOTTOM - max(0.0, NUT_H - (KEEPER_T - NUT_CEILING))
+
+
 def head_seat():
-    return KEEPER_BOTTOM - 1.0 + SCREW_LEN  # screw tip 1 mm past the nut
+    # Clamped, the tip is 1 mm + SCREW_EXTRA_REACH past the nut; with the keeper hanging loose
+    # at the bottom of the hook pocket it still runs right through the nut.
+    return nut_bottom() - 1.0 - SCREW_EXTRA_REACH + SCREW_LEN
 
 
 def driver_access():
@@ -172,8 +187,11 @@ def saddle_local():
     # Rear arm continues down past the keeper and turns in under it: the hook.
     hook_bottom = KEEPER_BOTTOM - HOOK_CLEAR - HOOK_T
     s += box(-SADDLE_LENGTH / 2, SADDLE_LENGTH / 2, hook_bottom, ARM_BOTTOM, -BACK_W, -FACE)
+    # Only HOOK_CLEAR above and below the keeper: the parting gap belongs under the front arm
+    # alone (m1-m13 first build ran the pocket up to the arm's bottom edge too, so the slot was
+    # 8.4 mm for a 5 mm keeper and the keeper's rear end could rock 3 mm).
     pocket = box(-LENGTH / 2 - HOOK_CLEAR, LENGTH / 2 + HOOK_CLEAR, KEEPER_BOTTOM - HOOK_CLEAR,
-                 KEEPER_TOP + PARTING_GAP, -FACE - HOOK_ENGAGE - HOOK_CLEAR, -FACE + 1)
+                 KEEPER_TOP + HOOK_CLEAR, -FACE - HOOK_ENGAGE - HOOK_CLEAR, -FACE + 1)
     # Removing the strut (and everything below its window face) leaves the top and two arms.
     under = box(-SADDLE_LENGTH, SADDLE_LENGTH, -50, 0, -FACE, FACE)
     return (s - along_u(strut_profile(LINER), SADDLE_LENGTH + 2) - under - pocket
@@ -197,7 +215,7 @@ def pedestal_voids_local():
     # corners beyond the keeper's ends.)
     front = box(-200, 200, -200, ARM_BOTTOM, -FACE, 200)
     # The keeper's slot behind the plate, into the hook pocket (it slides in along -w).
-    path = box(-LENGTH / 2 - c, LENGTH / 2 + c, KEEPER_BOTTOM - c, ARM_BOTTOM,
+    path = box(-LENGTH / 2 - c, LENGTH / 2 + c, KEEPER_BOTTOM - c, KEEPER_TOP + c,
                -FACE - HOOK_ENGAGE - HOOK_CLEAR, 200)
     return front + path
 
@@ -205,7 +223,7 @@ def pedestal_voids_local():
 def keeper_local():
     # Flat top: presses only the window-side land, so unknown chamfer angles cannot interfere.
     k = box(-LENGTH / 2, LENGTH / 2, KEEPER_BOTTOM, KEEPER_TOP, -FACE - HOOK_ENGAGE, FRONT_W)
-    nut = along_v(CrossSection.circle(NUT_AF / np.sqrt(3), 6).extrude(NUT_H)).translate([0, KEEPER_BOTTOM, SCREW_W])
+    nut = along_v(CrossSection.circle(NUT_AF / np.sqrt(3), 6).extrude(NUT_H)).translate([0, nut_bottom(), SCREW_W])
     return k - screw_hole() - nut
 
 
@@ -258,7 +276,7 @@ def pod_placement(rot, rrot):
     SLOT_POINT, until the flange channel clears the clamp and the screw head."""
     _, lo, hi, inner, gap = receiver_dims()
     axis = rot[:, 1]                                    # screw axis (local v) in world
-    seat = rot @ np.array([0, head_seat(), SCREW_W])
+    seat = rot @ np.array([0, KEEPER_TOP + PLATFORM_ANCHOR, SCREW_W])
     target = np.array([0, SLOT_POINT, gap + receiver.T * receiver.IN / 2])  # mid-lip, on the slot
     blockers = place(saddle_local(), rot) + screw_head(rot)
     # Everything open inside the receiver's outline (flange pocket, slot, the space between
@@ -447,10 +465,15 @@ def art_wall_normal(rot, rrot):
     return n / np.linalg.norm(n)
 
 
-def art_cut(saddle, n, mirror=False):
+def art_cut(saddle, n, mirror=False, print_up=None, nudge=0.0):
     """Cutter for the ART picture on the saddle's flat wall facing about `n`, upright as seen
     when mounted (world z is up), fitted inside the wall with ART["margin"] all round.
-    `mirror` flips the picture left to right (the left mount's wall is the right's mirror image)."""
+    `mirror` flips the picture left to right (the left mount's wall is the right's mirror image).
+    `nudge` shifts the picture by that much (mm) on the wall, to step off an exact
+    coincidence with an edge of the part, which leaves a pinched vertex in the mesh.
+    `print_up` (world vector pointing away from the bed as printed): the wall prints vertical, so
+    each groove's upper side would be a flat little ceiling that slicers support. Instead each
+    groove's ceiling slopes down at 45 deg going into the wall, so it prints unsupported."""
     import artwork
     # The wall's exact normal: the largest flat area among the triangles facing within 5 deg of n.
     mesh = saddle.to_mesh()
@@ -495,7 +518,7 @@ def art_cut(saddle, n, mirror=False):
     for _ in range(20):   # the redrawn ink is a hair bolder than the scaled-down one: shrink to fit
         mask, px = artwork.ink_mask(ART["image"], ART["crop"], ART["threshold"], ART["stroke"], width_mm=nominal * k)
         mask = mask[:, ::-1] if mirror else mask
-        pic = artwork.mask_outline(mask, px).rotate(ang).translate(list(c))
+        pic = artwork.mask_outline(mask, px).rotate(ang).translate(list(c + nudge))
         if (pic - wall).area() < 1e-6:
             break
         k *= 0.98
@@ -504,8 +527,35 @@ def art_cut(saddle, n, mirror=False):
     print(f"  artwork turned {ang} deg,", end="")
     print(f" {nominal * k:.1f} mm wide before turning, {ART['depth']} mm deep")
     art_cut.last = (wall.offset(ART["margin"]), pic)   # for previews: the wall and the picture, flat
-    cutter = pic.extrude(ART["depth"] + 1).translate([0, 0, plane - ART["depth"]])
+    straight = pic.extrude(ART["depth"] + 1).translate([0, 0, plane - ART["depth"]])
+    cutter = straight
+    if print_up is not None:
+        # 45 deg ceilings: intersect the straight cut with a copy sheared toward the bed by
+        # one mm per mm of depth. One clean boolean, a true slope, and no coincident walls (m13's
+        # first try stacked thin slabs: the STL came out full of slivers and non-manifold edges).
+        up2 = np.array([print_up @ right, print_up @ up])
+        up2 /= np.linalg.norm(up2)
+        shear = np.array([[1.0, 0, up2[0], -up2[0] * plane], [0, 1, up2[1], -up2[1] * plane], [0, 0, 1, 0]])
+        deeper = pic.extrude(ART["depth"] + 1.02).translate([0, 0, plane - ART["depth"] - 0.01])
+        cutter = straight ^ deeper.transform(shear)
     return cutter.transform(np.column_stack([frame, [0, 0, 0]]))
+
+
+def check_mesh(m, name):
+    """No pinched (non-manifold, once vertices are welded by position) edges and no zero-area
+    triangles: what a slicer would otherwise 'repair'."""
+    mesh = m.to_mesh()
+    v = np.asarray(mesh.vert_properties)[:, :3].astype(np.float32)
+    f = np.asarray(mesh.tri_verts)
+    tri = v[f].astype(np.float64)
+    zero = int((np.linalg.norm(np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0]), axis=1) < 2e-10).sum())
+    _, inv = np.unique(v, axis=0, return_inverse=True)
+    fw = inv.ravel()[f]
+    e = np.sort(np.concatenate([fw[:, [0, 1]], fw[:, [1, 2]], fw[:, [2, 0]]]), axis=1)
+    _, count = np.unique(e, axis=0, return_counts=True)
+    bad = int((count != 2).sum())
+    print(f"  {name}: {len(f)} triangles, {zero} zero-area, {bad} non-manifold/open edges")
+    return zero, bad
 
 
 def check_receiver_unchanged(saddle, rrot, roff):
@@ -552,11 +602,24 @@ def main():
         print(f"{tag}: saddle {saddle.volume() / 1000:.1f} cm^3, keeper {keeper.volume() / 1000:.1f} cm^3")
         if Path(ART["image"]).exists():
             n = art_wall_normal(rot, rrot) * (np.array([-1.0, 1, 1]) if side == "left" else 1)
-            cut = art_cut(saddle, n, mirror=side == "left")
-            art = saddle - cut
-            removed = saddle.volume() - art.volume()
-            inside = (cut ^ saddle).volume()
-            assert abs(removed - inside) < 1e-3 and len(art.decompose()) == 1
+            for nudge in (0.0, 0.003, -0.003, 0.007, -0.007):
+                cut = art_cut(saddle, n, mirror=side == "left", print_up=-srot[:, 2], nudge=nudge)
+                art = saddle - cut
+                # Keep only the solid itself: a sealed void (where the slope closes over a gap
+                # between two close strokes) comes back as its own negative-volume shell;
+                # dropping it fills it.
+                art = Manifold.batch_boolean([p for p in art.decompose() if p.volume() > 1.0], OpType.Add) \
+                    if len(art.decompose()) > 1 else art
+                removed = saddle.volume() - art.volume()
+                inside = (cut ^ saddle).volume()
+                # Everything removed lies inside the cutter (less any sealed bubbles, filled
+                # back in), the part is one piece, and its mesh is clean enough that slicers
+                # needn't repair it (a nudge of a few microns steps off an exact coincidence).
+                assert removed <= inside + 1e-2 and len(art.decompose()) == 1
+                if check_mesh(art, f"{tag} artwork, nudged {nudge} mm") == (0, 0):
+                    break
+            else:
+                raise RuntimeError("artwork mesh still has defects")
             receiver.write_stl(face_down(art, srot[:, 2]), out / f"{tag}_saddle_art.stl")
             scene_art[f"{side}_saddle"] = (art.translate(list(shift)), "saddle")
     receiver.write_stl(scene["hanger_schematic"][0], out / f"assembly_m{VERSION}_hanger_schematic.stl")
