@@ -95,7 +95,7 @@ def assembly_views(path):
                f"2. From the rider's right side. Nose to the RIGHT. Orange = beam, grey = level ({t.PITCH_DOWN:.0f} deg apart).",
                W=760, H=520)
     c = render([(hanger, grey), (rs, red), (rk, green), (path_, (255, 140, 0))], [], 135, 35,
-               "3. Right mount from front-right, above. Orange = the M5 screw's path, through the slot.", W=760, H=560)
+               "3. Right mount from front-right, above. Orange = the M4 screw's path, through the slot.", W=760, H=560)
     big = Image.new("RGB", (1520, 1080), (255, 255, 255))
     big.paste(a, (0, 0)); big.paste(b, (760, 0)); big.paste(c, (380, 520))
     big.save(path)

@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold
 
 import shredlight_mount as receiver
 
-VERSION = 11
+VERSION = 12
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -50,7 +50,7 @@ STRUT_ANGLE = 45.0   # strut angle in the plate's plane (photo estimate; head-on
                      # corrected for the 30 degree tilt, give 44-47)
 
 # --- Clamp ---
-LINER = 1.0          # gap all round the strut for a 1 mm TPU / rubber liner
+LINER = 0.25         # gap all round the strut: a snug PLA fit, no liner (m1-m11: 1.0 for a 1 mm rubber liner)
 PARTING_GAP = 3.0    # gap between the saddle's front arm and the keeper so the screw can pull
 LENGTH = 20.0        # keeper length along the strut; it must fit the ~35 mm window side
 SADDLE_LENGTH = 30.0 # saddle length along the strut's top face (~55 mm free between beam and block)
@@ -78,6 +78,13 @@ PEDESTAL_MARGIN = 3.0  # pedestal reaches this far past the saddle top, along th
 WEB_T = 4.0          # thickness of each web joining a side rail to the saddle (m2-m8, SOLID_PEDESTAL off)
 SOLID_PEDESTAL = True  # m9: fill between platform and saddle so the saddle's underside needs no supports
 KEEPER_PATH_CLEAR = 0.6  # clearance round the keeper's slide-in path through the pedestal
+CHANNEL_CHAMFER = 6.0  # m12: 45 deg chamfers this tall up from each rail into the channel roof, so
+                       # the bridge over the flange channel is ~15 mm, not ~27 mm, and sits 6 mm clear of it (7 left a 1.8 mm wall)
+# Optional picture engraved on the pedestal's tail-facing wall (the large flat side you see
+# from behind the board). Off unless the image exists; it's kept out of the repo (art/ is
+# gitignored) and the engraved parts are written as separate, gitignored *_art.stl files.
+ART = {"image": "art/source.png", "crop": (200, 20, 1440, 1180), "threshold": 100,
+       "stroke": 0.4, "depth": 0.6, "margin": 1.5}
 HANGER_CLEAR = 2.0   # minimum gap to the (schematic) hanger in the assembly check
 
 # Light envelope for the assembly preview only (estimated from a photo, not measured)
@@ -96,7 +103,7 @@ FACE = HALF_T + LINER                         # clamp faces sit this far from th
 SCREW_W = FACE + 1.0 + SCREW_D / 2            # screw axis just outside the plate's front face
 FRONT_W = SCREW_W + SCREW_D / 2 + CHEEK       # front arm's outer face
 BACK_W = FACE + HOOK_ENGAGE + HOOK_CLEAR + HOOK_WALL  # rear arm's outer face
-KEEPER_TOP = -LINER  # keeper's upper face, pressing the window-side land through the liner
+KEEPER_TOP = -LINER  # keeper's upper face, pressing the window-side land
 KEEPER_BOTTOM = KEEPER_TOP - KEEPER_T
 ARM_BOTTOM = KEEPER_TOP + PARTING_GAP
 
@@ -254,10 +261,15 @@ def pod_placement(rot, rrot):
     seat = rot @ np.array([0, head_seat(), SCREW_W])
     target = np.array([0, SLOT_POINT, gap + receiver.T * receiver.IN / 2])  # mid-lip, on the slot
     blockers = place(saddle_local(), rot) + screw_head(rot)
-    pocket = pocket_local()
+    # Everything open inside the receiver's outline (flange pocket, slot, the space between
+    # the barbs) must stay clear, not just the pocket: m12's tighter fit first put the
+    # saddle into the slot.
+    body, blo, bhi = receiver_body()
+    zone = Manifold.cube([bhi[0] - blo[0], bhi[1] - blo[1], bhi[2] + 0.001]).translate([blo[0], blo[1], 0])
+    pocket = pocket_local() + (zone - body)
     for s in np.arange(0, 120, 0.25):
         off = seat + s * axis - rrot @ target
-        if (place(pocket, rrot, off) ^ blockers).volume() < 1e-3:
+        if (place(pocket, rrot, off) ^ blockers).is_empty():
             return off
     raise RuntimeError("no platform position clears the clamp")
 
@@ -326,6 +338,13 @@ def right_parts():
         assert roof < gap, "saddle reaches into the flange gap"
         channel = place(Manifold.cube([2 * inner, hi[1] - lo[1] + 80, gap - roof]).translate(
             [-inner, lo[1] - 40, roof]), rrot, roff)
+        # Roof raised as a flat-topped gable: 45 deg chamfers up from each rail, then a short
+        # bridge. As printed (face down) the chamfers are 45 deg walls that need no support.
+        c = CHANNEL_CHAMFER
+        span = hi[1] - lo[1] + 80
+        gable = (Manifold.cube([2 * inner, span, 0.01]).translate([-inner, lo[1] - 40, roof])
+                 + Manifold.cube([2 * (inner - c), span, 0.01]).translate([-inner + c, lo[1] - 40, roof - c])).hull()
+        channel += place(gable, rrot, roff)
         # Inside the platform's outline the pedestal stops at the channel roof: the lip, slot,
         # barbs and rails come from v7 alone, unchanged.
         webs -= place(Manifold.cube([hi[0] - lo[0], hi[1] - lo[1], hi[2] + 1 - roof]).translate(
@@ -420,6 +439,75 @@ def write_obj(objects, path):
             base += len(v)
 
 
+def art_wall_normal(rot, rrot):
+    """Outward normal of the pedestal's tail-facing wall: the rear arm's outer face, swept
+    toward the platform, so it lies square to the sweep direction."""
+    down = rrot[:, 2]
+    n = -rot[:, 2] - (-rot[:, 2] @ down) * down
+    return n / np.linalg.norm(n)
+
+
+def art_cut(saddle, n, mirror=False):
+    """Cutter for the ART picture on the saddle's flat wall facing about `n`, upright as seen
+    when mounted (world z is up), fitted inside the wall with ART["margin"] all round.
+    `mirror` flips the picture left to right (the left mount's wall is the right's mirror image)."""
+    import artwork
+    # The wall's exact normal: the largest flat area among the triangles facing within 5 deg of n.
+    mesh = saddle.to_mesh()
+    tri = np.asarray(mesh.vert_properties)[:, :3][np.asarray(mesh.tri_verts)]
+    cr = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    area = np.linalg.norm(cr, axis=1) / 2
+    nrm = cr / (2 * area[:, None] + 1e-12)
+    near = (nrm @ n > np.cos(np.radians(5))) & (area > 1e-9)
+    key = np.round(np.column_stack([nrm[near], np.einsum("ij,ij->i", nrm[near], tri[near, 0])]), 3)
+    groups, inv = np.unique(key, axis=0, return_inverse=True)
+    best = np.argmax(np.bincount(inv.ravel(), weights=area[near]))
+    n = groups[best, :3] / np.linalg.norm(groups[best, :3])
+    up = np.array([0, 0, 1.0]) - n[2] * n
+    up /= np.linalg.norm(up)
+    right = np.cross(up, n)                       # the viewer's right, looking at the wall
+    frame = np.column_stack([right, up, n])
+    local = saddle.transform(np.column_stack([frame.T, [0, 0, 0]]))
+    plane = groups[best, 3]                       # the wall's own height, not the part's
+    wall = local.slice(plane - 0.01).offset(-ART["margin"])
+    # The wall is a square tipped about 45 deg as seen mounted, so try turning the picture
+    # too and keep the angle that fits it largest. Fit on the ink itself (a drawing on a
+    # diagonal leaves its bounding box mostly empty), then redraw the ink at the final size so the stroke stays
+    # ART["stroke"] wide.
+    nominal = 38.0
+    mask, px = artwork.ink_mask(ART["image"], ART["crop"], ART["threshold"], ART["stroke"], width_mm=nominal)
+    mask = mask[:, ::-1] if mirror else mask
+    hull = artwork.mask_outline(mask, px).offset(0.3).simplify(0.1)   # the ink itself, slightly fattened
+    lo, hi = np.array(wall.bounds()).reshape(2, 2)
+    centre = (lo + hi) / 2
+    best = (0, 0, centre)
+    for ang in range(-60, 61, 10):
+        h = hull.rotate(ang)
+        for c in [centre + np.array([dx, dy]) for dx in (-3, 0, 3) for dy in (-3, 0, 3)]:
+            fits = lambda k: (h.scale([k, k]).translate(list(c)) - wall).area() < 1e-6
+            k_lo, k_hi = 0.1, 2.0
+            for _ in range(12):
+                k = (k_lo + k_hi) / 2
+                k_lo, k_hi = (k, k_hi) if fits(k) else (k_lo, k)
+            if k_lo > best[0]:
+                best = (k_lo, ang, c)
+    k, ang, c = best
+    for _ in range(20):   # the redrawn ink is a hair bolder than the scaled-down one: shrink to fit
+        mask, px = artwork.ink_mask(ART["image"], ART["crop"], ART["threshold"], ART["stroke"], width_mm=nominal * k)
+        mask = mask[:, ::-1] if mirror else mask
+        pic = artwork.mask_outline(mask, px).rotate(ang).translate(list(c))
+        if (pic - wall).area() < 1e-6:
+            break
+        k *= 0.98
+    else:
+        raise RuntimeError("artwork does not fit the wall")
+    print(f"  artwork turned {ang} deg,", end="")
+    print(f" {nominal * k:.1f} mm wide before turning, {ART['depth']} mm deep")
+    art_cut.last = (wall.offset(ART["margin"]), pic)   # for previews: the wall and the picture, flat
+    cutter = pic.extrude(ART["depth"] + 1).translate([0, 0, plane - ART["depth"]])
+    return cutter.transform(np.column_stack([frame, [0, 0, 0]]))
+
+
 def check_receiver_unchanged(saddle, rrot, roff):
     """The receiver (lip, slot, barbs, rails, flange gap) must be exactly v7's: nothing added
     for the clamp may reach into it. m9's first build filled the slot this way."""
@@ -439,6 +527,7 @@ def main():
     flip = np.diag([-1.0, 1, 1])
     t0 = clamp_offset()
     scene = {"hanger_schematic": (schematic_hanger(rot), "hanger_schematic")}
+    scene_art = {}
     for side in ("right", "left"):
         if side == "right":
             saddle, keeper, off, srot = parts["saddle"], parts["keeper"], roff, rrot
@@ -461,8 +550,19 @@ def main():
         kl = keeper_local() if side == "right" else keeper_local().mirror([1, 0, 0])
         receiver.write_stl(to_bed(kl, [90, 0, 0]), out / f"{tag}_keeper.stl")
         print(f"{tag}: saddle {saddle.volume() / 1000:.1f} cm^3, keeper {keeper.volume() / 1000:.1f} cm^3")
+        if Path(ART["image"]).exists():
+            n = art_wall_normal(rot, rrot) * (np.array([-1.0, 1, 1]) if side == "left" else 1)
+            cut = art_cut(saddle, n, mirror=side == "left")
+            art = saddle - cut
+            removed = saddle.volume() - art.volume()
+            inside = (cut ^ saddle).volume()
+            assert abs(removed - inside) < 1e-3 and len(art.decompose()) == 1
+            receiver.write_stl(face_down(art, srot[:, 2]), out / f"{tag}_saddle_art.stl")
+            scene_art[f"{side}_saddle"] = (art.translate(list(shift)), "saddle")
     receiver.write_stl(scene["hanger_schematic"][0], out / f"assembly_m{VERSION}_hanger_schematic.stl")
     write_obj(scene, out / f"assembly_m{VERSION}.obj")
+    if Path(ART["image"]).exists():
+        write_obj({**scene, **scene_art}, out / f"assembly_m{VERSION}_art.obj")
 
 
 if __name__ == "__main__":
