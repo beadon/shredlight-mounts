@@ -126,6 +126,9 @@ threadlocker.
 
 ## Printing
 
+Slicer profile and per-part settings (supports tuned to break away cleanly): [PRINT_SETTINGS.md](PRINT_SETTINGS.md).
+
+
 - **Receivers:** exported lip-down, ready to slice with no rotation. The open back faces up, so nothing needs to bridge. Set `PRINT_FACE_DOWN = False` to export them in model orientation instead.
 - **Truck mount:** see the file table above. The saddle prints receiver-face down, and the keeper prints flat.
 - **Material:** PETG or ASA is recommended. The 1/16" lip carries the load, and PLA creeps when left in the sun or near a hot motor.
