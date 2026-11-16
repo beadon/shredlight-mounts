@@ -1,12 +1,12 @@
 # Shredlight Mounts
 
 3D-printable left and right receivers for [Shredlights](https://shredlights.com) **SL-300**
-skateboard lights, plus a clamp that mounts them on Radium Mach One S trucks. The lights are the
+skateboard lights, plus mounts for them on a Radium Mach One S: a clamp on each side of the front truck, and a two-light bar over the rear truck's motors. The lights are the
 male side of the connection: the light lies on the receiver's face, and its mounting tongue slides in
 from the slot's open end (the end the lens points to), hugging the underside of the lip until the
 barbs snap over it.
 
-**Status:** the receiver is final (v7). The truck mount is at prototype m14, printed and mounted on both sides of the front truck: the m9 solid pedestal (almost no supports) with M4 hardware (m10) to match the rest of the board, without the thin tabs m9/m10 left at the strut channel's mouth (m11), a snug 0.25 mm fit on the strut with no liner and a chamfered channel roof (m12), a screw that reaches through the nut before it's tightened and a thinner keeper (m13), and the keeper held snugly in its hook, with a support-free engraving (m14). The strut was re-measured at 7.66 mm for m8 (2026-11-13).
+**Status:** the receiver is final (v7). The truck mount is at prototype m14, printed and mounted on both sides of the front truck: the m9 solid pedestal (almost no supports) with M4 hardware (m10) to match the rest of the board, without the thin tabs m9/m10 left at the strut channel's mouth (m11), a snug 0.25 mm fit on the strut with no liner and a chamfered channel roof (m12), a screw that reaches through the nut before it's tightened and a thinner keeper (m13), and the keeper held snugly in its hook, with a support-free engraving (m14). The strut was re-measured at 7.66 mm for m8 (2026-11-13). The rear light mount is at prototype r2, not yet printed.
 
 > **Scope:** designed and fit-tested for the SL-300 only. Other Shredlights models may use
 > different connectors, and supporting them is out of scope for this project.
@@ -93,6 +93,39 @@ Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 - Radium's R6 pre-order listing, quoted on the esk8.news forum (June 2023): "60 degree front, 30 degree rear pivot angle" ([thread](https://forum.esk8.news/t/radium-r6-trucks-thane-belts/77112)). The original listing (`radium-performance.com/products/radium-prototype-trucks-pre-order`) now returns 404. The measured front truck is 30°, so this listing is outdated or uses a different convention.
 - A Radium photo of both trucks is kept in [`docs/reference/vendor/`](docs/reference/vendor). It is **© Radium Performance and not covered by this repo's licence**; see the [notice](docs/reference/vendor/NOTICE.md).
 
+## Rear light mount (Radium Mach One S rear truck): prototype r2
+
+On the rear truck the motors hide anything clamped to the hanger, so the two rear lights sit side
+by side on one bar above the motors, facing the tail. It hangs off the oval hole ("hole A") in the
+floor of the hanger's pocket, just in front of the charging port
+([photos](docs/reference/truck/rear-2026-11-15)). `rear_mount.py` builds two parts:
+
+- **Shoe:** a solid 24 mm block on a flat foot on the pocket floor, with a plug that fills hole A.
+  An M4×20 socket-head screw goes in from the nose side, 15° below level, through a captive M4 nyloc
+  and out of the plug's rear face, under the ~2 mm lip at the hole's rear end. The steel shank holds
+  the shoe down, and its end presses on the back of the space under the lip, pulling the plug tight
+  against the hole's front wall. Print it on its side (as exported), so its layers run up the block.
+- **Light bar:** two v7 receivers, unchanged, on plates joined by a solid bridge that sits flat on the
+  shoe. Two M4×16 bolts go down through the bridge, between the lights, into captive nylocs in the
+  shoe. Print it receiver faces down, like the front saddles. The flange channels' roofs are
+  chamfered to ~17 mm bridges.
+
+The receivers' undersides are 15 mm above hole A, clearing the bar behind the motors (12 mm). They
+are 23 mm apart, so the 17.5 mm charging plug still fits between the lights.
+
+To fit it: slide nylocs into the shoe's three side slots. Back the angled screw off until its end is
+inside the plug, drop the plug into hole A, and tighten the screw from the nose side until it's snug.
+Then bolt the light bar on. Hardware: one M4×20 and two M4×16 socket-head screws, three M4 nylocs.
+
+| File (in `out/rear/`) | |
+|---|---|
+| `rear_shoe_r2.stl` | Lies on its side, ready to slice. Supports under the plug. |
+| `rear_lightbar_r2.stl` | Receiver faces down. |
+| `rear_assembly_r2.obj` | The parts on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the motors' diameter and the bar's height are measured. |
+
+Assumed and not yet checked on the truck: the space under the lip reaches 2 mm back and at least
+~5 mm down, and a hex key can reach the angled screw from the nose side.
+
 ## Printing
 
 - **Receivers:** exported lip-down, ready to slice with no rotation. The open back faces up, so nothing needs to bridge. Set `PRINT_FACE_DOWN = False` to export them in model orientation instead.
@@ -106,6 +139,7 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/python shredlight_mount.py out   # receiver STLs for every version in VERSIONS
 .venv/bin/python truck_mount.py out        # truck clamp STLs (out/truck/)
+.venv/bin/python rear_mount.py out         # rear light mount STLs (out/rear/)
 .venv/bin/python preview.py docs           # preview images
 .venv/bin/python render_views.py           # shaded truck-mount renders (docs/truck_render.png)
 ```
@@ -137,7 +171,9 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Truck mount m14 (m13 with the keeper's hook pocket 5.8 mm tall instead of 8.4, so its rear end can't rock, and the engraving with 45° groove ceilings and a clean mesh): left saddle printed and mounted (2026-11-15). The keeper is snug, the screw catches and tightens the nut, the light snaps in, and the aim, ground and wheel clearance are fine. The ~15 mm bridge over the flange channel sags slightly, but it sits ~6 mm above the flange's path, so it doesn't affect the fit
 - [x] Print the right side once the left fits: m14 right printed and mounted (2026-11-15), fits fine
 - [x] Front truck's hanger tilt: measured 30° from vertical (the 2023 pre-order listing said 60° front)
-- [ ] Measure the rear truck's hanger tilt the same way before mounting lights there; if it isn't 30°, build that saddle with its own `TILT`
+- [x] Rear truck: the motors hide the hanger, so the rear lights get their own mount (`rear_mount.py`), not the strut clamp
+- [x] Rear mount r1: one-piece stalk; too weak (a thin, hollow PLA neck loaded across its layers, and a PLA hook)
+- [ ] Rear mount r2 (shoe with an angled M4 under the lip, and a light bar bolted on): print and test-fit; check the space under the lip and the screw's access from the nose side
 
 ## License
 
