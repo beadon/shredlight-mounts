@@ -6,7 +6,7 @@ male side of the connection: the light lies on the receiver's face, and its moun
 from the slot's open end (the end the lens points to), hugging the underside of the lip until the
 barbs snap over it.
 
-**Status:** the receiver is final (v7). The truck mount is at prototype m14, printed and mounted on both sides of the front truck: the m9 solid pedestal (almost no supports) with M4 hardware (m10) to match the rest of the board, without the thin tabs m9/m10 left at the strut channel's mouth (m11), a snug 0.25 mm fit on the strut with no liner and a chamfered channel roof (m12), a screw that reaches through the nut before it's tightened and a thinner keeper (m13), and the keeper held snugly in its hook, with a support-free engraving (m14). The strut was re-measured at 7.66 mm for m8 (2026-11-13). The rear light mount is at prototype r5 (one part), built on the r4 shoe that fits hole A well.
+**Status: v1.0** (2026-11-16). Every part is printed and fitted on the board: the receiver (v7), the front truck clamps (m14, both sides) and the rear light mount (r5, one part, anchored in the rear truck's oval hole). The [v1.0 release](https://github.com/beadon/shredlight-mounts/releases/tag/v1.0) has the STLs to print. The version history of each part is in the roadmap below.
 
 ## See it mounted
 
@@ -74,7 +74,7 @@ Keep the corners at the top of the slot sharp. v6 rounded them, and the light lo
 
 v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 14 mm. v5 leaves about 0.5 mm of clearance around it.
 
-## Truck mount (Radium Mach One S): prototype m14
+## Truck mount (Radium Mach One S): m14
 
 A two-part clamp holds the v7 receiver on the truck. The Mach One S hanger has no mounting holes, so the clamp grips a strut directly: the diagonal "rake" above each triangular window in the hanger plate. Left and right are mirror images, one per strut.
 
@@ -119,7 +119,7 @@ Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 - Radium's R6 pre-order listing, quoted on the esk8.news forum (June 2023): "60 degree front, 30 degree rear pivot angle" ([thread](https://forum.esk8.news/t/radium-r6-trucks-thane-belts/77112)). The original listing (`radium-performance.com/products/radium-prototype-trucks-pre-order`) now returns 404. The measured front truck is 30°, so this listing is outdated or uses a different convention.
 - A Radium photo of both trucks is kept in [`docs/reference/vendor/`](docs/reference/vendor). It is **© Radium Performance and not covered by this repo's licence**; see the [notice](docs/reference/vendor/NOTICE.md).
 
-## Rear light mount (Radium Mach One S rear truck): prototype r5
+## Rear light mount (Radium Mach One S rear truck): r5
 
 On the rear truck the motors hide anything clamped to the hanger, so the two rear lights sit side
 by side on one bar above the motors, facing the tail. It hangs off the oval hole ("hole A") in the
@@ -204,7 +204,8 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Rear mount r2 (shoe with an angled M4 under the lip, and a light bar bolted on): shoe printed; most of it is good, but its nut slots were sized for 5 mm nylocs, and the nuts used are plain 3.11 mm hex nuts
 - [x] Rear mount r3 (r2 with nut slots for 3.11 mm nuts): shoe printed and fitted in hole A; its nose end overhung the Ra button by ~3 mm
 - [x] Rear mount r4 (r3 with the shoe's nose end 3 mm shorter and the screw steeper, 30° below level, so its head still seats; an M4×16, its head hidden): shoe printed and fitted (2026-11-16), fits well
-- [ ] Rear mount r5 (the r4 shoe and light bar as one part, no bar bolts): print it and test the lights on the board
+- [x] Rear mount r5 (the r4 shoe and light bar as one part, no bar bolts): printed and fitted (2026-11-16), fits perfectly
+- [x] **v1.0** (2026-11-16): receiver v7, front truck clamps m14, rear light mount r5
 
 ## License
 
