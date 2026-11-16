@@ -9,7 +9,7 @@ Two printed parts, joined by two M4 x 16 bolts into captive nuts:
 
     shoe       a short, solid block standing on a flat foot on the pocket floor, with a plug
                that fills hole A. It takes the rocking loads in compression on the foot,
-               and is printed on its side, so its layers run up the block, not across it.
+               and is printed on its top face, with no supports.
     light bar  the two v7 receivers (unchanged, see shredlight_mount.py) on plates, joined
                by a solid bridge that sits flat on the shoe. Printed receiver faces down.
 
@@ -306,8 +306,10 @@ def main():
     assert all(((part + loose).translate(list(dd * N)) ^ sch["housing"]).volume() < 0.01 for dd in (0, 2, 5, 10, 20))
     assert ((part + set_).translate(list(0.5 * N)) ^ sch["housing"]).volume() > 0.01
     print("  fits in with the screw backed off, and can't lift once it's set")
-    # Print the shoe on its side (its -x face on the bed): its layers run up the block.
-    receiver.write_stl(tm.face_down(part, [-1.0, 0, 0]), out / f"rear_shoe_r{VERSION}.stl")
+    # Print the shoe on its top (where the light bar sits): the plug points up, and what's left
+    # overhanging is short flat bridges (nut slot ceilings) and near-level round holes, so it needs
+    # no supports. (On its side, the first r2 export, the plug and the screw's hole needed many.)
+    receiver.write_stl(tm.face_down(part, [0, 0, 1.0]), out / f"rear_shoe_r{VERSION}.stl")
     scene = {"rear_hanger_schematic": (sch["housing"] + sch["motor_plates"], "hanger_schematic"),
              "motors_schematic": (sch["motors"], "hanger_schematic"),
              "bar_c_schematic": (sch["bar_c"], "hanger_schematic"),

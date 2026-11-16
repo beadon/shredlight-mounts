@@ -104,7 +104,7 @@ floor of the hanger's pocket, just in front of the charging port
   An M4×20 socket-head screw goes in from the nose side, 15° below level, through a captive M4 nyloc
   and out of the plug's rear face, under the ~2 mm lip at the hole's rear end. The steel shank holds
   the shoe down, and its end presses on the back of the space under the lip, pulling the plug tight
-  against the hole's front wall. Print it on its side (as exported), so its layers run up the block.
+  against the hole's front wall. Print it on its top face (as exported), plug up: it needs no supports.
 - **Light bar:** two v7 receivers, unchanged, on plates joined by a solid bridge that sits flat on the
   shoe. Two M4×16 bolts go down through the bridge, between the lights, into captive nylocs in the
   shoe. Print it receiver faces down, like the front saddles. The flange channels' roofs are
@@ -119,7 +119,7 @@ Then bolt the light bar on. Hardware: one M4×20 and two M4×16 socket-head scre
 
 | File (in `out/rear/`) | |
 |---|---|
-| `rear_shoe_r2.stl` | Lies on its side, ready to slice. Supports under the plug. |
+| `rear_shoe_r2.stl` | Top face down, plug up, ready to slice. No supports: what overhangs is short flat bridges (nut slot ceilings) and near-level round holes. |
 | `rear_lightbar_r2.stl` | Receiver faces down. |
 | `rear_assembly_r2.obj` | The parts on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the motors' diameter and the bar's height are measured. |
 
