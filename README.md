@@ -8,6 +8,19 @@ barbs snap over it.
 
 **Status:** the receiver is final (v7). The truck mount is at prototype m14, printed and mounted on both sides of the front truck: the m9 solid pedestal (almost no supports) with M4 hardware (m10) to match the rest of the board, without the thin tabs m9/m10 left at the strut channel's mouth (m11), a snug 0.25 mm fit on the strut with no liner and a chamfered channel roof (m12), a screw that reaches through the nut before it's tightened and a thinner keeper (m13), and the keeper held snugly in its hook, with a support-free engraving (m14). The strut was re-measured at 7.66 mm for m8 (2026-11-13). The rear light mount is at prototype r5 (one part), built on the r4 shoe that fits hole A well.
 
+## See it mounted
+
+The lights (blue boxes) on their mounts (red), on **schematic** trucks: only the parts the mounts
+touch are measured; the rest are placeholder shapes.
+
+| Front truck (m14) | Rear truck (r5) |
+|---|---|
+| ![Fly-around of the front truck mounts](docs/flyaround_front.gif) | ![Fly-around of the rear light mount](docs/flyaround_rear.gif) |
+| [Turn it in your browser](out/truck/assembly_m14_view.stl) | [Turn it in your browser](out/rear/rear_assembly_r5_view.stl) |
+
+The browser links open GitHub's 3D viewer (drag to turn, scroll to zoom). For colours and separate
+parts, open `out/truck/assembly_m14.obj` or `out/rear/rear_assembly_r5.obj` in Blender.
+
 ## Where the files are
 
 Ready-to-slice STLs, each exported in its print orientation (see [PRINT_SETTINGS.md](PRINT_SETTINGS.md)):
@@ -156,6 +169,7 @@ python3 -m venv .venv
 .venv/bin/python rear_mount.py out         # rear light mount STLs (out/rear/)
 .venv/bin/python preview.py docs           # preview images
 .venv/bin/python render_views.py           # shaded truck-mount renders (docs/truck_render.png)
+.venv/bin/python flyaround.py              # fly-around GIFs (docs/) and the browser-view STLs (needs Blender)
 ```
 
 All receiver dimensions are named constants, in inches, at the top of `shredlight_mount.py`. The
