@@ -6,7 +6,7 @@ male side of the connection: the light lies on the receiver's face, and its moun
 from the slot's open end (the end the lens points to), hugging the underside of the lip until the
 barbs snap over it.
 
-**Status:** the receiver is final (v7). The truck mount is at prototype m14, printed and mounted on both sides of the front truck: the m9 solid pedestal (almost no supports) with M4 hardware (m10) to match the rest of the board, without the thin tabs m9/m10 left at the strut channel's mouth (m11), a snug 0.25 mm fit on the strut with no liner and a chamfered channel roof (m12), a screw that reaches through the nut before it's tightened and a thinner keeper (m13), and the keeper held snugly in its hook, with a support-free engraving (m14). The strut was re-measured at 7.66 mm for m8 (2026-11-13). The rear light mount is at prototype r4, not yet test-fitted.
+**Status:** the receiver is final (v7). The truck mount is at prototype m14, printed and mounted on both sides of the front truck: the m9 solid pedestal (almost no supports) with M4 hardware (m10) to match the rest of the board, without the thin tabs m9/m10 left at the strut channel's mouth (m11), a snug 0.25 mm fit on the strut with no liner and a chamfered channel roof (m12), a screw that reaches through the nut before it's tightened and a thinner keeper (m13), and the keeper held snugly in its hook, with a support-free engraving (m14). The strut was re-measured at 7.66 mm for m8 (2026-11-13). The rear light mount is at prototype r5 (one part), built on the r4 shoe that fits hole A well.
 
 > **Scope:** designed and fit-tested for the SL-300 only. Other Shredlights models may use
 > different connectors, and supporting them is out of scope for this project.
@@ -93,40 +93,36 @@ Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 - Radium's R6 pre-order listing, quoted on the esk8.news forum (June 2023): "60 degree front, 30 degree rear pivot angle" ([thread](https://forum.esk8.news/t/radium-r6-trucks-thane-belts/77112)). The original listing (`radium-performance.com/products/radium-prototype-trucks-pre-order`) now returns 404. The measured front truck is 30°, so this listing is outdated or uses a different convention.
 - A Radium photo of both trucks is kept in [`docs/reference/vendor/`](docs/reference/vendor). It is **© Radium Performance and not covered by this repo's licence**; see the [notice](docs/reference/vendor/NOTICE.md).
 
-## Rear light mount (Radium Mach One S rear truck): prototype r4
+## Rear light mount (Radium Mach One S rear truck): prototype r5
 
 On the rear truck the motors hide anything clamped to the hanger, so the two rear lights sit side
 by side on one bar above the motors, facing the tail. It hangs off the oval hole ("hole A") in the
 floor of the hanger's pocket, just in front of the charging port
-([photos](docs/reference/truck/rear-2026-11-15)). `rear_mount.py` builds two parts:
+([photos](docs/reference/truck/rear-2026-11-15)). `rear_mount.py` builds it as one part (r5; r2–r4
+were a shoe and a light bar bolted together):
 
-- **Shoe:** a solid 24 mm block on a flat foot on the pocket floor, stopping short of the Ra button, with a plug that fills hole A.
-  An M4×16 socket-head screw goes in from the nose side, 30° below level, through a captive M4 hex nut
-  and out of the plug's rear face, under the ~2 mm lip at the hole's rear end. The steel shank holds
-  the shoe down, and its end presses on the back of the space under the lip, pulling the plug tight
-  against the hole's front wall. Print it on its top face (as exported), plug up: it needs no supports.
-- **Light bar:** two v7 receivers, unchanged, on plates joined by a solid bridge that sits flat on the
-  shoe. Two M4×16 bolts go down through the bridge, between the lights, into captive M4 hex nuts in the
-  shoe. Print it receiver faces down, like the front saddles. The flange channels' roofs are
-  chamfered to ~17 mm bridges.
+- **Shoe:** a solid 24 mm block on a flat foot on the pocket floor, stopping short of the Ra button,
+  with a plug that fills hole A. An M4×16 socket-head screw goes in from the nose side, 30° below
+  level, through a captive M4 hex nut and out of the plug's rear face, under the ~2 mm lip at the
+  hole's rear end. The steel shank holds the mount down, and its end presses on the back of the space
+  under the lip, pulling the plug tight against the hole's front wall. Tightened, the screw's head
+  sits just inside its counterbore. The r4 shoe fit hole A well.
+- **Light bar:** two v7 receivers, unchanged, on plates joined by a solid bridge on top of the shoe.
+  The flange channels' roofs are chamfered to ~17 mm bridges.
 
 The receivers' undersides are 15 mm above hole A, clearing the bar behind the motors (12 mm). They
 are 23 mm apart, so the 17.5 mm charging plug still fits between the lights.
 
-To fit it: slide plain M4 hex nuts (3 mm thick) into the shoe's three side slots. Back the angled screw off until its end is
-inside the plug, drop the plug into hole A, and tighten the screw from the nose side until it's snug.
-Then bolt the light bar on. Hardware: three M4×16 socket-head screws (the angled one's head ends up hidden in its counterbore), three plain M4 hex nuts (the slots fit 3.11 mm
-nuts with 0.3 mm to spare; r2's were sized for 5 mm nylocs). The nuts have no nylon insert, so use a
-drop of removable threadlocker on the screws.
+To fit it: slide a plain M4 hex nut (3 mm thick; the slot fits 3.11 mm nuts with 0.3 mm to spare)
+into the slot in the shoe's side. Back the screw off until its end is inside the plug, drop the plug
+into hole A, and tighten the screw from the nose side until it's snug. Hardware: one M4×16
+socket-head screw and one plain M4 hex nut. The nut has no nylon insert, so use a drop of removable
+threadlocker.
 
 | File (in `out/rear/`) | |
 |---|---|
-| `rear_shoe_r4.stl` | Top face down, plug up, ready to slice. No supports: what overhangs is short flat bridges (nut slot ceilings) and near-level round holes. |
-| `rear_lightbar_r4.stl` | Receiver faces down. |
-| `rear_assembly_r4.obj` | The parts on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the motors' diameter and the bar's height are measured. |
-
-Assumed and not yet checked on the truck: the space under the lip reaches 2 mm back and at least
-~5 mm down, and a hex key can reach the angled screw from the nose side.
+| `rear_mount_r5.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
+| `rear_assembly_r5.obj` | The mount and screw on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the motors' diameter and the bar's height are measured. |
 
 ## Printing
 
@@ -177,7 +173,8 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Rear mount r1: one-piece stalk; too weak (a thin, hollow PLA neck loaded across its layers, and a PLA hook)
 - [x] Rear mount r2 (shoe with an angled M4 under the lip, and a light bar bolted on): shoe printed; most of it is good, but its nut slots were sized for 5 mm nylocs, and the nuts used are plain 3.11 mm hex nuts
 - [x] Rear mount r3 (r2 with nut slots for 3.11 mm nuts): shoe printed and fitted in hole A; its nose end overhung the Ra button by ~3 mm
-- [ ] Rear mount r4 (r3 with the shoe's nose end 3 mm shorter and the screw steeper, 30° below level, so its head still seats; an M4×16, its head hidden): test-fit the shoe; check the space under the lip and the screw's access from the nose side
+- [x] Rear mount r4 (r3 with the shoe's nose end 3 mm shorter and the screw steeper, 30° below level, so its head still seats; an M4×16, its head hidden): shoe printed and fitted (2026-11-16), fits well
+- [ ] Rear mount r5 (the r4 shoe and light bar as one part, no bar bolts): print it and test the lights on the board
 
 ## License
 

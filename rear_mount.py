@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-"""Rear lights for the Radium Mach One S rear truck (prototype r4).
+"""Rear lights for the Radium Mach One S rear truck (prototype r5).
 
 The rear truck's motors hide anything mounted on the hanger arms, so two SL-300 lights sit
 side by side above the motors, facing the tail. Everything hangs off the oval hole ("hole A")
 in the floor of the hanger's pocket, just in front of the charging port.
 
-Two printed parts, joined by two M4 x 16 bolts into captive nuts:
+One printed part (r5; r2-r4 were two, bolted together):
 
     shoe       a short, solid block standing on a flat foot on the pocket floor, with a plug
-               that fills hole A. It takes the rocking loads in compression on the foot,
-               and is printed on its top face, with no supports.
+               that fills hole A. It takes the rocking loads in compression on the foot.
     light bar  the two v7 receivers (unchanged, see shredlight_mount.py) on plates, joined
-               by a solid bridge that sits flat on the shoe. Printed receiver faces down.
+               by a solid bridge on top of the shoe.
+
+It prints receiver faces down, with the shoe and its plug pointing up, and no supports.
 
 Holding the shoe in the hole (the user's design): the plug fills the hole and drops straight in.
 An M4 x 16 socket-head screw goes in from the nose side, angled down toward the tail at 30 deg
@@ -22,7 +23,8 @@ reached with the light bar fitted. (r2 also drew a hook-and-wedge version; it wa
 
 r3: the nut pockets fit the user's plain M4 hex nuts (3.11 mm measured), not 5 mm nylocs.
 r4: the shoe's nose end is 3 mm shorter, clear of the Ra button, and the screw is steeper to suit;
-it's an M4 x 16, like the bar bolts, with its head hidden in the counterbore.
+it's an M4 x 16, like the bar bolts, with its head hidden in the counterbore. The r4 shoe fit well.
+r5: the r4 shoe and light bar as one part; the two bar bolts and their nuts are gone.
 
 World frame: x to the rider's right, y toward the nose, z up (sky). Origin: centre of hole A,
 on the surface around it. That surface faces the nose, tipped 30 deg up from flat.
@@ -38,7 +40,7 @@ from manifold3d import CrossSection, Manifold
 import shredlight_mount as receiver
 import truck_mount as tm
 
-VERSION = 4
+VERSION = 5
 
 # --- Hole A, in the hanger pocket (user's measurements, 2026-11-15) ---
 SURFACE_TILT = 30.0  # surface round the hole: tipped 30 deg from flat, facing the nose (inclinometer)
@@ -77,10 +79,6 @@ B_ANGLE = 60.0       # axis from the surface; in the world it rises 30 deg towar
 B_LEN = 16.0         # M4 x 16 (r2-r4: x 20); tightened, its head sits ~1 mm inside the counterbore
 B_RETRACT = 5.0      # backed off this far, its end is inside the plug, so the plug drops straight in
 B_NUT_AT = 11.5
-# Bolts joining the light bar to the shoe (vertical, heads in the bridge's top, between the lights)
-BAR_BOLT_X, BAR_BOLT_Y = 7.0, -5.0
-BAR_BOLT_LEN = 16.0  # M4 x 16
-BAR_NUT_Z = 11.8     # nut centre height
 
 # --- Light bar: two v7 receivers, side by side, facing the tail ---
 PLUG_GAP = 23.0      # gap between the receivers: the lights overhang them 0.7 mm, leaving 21.6 between the lights
@@ -152,32 +150,15 @@ def plug_and_screw():
     return plug, cut, screw
 
 
-def bar_bolts():
-    """Bolt holes and nut pockets for the two bar bolts, in world coordinates (nuts' slots
-    run out to each side)."""
-    holes, nuts = Manifold(), Manifold()
-    for sx in (1, -1):
-        holes += rod(40, BOLT_HOLE).translate([sx * BAR_BOLT_X, BAR_BOLT_Y, BAR_NUT_Z - NUT_T / 2 - 0.3])
-        nut = nut_pocket()
-        nuts += (nut if sx > 0 else nut.mirror([1, 0, 0])).translate([sx * BAR_BOLT_X, BAR_BOLT_Y, BAR_NUT_Z])
-    return holes, nuts
-
-
-def bar_head_seat():
-    return BAR_NUT_Z - NUT_T / 2 + BAR_BOLT_LEN   # bolt's tip flush with the nut's underside: full thread
-
-
 def shoe():
     plug, cut, screw = plug_and_screw()
     above = at_hole(Manifold.cube([200, 200, 100]).translate([-100, -100, 0]))
     w = SHOE_W / 2
-    body = Manifold.cube([SHOE_W, SHOE_FRONT - SHOE_REAR, CLEAR_Z + 40]).translate([-w, SHOE_REAR, -40]) ^ above
+    top = CLEAR_Z + 0.5                        # reaches 0.5 into the light bar's bridge: no coplanar seam
+    body = Manifold.cube([SHOE_W, SHOE_FRONT - SHOE_REAR, top + 40]).translate([-w, SHOE_REAR, -40]) ^ above
     z0 = STEP_Z + STEP_GAP
-    body += Manifold.cube([SHOE_W, SHOE_REAR - SHOE_REAR_TOP + 1, CLEAR_Z - z0]).translate([-w, SHOE_REAR_TOP, z0])
-    part = body + at_hole(plug)
-    holes, nuts = bar_bolts()
-    part -= at_hole(cut) + holes + nuts
-    return part, screw, at_hole(cut)
+    body += Manifold.cube([SHOE_W, SHOE_REAR - SHOE_REAR_TOP + 1, top - z0]).translate([-w, SHOE_REAR_TOP, z0])
+    return body + at_hole(plug), screw, at_hole(cut)
 
 
 def rear_rot():
@@ -209,12 +190,15 @@ def light_bar():
     # above the plates it stays between the rails, under where the lights sit.
     bridge = (Manifold.cube([PLUG_GAP + 2, L, top - CLEAR_Z]).translate([-PLUG_GAP / 2 - 1, BRIDGE_REAR, CLEAR_Z])
               + Manifold.cube([PLUG_GAP + 0.4, L, face - top + 0.5]).translate([-PLUG_GAP / 2 - 0.2, BRIDGE_REAR, top - 0.5]))
-    bar = recv + bridge
-    seat = bar_head_seat()
-    for sx in (1, -1):
-        bar -= rod(40, BOLT_HOLE).translate([sx * BAR_BOLT_X, BAR_BOLT_Y, CLEAR_Z - 1])
-        bar -= rod(40, HEAD_BORE, seat).translate([sx * BAR_BOLT_X, BAR_BOLT_Y, 0])
-    return bar, rot, offs, face
+    return recv + bridge, rot, offs, face
+
+
+def mount():
+    """The whole printed part: shoe and light bar in one, minus the angled screw's hole, nut
+    pocket, counterbore and the hex key's path. Also returns the screw and the light bar."""
+    sh, screw, cut = shoe()
+    bar, rot, offs, face = light_bar()
+    return sh + bar - cut, screw, cut, bar, rot, offs
 
 
 def port_column():
@@ -260,28 +244,12 @@ def screw_solid(screw, travel):
     return at_hole(m)
 
 
-def bar_bolt_solids():
-    seat = bar_head_seat()
-    m = Manifold()
-    for sx in (1, -1):
-        m += (rod(BAR_BOLT_LEN, 4.0, seat - BAR_BOLT_LEN) + rod(4.0, 7.0, seat)).translate([sx * BAR_BOLT_X, BAR_BOLT_Y, 0])
-    return m
-
-
-def min_gap_ok(a, b, gap):
-    """True if solids a and b stay at least `gap` apart (checked along the axes and diagonals)."""
-    dirs = [np.array(v, float) for v in [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]]
-    dirs += [np.array(v) / np.sqrt(2) for v in [(1, 1, 0), (1, -1, 0), (-1, 1, 0), (-1, -1, 0),
-                                                 (0, 1, 1), (0, 1, -1), (0, -1, 1), (0, -1, -1)]]
-    return all((a.translate(list(gap * v)) ^ b).is_empty() for v in dirs) and (a ^ b).is_empty()
-
-
 def main():
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "out") / "rear"
     out.mkdir(parents=True, exist_ok=True)
     sch = hanger_schematic()
     port = port_column()
-    bar, rot, offs, face = light_bar()
+    _, rot, offs, _ = light_bar()
     lights = light_boxes(rot, offs)
     world = list(sch.values())
 
@@ -293,17 +261,12 @@ def main():
         print(f"{name}: {m.volume() / 1000:.1f} cm^3, overlaps: {bad or 'none'}")
         tm.check_mesh(m, name)
 
-    report("light bar", bar)
     for i, lb in enumerate(lights):
         print(f"  light {i}: bottom {lb.bounding_box()[2]:.1f} above the hole; "
               f"overlaps schematic {sum((lb ^ m).volume() for m in world):.1f}, plug column {(lb ^ port).volume():.1f}")
-    receiver.write_stl(tm.face_down(bar, [0, 0, 1.0]), out / f"rear_lightbar_r{VERSION}.stl")
-    bolts = bar_bolt_solids()
-    part, screw, cut = shoe()
-    report("shoe", part)
-    assert (part ^ bar).volume() < 0.01, "shoe and bar overlap"
-    holes, nuts = bar_bolts()
-    assert min_gap_ok(cut, nuts + holes, 1.0), "less than 1 mm between the screw's pockets and the bar bolts'"
+    part, screw, cut, _, _, _ = mount()
+    report("rear mount", part)
+    assert all((lb ^ part).is_empty() for lb in lights), "the part runs into a light"
     set_ = screw_solid(screw, 0.0)
     loose = screw_solid(screw, screw["loose"])
     assert (set_ ^ sch["housing"]).is_empty(), "the screw, set, runs into the truck"
@@ -311,17 +274,14 @@ def main():
     assert all(((part + loose).translate(list(dd * N)) ^ sch["housing"]).volume() < 0.01 for dd in (0, 2, 5, 10, 20))
     assert ((part + set_).translate(list(0.5 * N)) ^ sch["housing"]).volume() > 0.01
     print("  fits in with the screw backed off, and can't lift once it's set")
-    # Print the shoe on its top (where the light bar sits): the plug points up, and what's left
-    # overhanging is short flat bridges (nut slot ceilings) and near-level round holes, so it needs
-    # no supports. (On its side, r2's first export, the plug and the screw's hole needed many.)
-    receiver.write_stl(tm.face_down(part, [0, 0, 1.0]), out / f"rear_shoe_r{VERSION}.stl")
+    # Receiver faces down, the shoe and its plug pointing up (as the r4 shoe printed, top face down).
+    receiver.write_stl(tm.face_down(part, [0, 0, 1.0]), out / f"rear_mount_r{VERSION}.stl")
     scene = {"rear_hanger_schematic": (sch["housing"] + sch["motor_plates"], "hanger_schematic"),
              "motors_schematic": (sch["motors"], "hanger_schematic"),
              "bar_c_schematic": (sch["bar_c"], "hanger_schematic"),
              "wheels_schematic": (sch["wheels"], "hanger_schematic"),
-             "shoe": (part, "keeper"),
-             "light_bar": (bar, "saddle"),
-             "screws": (set_ + bolts, "hanger_schematic"),
+             "rear_mount": (part, "saddle"),
+             "screw": (set_, "hanger_schematic"),
              "charging_plug_column": (port ^ Manifold.cube([60, 60, 60]).translate([-30, -50, 0]), "light_placeholder")}
     for i, lb in enumerate(lights):
         scene[f"light_placeholder_{i}"] = (lb, "light_placeholder")
