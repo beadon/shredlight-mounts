@@ -8,6 +8,19 @@ barbs snap over it.
 
 **Status:** the receiver is final (v7). The truck mount is at prototype m14, printed and mounted on both sides of the front truck: the m9 solid pedestal (almost no supports) with M4 hardware (m10) to match the rest of the board, without the thin tabs m9/m10 left at the strut channel's mouth (m11), a snug 0.25 mm fit on the strut with no liner and a chamfered channel roof (m12), a screw that reaches through the nut before it's tightened and a thinner keeper (m13), and the keeper held snugly in its hook, with a support-free engraving (m14). The strut was re-measured at 7.66 mm for m8 (2026-11-13). The rear light mount is at prototype r5 (one part), built on the r4 shoe that fits hole A well.
 
+## Where the files are
+
+Ready-to-slice STLs, each exported in its print orientation (see [PRINT_SETTINGS.md](PRINT_SETTINGS.md)):
+
+| Folder | What |
+|---|---|
+| [`out/`](out) | The Shredlight mount itself (the receiver the light clips into), left and right, every fit version: `shredlight_mount_{left,right}_v1`…`v7`. **v7 is the mount to print.** |
+| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m14** (current), plus `assembly_m*.obj` for Blender. |
+| [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r5.stl` (current) and `rear_assembly_r5.obj` for Blender. |
+
+Older versions are in the git history. The `*_art` engraved saddles aren't in the repo: the artwork
+isn't GPL (see [art/NOTICE.md](art/NOTICE.md)), so `truck_mount.py` builds them locally only.
+
 > **Scope:** designed and fit-tested for the SL-300 only. Other Shredlights models may use
 > different connectors, and supporting them is out of scope for this project.
 
