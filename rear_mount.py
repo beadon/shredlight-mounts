@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rear lights for the Radium Mach One S rear truck (prototype r2).
+"""Rear lights for the Radium Mach One S rear truck (prototype r4).
 
 The rear truck's motors hide anything mounted on the hanger arms, so two SL-300 lights sit
 side by side above the motors, facing the tail. Everything hangs off the oval hole ("hole A")
@@ -14,11 +14,15 @@ Two printed parts, joined by two M4 x 16 bolts into captive nuts:
                by a solid bridge that sits flat on the shoe. Printed receiver faces down.
 
 Holding the shoe in the hole (the user's design): the plug fills the hole and drops straight in.
-An M4 x 20 socket-head screw goes in from the nose side, angled down toward the tail at 15 deg
-below level, through a captive M4 nyloc in the shoe and out of the plug's rear face, under the
+An M4 x 16 socket-head screw goes in from the nose side, angled down toward the tail at 30 deg
+below level (r2, r3: 15), through a captive M4 hex nut in the shoe and out of the plug's rear face, under the
 lip at the hole's rear end. The steel shank holds the shoe down; its end presses on the back of
 the space under the lip, which pulls the plug tight against the hole's front wall. It can be
 reached with the light bar fitted. (r2 also drew a hook-and-wedge version; it was dropped.)
+
+r3: the nut pockets fit the user's plain M4 hex nuts (3.11 mm measured), not 5 mm nylocs.
+r4: the shoe's nose end is 3 mm shorter, clear of the Ra button, and the screw is steeper to suit;
+it's an M4 x 16, like the bar bolts, with its head hidden in the counterbore.
 
 World frame: x to the rider's right, y toward the nose, z up (sky). Origin: centre of hole A,
 on the surface around it. That surface faces the nose, tipped 30 deg up from flat.
@@ -34,7 +38,7 @@ from manifold3d import CrossSection, Manifold
 import shredlight_mount as receiver
 import truck_mount as tm
 
-VERSION = 2
+VERSION = 4
 
 # --- Hole A, in the hanger pocket (user's measurements, 2026-11-15) ---
 SURFACE_TILT = 30.0  # surface round the hole: tipped 30 deg from flat, facing the nose (inclinometer)
@@ -58,20 +62,21 @@ PLUG_DEPTH = HOLE_D - 0.6  # stops short of the floor
 
 # --- Shoe ---
 SHOE_W = 24.0        # across the board: inside the pocket floor's two hex screws (~34 mm apart, estimated)
-SHOE_FRONT = 10.5    # nose end (y); the Ra button is further forward (estimated)
+SHOE_FRONT = 7.5     # nose end (y): r3's 10.5 overhung the Ra button by ~3 mm (test fit, 2026-11-15)
 SHOE_REAR = -7.0     # tail end below the step's top (the step's face is 7.36 behind the hole's centre)
 SHOE_REAR_TOP = -10.0  # above the step's top the shoe reaches further back, short of the charging plug
 STEP_GAP = 1.2       # gap over the step's top
 
-# --- Hardware: M4 socket-head cap screws and M4 nyloc nuts ---
-NUT_AF, NUT_T = 7.0 + 0.3, 5.0 + 0.4  # nut pocket: across flats and thickness, with clearance
+# --- Hardware: M4 socket-head cap screws and plain M4 hex nuts ---
+NUT_AF, NUT_T = 7.0 + 0.3, 3.11 + 0.3  # nut pocket: across flats and thickness (3.11 measured, r3; r2: 5 mm nylocs)
 BOLT_HOLE = 4.5      # clearance hole for M4
 HEAD_BORE = 8.5      # counterbore for the M4 head (7 mm) and the hex key
 # Screw under the lip
-B_ANGLE = 45.0       # axis from the surface, dropping toward the tail (15 deg below level in the world)
-B_LEN = 20.0         # M4 x 20
+B_ANGLE = 60.0       # axis from the surface; in the world it rises 30 deg toward the nose (r3: 45, 15 deg),
+                     # so the head sits inside the shortened shoe
+B_LEN = 16.0         # M4 x 16 (r2-r4: x 20); tightened, its head sits ~1 mm inside the counterbore
 B_RETRACT = 5.0      # backed off this far, its end is inside the plug, so the plug drops straight in
-B_NUT_AT = 13.0
+B_NUT_AT = 11.5
 # Bolts joining the light bar to the shoe (vertical, heads in the bridge's top, between the lights)
 BAR_BOLT_X, BAR_BOLT_Y = 7.0, -5.0
 BAR_BOLT_LEN = 16.0  # M4 x 16
@@ -152,14 +157,14 @@ def bar_bolts():
     run out to each side)."""
     holes, nuts = Manifold(), Manifold()
     for sx in (1, -1):
-        holes += rod(40, BOLT_HOLE).translate([sx * BAR_BOLT_X, BAR_BOLT_Y, BAR_NUT_Z - NUT_T / 2 - 1.5])
+        holes += rod(40, BOLT_HOLE).translate([sx * BAR_BOLT_X, BAR_BOLT_Y, BAR_NUT_Z - NUT_T / 2 - 0.3])
         nut = nut_pocket()
         nuts += (nut if sx > 0 else nut.mirror([1, 0, 0])).translate([sx * BAR_BOLT_X, BAR_BOLT_Y, BAR_NUT_Z])
     return holes, nuts
 
 
 def bar_head_seat():
-    return BAR_NUT_Z - NUT_T / 2 - 1.0 + BAR_BOLT_LEN   # bolt's tip 1 mm through the nut
+    return BAR_NUT_Z - NUT_T / 2 + BAR_BOLT_LEN   # bolt's tip flush with the nut's underside: full thread
 
 
 def shoe():
@@ -308,7 +313,7 @@ def main():
     print("  fits in with the screw backed off, and can't lift once it's set")
     # Print the shoe on its top (where the light bar sits): the plug points up, and what's left
     # overhanging is short flat bridges (nut slot ceilings) and near-level round holes, so it needs
-    # no supports. (On its side, the first r2 export, the plug and the screw's hole needed many.)
+    # no supports. (On its side, r2's first export, the plug and the screw's hole needed many.)
     receiver.write_stl(tm.face_down(part, [0, 0, 1.0]), out / f"rear_shoe_r{VERSION}.stl")
     scene = {"rear_hanger_schematic": (sch["housing"] + sch["motor_plates"], "hanger_schematic"),
              "motors_schematic": (sch["motors"], "hanger_schematic"),
