@@ -29,7 +29,7 @@ Ready-to-slice STLs, each exported in its print orientation (see [PRINT_SETTINGS
 |---|---|
 | [`out/`](out) | The Shredlight mount itself (the receiver the light clips into), left and right, every fit version: `shredlight_mount_{left,right}_v1`…`v7`. **v7 is the mount to print.** |
 | [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m16** (current; m14 is the last printed and ridden), plus `assembly_m*.obj` for Blender. |
-| [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r5.stl` (current) and `rear_assembly_r5.obj` for Blender. |
+| [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r5.stl` (current) and `rear_assembly_r5.obj` for Blender; `dummy_charge_cover_v1.stl`, a stand-in for the charging-port cover. |
 
 Older versions are in the git history. The `*_art` engraved saddles aren't in the repo: the artwork
 isn't GPL (see [art/NOTICE.md](art/NOTICE.md)), so `truck_mount.py` builds them locally only.
@@ -151,6 +151,14 @@ threadlocker.
 |---|---|
 | `rear_mount_r5.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
 | `rear_assembly_r5.obj` | The mount and screw on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the motors' diameter and the bar's height are measured. |
+| `dummy_charge_cover_v1.stl` | A printable stand-in for the rubber charging-port cover (`charge_cover.py`), measured with calipers: for test-fitting in the recess and for designing the light bar around it. Prints bottom face down, no supports. |
+
+**Known problem (r5): the light bar blocks the charging-port cover.** The cover fills the recess
+around the port (51.7 mm wide at the front, 31.65 deep, 12.4 thick) and comes out by two finger
+holes near its front edge, 17 mm apart at their inner walls. r5's receivers leave only a 22 mm gap
+over it, with their plates about 7.5 mm above the cover, so the finger holes can't be reached and
+the cover can't come out with the bar fitted. `charge_cover.py` models the cover (v1) so r6 can be
+designed around it.
 
 ## Printing
 
@@ -169,6 +177,7 @@ python3 -m venv .venv
 .venv/bin/python shredlight_mount.py out   # receiver STLs for every version in VERSIONS
 .venv/bin/python truck_mount.py out        # truck clamp STLs (out/truck/)
 .venv/bin/python rear_mount.py out         # rear light mount STLs (out/rear/)
+.venv/bin/python charge_cover.py out       # dummy charging-port cover (out/rear/)
 .venv/bin/python preview.py docs           # preview images
 .venv/bin/python render_views.py           # shaded truck-mount renders (docs/truck_render.png)
 .venv/bin/python flyaround.py              # fly-around GIFs (docs/) and the browser-view STLs (needs Blender)
