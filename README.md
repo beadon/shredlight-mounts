@@ -179,6 +179,46 @@ screw, the platform's `ROLL`, `PITCH_DOWN` and `SLOT_POINT`). To add a receiver 
 version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured slot, or
 `{"upper": mm, "lower": mm}` for exact widths. Optional `lead_in` and `step_radius` (mm) soften the slot edges.
 
+## Known issues
+
+### Threadlocker on plastic parts (front clamp and rear mount)
+
+The front clamp's joint sees heavy vibration: on the board, its M4 screw and nyloc nut rattled loose,
+so the repo owner now locks them with **Loctite 243 (blue)**. The rear mount's plain M4 nut also
+needs a drop of removable threadlocker (see above). The parts are thermoplastic (PLA, PETG), and
+Henkel's own data sheet for 243 warns:
+
+> This product is not normally recommended for use on plastics (particularly thermoplastic materials
+> where stress cracking of the plastic could result). Users are recommended to confirm compatibility
+> of the product with such substrates.
+>
+> — Henkel, TDS LOCTITE 243 (August 2009), [local copy](docs/reference/vendor/henkel/LOCTITE-243-TDS_COPYRIGHT-HENKEL.pdf),
+> [source](https://datasheets.tdx.henkel.com/LOCTITE-243-SG-en_GL.pdf)
+
+The liquid can wick out of the threads into the nut pocket or the screw hole, and those are the
+most stressed spots on the part. Until there's a better fix:
+
+- Use one small drop on the screw's threads where they pass through the nut, never in the plastic
+  pocket, and wipe off anything that squeezes out before it cures.
+- At every check, look around the nut pocket and the screw head for fine cracks or whitening.
+- Alternatives made for plastic fasteners: Henkel's **Loctite 425 Assure** (a cyanoacrylate,
+  [product page](https://www.henkel-adhesives.com/us/en/product/threadlockers/loctite_425.html)) or a
+  pre-applied, dry-film threadlocker. Further reading on why anaerobic threadlockers crack some
+  thermoplastics: [Adhesives Magazine Q&A](https://www.adhesivesmag.com/articles/96391-can-we-use-anaerobic-threadlockers-for-screws-used-in-plastics).
+
+The likely root cause of the loosening is lost preload: the plastic under the screw head and nut
+creeps under the clamp load (PLA especially, PETG less), the joint goes slack, and vibration then
+works the nut. A washer, or a conical spring washer, under the head would treat the cause. The head
+seat is an 8 mm bore today, so a standard M4 washer (ISO 7089: 9 mm across) doesn't fit yet; a later
+version would widen the seat.
+
+### Future: TPU damping
+
+A printed TPU sleeve between the saddle and the strut (`LINER` > 0, as m1–m11 allowed for a rubber
+liner) could absorb vibration and protect the powder coat, and a TPU bumper on the lower rail's
+truck-facing corner would make any contact with the axle beam soft. Keep TPU out of the screw's
+clamp path (head, front arm, keeper, nut), or it will lose preload faster.
+
 ## Roadmap
 
 - [x] Final slot: v5 (14.5 / 10 mm)
@@ -212,4 +252,4 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 
 ## License
 
-[GPL-3.0](LICENSE), except `docs/reference/vendor/`, which is © Radium Performance (see its [notice](docs/reference/vendor/NOTICE.md)), and `art/`, which is Calvin and Hobbes © Bill Watterson (see its [notice](art/NOTICE.md)). Shredlights is a trademark of its owner. This project is not affiliated with or endorsed by them.
+[GPL-3.0](LICENSE), except `docs/reference/vendor/`, which is © Radium Performance and, in `henkel/`, © Henkel (see its [notice](docs/reference/vendor/NOTICE.md)), and `art/`, which is Calvin and Hobbes © Bill Watterson (see its [notice](art/NOTICE.md)). Shredlights is a trademark of its owner. This project is not affiliated with or endorsed by them.
