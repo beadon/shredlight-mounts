@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold, OpType
 
 import shredlight_mount as receiver
 
-VERSION = 14
+VERSION = 15
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -88,6 +88,13 @@ SOLID_PEDESTAL = True  # m9: fill between platform and saddle so the saddle's un
 KEEPER_PATH_CLEAR = 0.6  # clearance round the keeper's slide-in path through the pedestal
 CHANNEL_CHAMFER = 6.0  # m12: 45 deg chamfers this tall up from each rail into the channel roof, so
                        # the bridge over the flange channel is ~15 mm, not ~27 mm, and sits 6 mm clear of it (7 left a 1.8 mm wall)
+# m15: the m14 receiver broke where it ran past the pedestal on its 1.6 mm v7 walls alone
+# (PLA, after a couple of rides), and its lower rail's rear corner wore against the axle beam.
+BACKBONE = True      # solid block behind the whole receiver, rail to rail and end to end
+BACKBONE_BRIDGE = 3.0  # backbone material over the channel roof's flat bridge
+BACKBONE_ROOT = 6.0  # extra depth where the backbone leaves the pedestal, tapering to 0 at the nose
+RAIL_EXTRA = 1.5     # each rail thickened outward by this much, full length, up to the face
+BEAM_CLEAR = 5.0     # minimum gap from the receiver end of the part to the (schematic) axle beam
 # Optional picture engraved on the pedestal's tail-facing wall (the large flat side you see
 # from behind the board). Off unless the image exists; it's kept out of the repo (art/ is
 # gitignored) and the engraved parts are written as separate, gitignored *_art.stl files.
@@ -292,6 +299,32 @@ def pod_placement(rot, rrot):
     raise RuntimeError("no platform position clears the clamp")
 
 
+def backbone_local(roof, root_y):
+    """m15, in the receiver's frame: a block behind the receiver from end to end, deep enough to
+    cover the channel roof's bridge, tapering from BACKBONE_ROOT deeper at the pedestal's front
+    face to nothing at the nose (no sharp step for a crack to start at), plus each rail
+    thickened outward. Inside the receiver's outline the caller trims it back to the roof."""
+    _, lo, hi, _, _ = receiver_dims()
+    x0, x1 = lo[0] - RAIL_EXTRA, hi[0] + RAIL_EXTRA
+    z0 = roof - CHANNEL_CHAMFER - BACKBONE_BRIDGE
+    slab = Manifold.cube([x1 - x0, hi[1] - lo[1], hi[2] - z0]).translate([x0, lo[1], z0])
+    root = Manifold.cube([x1 - x0, 1.0, hi[2] - z0 + BACKBONE_ROOT]).translate(
+        [x0, root_y - 1.0, z0 - BACKBONE_ROOT])
+    nose = Manifold.cube([x1 - x0, 1.0, hi[2] - z0]).translate([x0, hi[1] - 1.0, z0])
+    return slab + (root + nose).hull()
+
+
+def beam_keepout(rot, rrot, roff):
+    """m15: the axle beam grown by BEAM_CLEAR, only where it meets the receiver end of the part
+    (local z above the clamp), so the rails can't reach the beam when the light shakes."""
+    t0 = clamp_offset()
+    c = BEAM_CLEAR
+    grown = place(box(-BEAM_HALF, BEAM_HALF, -BEAM_H - c, c, -HALF_T - c, HALF_T + c),
+                  plate_frame()).translate(list(-t0))
+    near_face = place(Manifold.cube([400, 400, 400]).translate([-200, -200, -10]), rrot, roff)
+    return grown ^ near_face
+
+
 def right_parts():
     rot = strut_frame()
     saddle = place(saddle_local(), rot)
@@ -365,10 +398,15 @@ def right_parts():
         channel += place(gable, rrot, roff)
         # Inside the platform's outline the pedestal stops at the channel roof: the lip, slot,
         # barbs and rails come from v7 alone, unchanged.
+        if BACKBONE:
+            webs += place(backbone_local(roof, ys.max() + PEDESTAL_MARGIN), rrot, roff) \
+                - place(pedestal_voids_local(), rot)
         webs -= place(Manifold.cube([hi[0] - lo[0], hi[1] - lo[1], hi[2] + 1 - roof]).translate(
             [lo[0], lo[1], roof]), rrot, roff)
     webs -= channel
     saddle = (saddle + webs) + pod - strut - access
+    if BACKBONE:
+        saddle -= beam_keepout(rot, rrot, roff)
     return {"saddle": saddle, "keeper": keeper, "webs": webs, "pod": pod}, rot, rrot, roff
 
 

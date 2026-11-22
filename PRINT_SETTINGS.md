@@ -8,6 +8,10 @@ with the profile below. The support settings matter most: they're tuned so suppo
 Based on the system profile **0.20mm SPEED @MK4IS 0.4**, saved as a copy, with filament **Generic PLA**.
 (PETG or ASA hold up better in the sun and near a hot motor; see the README.)
 
+**Front truck saddles from m15 on: PETG.** A PLA m14 saddle cracked from road shock (see the README).
+Use the **Generic PETG** filament profile, with **4 perimeters** and **40 % gyroid infill** for the saddle, so the
+receiver's rails and backbone are mostly solid wall. Everything else below is unchanged.
+
 | Setting | Value |
 |---|---|
 | Layer height / first layer | 0.2 mm / 0.2 mm |
@@ -51,11 +55,12 @@ channels that would be hard to clear.
 All STLs are exported in their print orientation; slice them without rotating.
 
 - **Receivers** (`out/shredlight_mount_*_v7.stl`): lip down. Supports off.
-- **Front truck saddles** (`out/truck/truck_mount_*_m14_saddle.stl`): receiver face down. Designed to
+- **Front truck saddles** (`out/truck/truck_mount_*_m15_saddle.stl`): receiver face down, in PETG (above). Designed to
   need little support: the flange channel's roof is chamfered at 45° up to a ~15 mm bridge, which sags
   slightly but doesn't affect the fit (it sits ~6 mm above the flange's path). With the profile above,
-  "don't support bridges" leaves it unsupported; for a cleaner roof, block supports in the channel.
-- **Keepers** (`out/truck/truck_mount_*_m14_keeper.stl`): flat, nut pocket on the bed side. Supports off.
+  "don't support bridges" leaves it unsupported; for a cleaner roof, block supports in the channel. m15's backbone
+  carries that roof along the whole receiver, so any sag runs its full length; it still doesn't touch the flange.
+- **Keepers** (`out/truck/truck_mount_*_m15_keeper.stl`, the same as m14's): flat, nut pocket on the bed side. Supports off.
 - **Rear light mount** (`out/rear/rear_mount_r5.stl`): receiver faces down, the shoe and its plug
   pointing up. Supports off: what overhangs is the two chamfered channel-roof bridges, the nut slot's
   ceiling and near-level round holes (the r4 shoe printed this way cleanly).

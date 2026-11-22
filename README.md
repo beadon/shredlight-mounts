@@ -28,7 +28,7 @@ Ready-to-slice STLs, each exported in its print orientation (see [PRINT_SETTINGS
 | Folder | What |
 |---|---|
 | [`out/`](out) | The Shredlight mount itself (the receiver the light clips into), left and right, every fit version: `shredlight_mount_{left,right}_v1`…`v7`. **v7 is the mount to print.** |
-| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m14** (current), plus `assembly_m*.obj` for Blender. |
+| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m15** (current; m14 is the last printed and ridden), plus `assembly_m*.obj` for Blender. |
 | [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r5.stl` (current) and `rear_assembly_r5.obj` for Blender. |
 
 Older versions are in the git history. The `*_art` engraved saddles aren't in the repo: the artwork
@@ -74,7 +74,7 @@ Keep the corners at the top of the slot sharp. v6 rounded them, and the light lo
 
 v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 14 mm. v5 leaves about 0.5 mm of clearance around it.
 
-## Truck mount (Radium Mach One S): m14
+## Truck mount (Radium Mach One S): m15
 
 A two-part clamp holds the v7 receiver on the truck. The Mach One S hanger has no mounting holes, so the clamp grips a strut directly: the diagonal "rake" above each triangular window in the hanger plate. Left and right are mirror images, one per strut.
 
@@ -85,6 +85,7 @@ The renders come from `render_views.py`. A three-view silhouette drawing of one 
 - **Saddle:** an upside-down U that drops over the strut from above. Its front arm takes the screw, and its rear arm ends in a hook pocket. It carries the receiver platform.
 - **Keeper:** a flat bar that slides through the window from the front, under the strut. Its rear end goes into the saddle's hook, and its front end holds the nut.
 - **Receiver platform:** v7's lip, slot and barbs, **face up**, with the slot's open end toward the nose. The light sits on top, lens forward. The platform is level front to back, but **rolled 45° outboard**, so it sits low over the clamp on a solid pedestal (m9; m2–m8 used two thin webs). The pedestal is swept straight down from the saddle as printed, so its sides are vertical on the bed. The channel under the lip is open at both ends, so grit can get out; over the clamp its roof rises in 45° chamfers from each rail to a short flat bridge (m12; m9–m11 bridged the full ~27 mm from rail to rail, and the first print's bridge sagged). It's 6 mm above the flange gap and about 15 mm wide.
+- **Backbone (m15):** after a couple of rides, the left m14 receiver broke in PLA, cleanly at about 45° through the rear corner of the lower rail (the rail nearest the axle beam), and the truck showed rub marks. In m14 the pedestal backed the receiver only under the saddle, so both ends of each rail hung on v7's 1.6 mm walls alone. That is the steel original's sheet thickness, too thin to cantilever in plastic, and the lower rail's rear corner was only 2.8 mm from the (schematic) beam, so the light's shaking closed the gap. m15 adds a solid backbone behind the whole receiver, deepest where it leaves the pedestal and tapering toward the nose, so there's no sharp step for a crack to start at (`BACKBONE`); thickens both rails 1.5 mm outward, full length (`RAIL_EXTRA`); and cuts the part back parallel to the beam so it stays 5 mm clear (`BEAM_CLEAR`; v7's own rail corner allows about 5.2). The receiver itself (slot, barbs, flange gap, lip) is unchanged, as are the aim, the screw path and the keeper. The beam's position under the clamp is a guess, so check the real gap on the truck.
 - **Hardware per side:** **1× M4×20 socket-head cap screw** (3 mm hex key) and an **M4 nyloc nut**, the same M4 size used elsewhere on the board (m10; m6–m9 used M5). It's fitted and tightened **through the receiver's own slot** (with the light removed), so no access holes are needed. The head sits 6 mm deeper in the front arm than in m12, so the screw goes right through the nut even while the keeper still hangs loose at the bottom of its hook; tightened, about 7 mm of screw shows below the nut (m12's screw only touched the nut). The keeper is 5 mm thick (m1–m12: 6 mm), so the nyloc stands about 1.2 mm proud of its underside, with 1.2 mm of keeper above it. No liner: the clamp leaves 0.25 mm all round the strut, a snug PLA fit (m1–m11 left 1 mm for a rubber liner; m11 printed without one could slide about 1 mm front to back). If it buzzes or scuffs the powder coat, a layer of electrical tape inside the saddle fixes that.
 - **Fitting:** drop the saddle over the strut, slide the keeper in through the window from the front until its rear end is in the hook, then fit the screw down through the slot.
 
@@ -106,11 +107,11 @@ Files are in [`out/truck/`](out/truck):
 
 | File | What it is |
 |---|---|
-| `truck_mount_{left,right}_m14_saddle.stl` | Print receiver-face down, so the lip and barbs are on the bed, as for v7. m9 is designed to need little or no support: the flange channel's roof is chamfered at 45° up to a ~15 mm bridge (m12), and the only other real overhang is the short hook lip at the top. Slice it without supports first and check the preview. |
-| `truck_mount_{left,right}_m14_keeper.stl` | Prints flat with no supports. The nut pocket is on the bed side and takes an M4 nyloc nut, so earlier (M5) keepers don't fit. 5 mm thick, with the screw 1.25 mm further out: m12 and older keepers don't fit. |
-| `assembly_m14.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m14_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
+| `truck_mount_{left,right}_m15_saddle.stl` | Print receiver-face down, so the lip and barbs are on the bed, as for v7. m9 is designed to need little or no support: the flange channel's roof is chamfered at 45° up to a ~15 mm bridge (m12), and the only other real overhang is the short hook lip at the top. Slice it without supports first and check the preview. |
+| `truck_mount_{left,right}_m15_keeper.stl` | Same as m14's. Prints flat with no supports. The nut pocket is on the bed side and takes an M4 nyloc nut, so earlier (M5) keepers don't fit. 5 mm thick, with the screw 1.25 mm further out: m12 and older keepers don't fit. |
+| `assembly_m15.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m15_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
 
-**Engraved artwork (optional):** if `art/source.png` exists, `truck_mount.py` also writes `truck_mount_{left,right}_m14_saddle_art.stl` (and `assembly_m14_art.obj`), with the picture recessed 0.6 mm into the pedestal's tail-facing wall. Each groove's upper side slopes down 45° into the wall instead of being a flat little ceiling, so the engraving needs no supports (m14; m12's grooves drew supports onto the picture). The wall is the flat, roughly 28 mm square side you see from behind the board. `artwork.py` turns the picture into black-and-white ink with every line at least 0.4 mm wide, so a 0.4 mm nozzle can cut it. It's turned to fit the tipped wall as large as it can (about 21 mm) and mirrored on the left mount. The settings are in `ART` in `truck_mount.py`. The `*_art` files are gitignored, and the artwork in `art/` is not GPL (see [its notice](art/NOTICE.md)).
+**Engraved artwork (optional):** if `art/source.png` exists, `truck_mount.py` also writes `truck_mount_{left,right}_m15_saddle_art.stl` (and `assembly_m15_art.obj`), with the picture recessed 0.6 mm into the pedestal's tail-facing wall. Each groove's upper side slopes down 45° into the wall instead of being a flat little ceiling, so the engraving needs no supports (m14; m12's grooves drew supports onto the picture). The wall is the flat, roughly 28 mm square side you see from behind the board. `artwork.py` turns the picture into black-and-white ink with every line at least 0.4 mm wide, so a 0.4 mm nozzle can cut it. It's turned to fit the tipped wall as large as it can (about 21 mm) and mirrored on the left mount. The settings are in `ART` in `truck_mount.py`. The `*_art` files are gitignored, and the artwork in `art/` is not GPL (see [its notice](art/NOTICE.md)).
 
 Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 
@@ -206,6 +207,8 @@ version, add an entry to `VERSIONS`: either `{"narrow": mm}` from the measured s
 - [x] Rear mount r4 (r3 with the shoe's nose end 3 mm shorter and the screw steeper, 30° below level, so its head still seats; an M4×16, its head hidden): shoe printed and fitted (2026-11-16), fits well
 - [x] Rear mount r5 (the r4 shoe and light bar as one part, no bar bolts): printed and fitted (2026-11-16), fits perfectly
 - [x] **v1.0** (2026-11-16): receiver v7, front truck clamps m14, rear light mount r5
+- [x] m14 left saddle broke in PLA after a couple of rides (2026-11-21): the receiver's lower rail snapped at its rear corner, which had also rubbed the axle beam
+- [ ] Truck mount m15 (backbone behind the whole receiver, rails 1.5 mm thicker, 5 mm beam clearance), in PETG: print, fit and ride
 
 ## License
 
