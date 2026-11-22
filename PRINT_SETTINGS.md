@@ -8,7 +8,7 @@ with the profile below. The support settings matter most: they're tuned so suppo
 Based on the system profile **0.20mm SPEED @MK4IS 0.4**, saved as a copy, with filament **Generic PLA**.
 (PETG or ASA hold up better in the sun and near a hot motor; see the README.)
 
-**Front truck saddles from m15 on: PETG.** A PLA m14 saddle cracked from road shock (see the README).
+**Front truck saddles from m15 on (and keepers): PETG.** A PLA m14 saddle cracked from road shock (see the README).
 Use the **Generic PETG** filament profile, with **4 perimeters** and **40 % gyroid infill** for the saddle, so the
 receiver's rails and backbone are mostly solid wall. Everything else below is unchanged.
 
@@ -55,12 +55,37 @@ channels that would be hard to clear.
 All STLs are exported in their print orientation; slice them without rotating.
 
 - **Receivers** (`out/shredlight_mount_*_v7.stl`): lip down. Supports off.
-- **Front truck saddles** (`out/truck/truck_mount_*_m15_saddle.stl`): receiver face down, in PETG (above). Designed to
+- **Front truck saddles** (`out/truck/truck_mount_*_m16_saddle.stl`): receiver face down, in PETG (above). Designed to
   need little support: the flange channel's roof is chamfered at 45° up to a ~15 mm bridge, which sags
   slightly but doesn't affect the fit (it sits ~6 mm above the flange's path). With the profile above,
   "don't support bridges" leaves it unsupported; for a cleaner roof, block supports in the channel. m15's backbone
   carries that roof along the whole receiver, so any sag runs its full length; it still doesn't touch the flange.
-- **Keepers** (`out/truck/truck_mount_*_m15_keeper.stl`, the same as m14's): flat, nut pocket on the bed side. Supports off.
+  Auto supports also grow one tree up into the screw-head recess, to the flat ring the head (and its
+  spring washer) clamps on: as printed it faces down, tilted ~21°, but it's only 1.75 mm wide. Paint a
+  **support blocker** on it: it prints fine unsupported, and a tree there would scar the clamping face.
+- **Keepers** (`out/truck/truck_mount_*_m16_keeper.stl`): flat top on the bed, so the V fin under the rear end faces up. Supports off.
 - **Rear light mount** (`out/rear/rear_mount_r5.stl`): receiver faces down, the shoe and its plug
   pointing up. Supports off: what overhangs is the two chamfered channel-roof bridges, the nut slot's
   ceiling and near-level round holes (the r4 shoe printed this way cleanly).
+
+## Checking supports without the GUI
+
+`slice_check.py` slices STLs with the PrusaSlicer Flatpak's command line, using the support
+settings above, and reports where the supports land, in the STL's own coordinates and banded by
+height. That's enough to tell which feature a tree is reaching for before opening the slicer.
+
+```sh
+.venv/bin/python slice_check.py out/truck/truck_mount_left_m16_saddle.stl out/truck/truck_mount_left_m16_keeper.stl
+```
+
+How it works, in case it needs fixing:
+
+- The command is `flatpak run --command=prusa-slicer --filesystem=<dir> com.prusa3d.PrusaSlicer -g
+  <support flags> --center 125,105 -o out.gcode part.stl`. `--command=prusa-slicer` is needed;
+  the Flatpak's default entry point starts the GUI and exits silently.
+- The Flatpak can't see `/tmp`, so files are staged in `~/.cache/shredlight-slice-check/`.
+- Loading the saved print profile (`--load "0.20mm SPEED @MK4IS 0.4 - Copy.ini"`) segfaults the
+  CLI (PrusaSlicer 2.9.7), so the support settings are passed as flags and everything else is
+  PrusaSlicer's default. It's a check of where supports go, not the real print.
+- Support moves are read from the G-code's `;TYPE:Support material` sections and shifted back by
+  the centring offset into STL coordinates.

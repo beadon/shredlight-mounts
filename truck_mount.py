@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold, OpType
 
 import shredlight_mount as receiver
 
-VERSION = 15
+VERSION = 16
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -71,7 +71,14 @@ PLATFORM_ANCHOR = 13.0  # where the platform's screw path starts, above KEEPER_T
                      # seat, kept so the light doesn't move when the seat drops)
 CHEEK = 3.0          # wall outside the screw
 HOOK_ENGAGE = 5.0    # how far the keeper's rear end reaches into the hook pocket
-HOOK_T = 3.0         # hook lip under the keeper's rear end
+HOOK_T = 4.0         # hook lip under the keeper's rear end (m1-m15: 3.0; m16 adds 1 mm for the fin's groove)
+# m16: the clamp still rattled a little fully seated. The hook pocket's inside corners along its
+# floor are chamfered (the keeper's matching edges too), and a V fin under the keeper's rear end
+# seats in a V groove in the hook lip: the screw's pull presses the keeper's end down into the V,
+# which centres it side to side and takes up the play.
+POCKET_CHAMFER = 1.5  # 45 deg chamfers along the pocket floor's deep edge and both end edges
+FIN_DEPTH = 1.2      # V groove depth into the hook lip (90 deg included angle)
+FIN_CLEAR = 0.1      # fin to groove, normal to the V's faces: a snug sliding fit
 HOOK_WALL = 3.0      # pocket's outer wall
 HOOK_CLEAR = 0.4     # sliding clearance around the keeper in the pocket
 
@@ -197,8 +204,8 @@ def saddle_local():
     # Only HOOK_CLEAR above and below the keeper: the parting gap belongs under the front arm
     # alone (m1-m13 ran the pocket up to the arm's bottom edge too, so the slot was
     # 8.4 mm for a 5 mm keeper and the keeper's rear end could rock 3 mm).
-    pocket = box(-LENGTH / 2 - HOOK_CLEAR, LENGTH / 2 + HOOK_CLEAR, KEEPER_BOTTOM - HOOK_CLEAR,
-                 KEEPER_TOP + HOOK_CLEAR, -FACE - HOOK_ENGAGE - HOOK_CLEAR, -FACE + 1)
+    pocket = chamfered_floor(-LENGTH / 2 - HOOK_CLEAR, LENGTH / 2 + HOOK_CLEAR, KEEPER_BOTTOM - HOOK_CLEAR,
+                             KEEPER_TOP + HOOK_CLEAR, -FACE - HOOK_ENGAGE - HOOK_CLEAR, -FACE + 1, POCKET_CHAMFER)
     # Removing the strut (and everything below its window face) leaves the top and two arms.
     under = box(-SADDLE_LENGTH, SADDLE_LENGTH, -50, 0, -FACE, FACE)
     return (s - along_u(strut_profile(LINER), SADDLE_LENGTH + 2) - under - pocket
@@ -227,9 +234,39 @@ def pedestal_voids_local():
     return front + path
 
 
+def chamfered_floor(u0, u1, v0, v1, w0, w1, c):
+    """Box with 45 deg chamfers c along its floor (v = v0) edges at u0, u1 and w0 (the deep end);
+    the floor's open end at w1 stays square."""
+    return (box(u0, u1, v0 + c, v1, w0, w1) + box(u0 + c, u1 - c, v0, v1, w0 + c, w1)).hull()
+
+
+def fin_groove():
+    """m16: V groove in the hook lip's top face, along w, centred on u = 0, open at the pocket's mouth."""
+    roof = KEEPER_BOTTOM - HOOK_CLEAR
+    d = FIN_DEPTH
+    w0 = -FACE - HOOK_ENGAGE - HOOK_CLEAR + POCKET_CHAMFER
+    tri = CrossSection([[(-d - 1, roof + 1), (0, roof - d), (d + 1, roof + 1)]])
+    # extrude along w: cross-section axes (u, v), extrusion -> w
+    return tri.extrude(-FACE + 2 - w0).translate([0, 0, w0])
+
+
+def fin_ridge():
+    """m16: the keeper's V fin, under its rear end: the groove's shape less FIN_CLEAR all round."""
+    roof = KEEPER_BOTTOM - HOOK_CLEAR
+    apex = roof - FIN_DEPTH + FIN_CLEAR * np.sqrt(2)
+    h = KEEPER_BOTTOM - apex + 0.5          # up into the keeper's body, so it joins solidly
+    tri = CrossSection([[(-h, apex + h), (0, apex), (h, apex + h)]])
+    w0 = -FACE - HOOK_ENGAGE + POCKET_CHAMFER + 0.5
+    return tri.extrude(-FACE - w0).translate([0, 0, w0])
+
+
 def keeper_local():
     # Flat top: presses only the window-side land, so unknown chamfer angles cannot interfere.
-    k = box(-LENGTH / 2, LENGTH / 2, KEEPER_BOTTOM, KEEPER_TOP, -FACE - HOOK_ENGAGE, FRONT_W)
+    # m16: its bottom edges along the sides and the rear end are chamfered to match the hook
+    # pocket's (less HOOK_CLEAR), and it carries the V fin under its rear end.
+    ck = POCKET_CHAMFER + HOOK_CLEAR * np.sqrt(2) - 2 * HOOK_CLEAR
+    k = chamfered_floor(-LENGTH / 2, LENGTH / 2, KEEPER_BOTTOM, KEEPER_TOP, -FACE - HOOK_ENGAGE, FRONT_W, ck)
+    k += fin_ridge()
     nut = along_v(CrossSection.circle(NUT_AF / np.sqrt(3), 6).extrude(NUT_H)).translate([0, nut_bottom(), SCREW_W])
     return k - screw_hole() - nut
 
@@ -404,7 +441,7 @@ def right_parts():
         webs -= place(Manifold.cube([hi[0] - lo[0], hi[1] - lo[1], hi[2] + 1 - roof]).translate(
             [lo[0], lo[1], roof]), rrot, roff)
     webs -= channel
-    saddle = (saddle + webs) + pod - strut - access
+    saddle = (saddle + webs) + pod - strut - access - place(fin_groove(), rot)
     if BACKBONE:
         saddle -= beam_keepout(rot, rrot, roff)
     return {"saddle": saddle, "keeper": keeper, "webs": webs, "pod": pod}, rot, rrot, roff
@@ -636,7 +673,7 @@ def main():
         # Print orientations: saddle receiver-face down, keeper flat side down.
         receiver.write_stl(face_down(saddle, srot[:, 2]), out / f"{tag}_saddle.stl")
         kl = keeper_local() if side == "right" else keeper_local().mirror([1, 0, 0])
-        receiver.write_stl(to_bed(kl, [90, 0, 0]), out / f"{tag}_keeper.stl")
+        receiver.write_stl(to_bed(kl, [-90, 0, 0]), out / f"{tag}_keeper.stl")  # m16: flat top on the bed, fin up
         print(f"{tag}: saddle {saddle.volume() / 1000:.1f} cm^3, keeper {keeper.volume() / 1000:.1f} cm^3")
         if Path(ART["image"]).exists():
             n = art_wall_normal(rot, rrot) * (np.array([-1.0, 1, 1]) if side == "left" else 1)
