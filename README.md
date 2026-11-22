@@ -151,7 +151,7 @@ threadlocker.
 |---|---|
 | `rear_mount_r5.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
 | `rear_assembly_r5.obj` | The mount and screw on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the motors' diameter and the bar's height are measured. |
-| `dummy_charge_cover_v1.stl` | A printable stand-in for the rubber charging-port cover (`charge_cover.py`), measured with calipers: for test-fitting in the recess and for designing the light bar around it. Prints bottom face down, no supports. |
+| `dummy_charge_cover_v1.stl` | A printable stand-in for the rubber charging-port cover (`charge_cover.py`), measured with calipers: for test-fitting in the recess and for designing the light bar around it. Exported **top face down**: the hollow underside opens upward, and only the back of the curved top (up to ~3 mm off the bed) needs a little support. |
 
 **Known problem (r5): the light bar blocks the charging-port cover.** The cover fills the recess
 around the port (51.7 mm wide at the front, 31.65 deep, 12.4 thick) and comes out by two finger

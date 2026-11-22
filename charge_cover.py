@@ -37,10 +37,10 @@ CORNER_R = 2.0       # outer corner rounding (user: 3 looked too chunky, 2026-11
 THICK = 12.4         # thickness at the front (calipers, read from the photo as ~12.4)
 TAIL_THICK = 9.0     # thickness at the back: the top curves down toward it (user, approximate)
 SKIN = 4.0           # the top skin, and the finger holes' floors (user)
-# The underside is hollow up to the top skin, leaving thin walls standing down to the bottom: the
-# outer rim, the finger holes' walls (the "butterfly" wings seen from below) and a ring round the
-# port hole (photo, 2026-11-21; thicknesses ESTIMATES)
-RIM_T = 1.5          # outer rim
+# The underside is hollow up to the top skin, out to the outside edge (no rim: the sides are just
+# the top skin), leaving the finger holes' walls (the "butterfly" wings seen from below) and a ring
+# round the port hole standing down to the bottom as its feet (photos, 2026-11-21; wall thicknesses
+# ESTIMATES)
 FINGER_WALL_T = 1.5  # round each finger hole
 RING_T = 2.0         # round the port hole
 
@@ -86,7 +86,7 @@ def outline():
         cs = sharp_outline(extra)
         lo, hi = np.array(cs.bounds()).reshape(2, 2)
         extra += WIDTHS[0][1] - (hi[0] - lo[0])
-    return cs
+    return cs.simplify(0.01)          # drops the near-duplicate points rounding leaves (slivers in the mesh)
 
 
 def sharp_outline(extra):
@@ -143,7 +143,7 @@ def finger_recess(sign):
     back = -(front_edge(x0) + FINGER_FROM + FINGER_L)     # FINGER_L measured along the inner wall
     rows = CrossSection.square([60, -back]).translate([x0, back])
     c = FINGER_CORNER_R
-    shape = ((inside ^ behind) ^ rows).offset(-c, circular_segments=32).offset(c, circular_segments=32)
+    shape = ((inside ^ behind) ^ rows).offset(-c, circular_segments=32).offset(c, circular_segments=32).simplify(0.01)
     if sign < 0:
         shape = shape.mirror([1, 0])
     floor = -THICK + SKIN
@@ -151,32 +151,48 @@ def finger_recess(sign):
 
 
 def underside_cavity():
-    """The hollow underside: inside the outer rim, outside the finger holes' walls (the "butterfly"
-    wings seen from below) and the ring round the port hole, up to SKIN under the curved top."""
+    """The hollow underside: everywhere out to the outside edge except the finger holes' walls (the
+    "butterfly" wings seen from below) and the ring round the port hole, up to SKIN under the top
+    (flat here; cover() bends it down with the top)."""
     o = outline()
     fingers = Manifold.batch_boolean([finger_recess(s) for s in (1, -1)], OpType.Add).project()
-    region = (o.offset(-RIM_T, circular_segments=48) - fingers.offset(FINGER_WALL_T, circular_segments=48)
+    region = (o.offset(1.0, circular_segments=48) - fingers.offset(FINGER_WALL_T, circular_segments=48)
               - CrossSection.circle(CUP_D / 2 + RING_T, 64).translate([0, -CUP_Y]))
-    tall = region.extrude(THICK + 2).translate([0, 0, -THICK - 1])
-    return tall - above_top().translate([0, 0, -SKIN])
+    return region.simplify(0.01).extrude(THICK + 1 - SKIN).translate([0, 0, -THICK - 1])
+
+
+def bend_top(xyz):
+    """Warp: bring the flat-topped cover's top face, and the top skin under it, down by top_drop(y),
+    so the top curves toward the back. The finger holes' floors (and everything below them) stay
+    flat; between the floors and the skin the drop eases in."""
+    xyz = np.array(xyz, dtype=float)
+    floor, skin = -THICK + SKIN, -SKIN
+    w = np.clip((xyz[:, 2] - floor) / (skin - floor), 0.0, 1.0)
+    xyz[:, 2] -= top_drop(np.clip(xyz[:, 1], -DEPTH, 0.0)) * w
+    return xyz
 
 
 def cover():
-    c = outline().extrude(THICK).translate([0, 0, -THICK]) - above_top()
+    """Built flat-topped, refined, then bent (a boolean cut with a curved surface left slivers that
+    slicers had to repair)."""
+    c = outline().extrude(THICK).translate([0, 0, -THICK])
     for s in (1, -1):
         c -= finger_recess(s)
     c -= underside_cavity()
-    cup_deep = THICK - top_drop(-CUP_Y) - SKIN       # leaves the measured top skin over the port
-    c -= Manifold.cylinder(cup_deep + 1, CUP_D / 2, circular_segments=48).translate([0, -CUP_Y, -THICK - 1])
-    return c
+    c -= Manifold.cylinder(THICK - SKIN + 1, CUP_D / 2, circular_segments=48).translate([0, -CUP_Y, -THICK - 1])
+    return c.refine_to_length(1.0).warp_batch(bend_top)
 
 
 def main():
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "out") / "rear"
     out.mkdir(parents=True, exist_ok=True)
     c = cover()
-    # Prints on its flat bottom; the port hole's roof is a short (13 mm) bridge.
-    receiver.write_stl(c.translate([0, 0, THICK]), out / f"dummy_charge_cover_v{VERSION}.stl")
+    # Prints top face down. Bottom down, the top skin overhangs the feet all round and needs
+    # support under nearly all of it; top down, the hollow opens upward and only the back of the
+    # curved top (up to ~3.4 mm off the bed) needs a little (slice_check.py, 2026-11-21).
+    top_down = c.mirror([0, 0, 1])
+    lo = np.array(top_down.bounding_box())[:3]
+    receiver.write_stl(top_down.translate(list(-lo)), out / f"dummy_charge_cover_v{VERSION}.stl")
     lo, hi = np.array(c.bounding_box()).reshape(2, 3)
     print(f"dummy cover v{VERSION}: {hi[0] - lo[0]:.1f} x {hi[1] - lo[1]:.1f} x {hi[2] - lo[2]:.1f} mm, "
           f"{c.volume() / 1000:.1f} cm^3")
