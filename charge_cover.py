@@ -25,7 +25,7 @@ from manifold3d import CrossSection, Manifold, OpType
 
 import shredlight_mount as receiver
 
-VERSION = 1
+VERSION = 4
 
 # Width across the cover at distances back from its front corners (calipers, 2026-11-21)
 WIDTHS = [(0.0, 51.70), (10.0, 47.83), (20.0, 43.6), (25.0, 37.0), (30.0, 22.0)]
@@ -37,12 +37,23 @@ CORNER_R = 2.0       # outer corner rounding (user: 3 looked too chunky, 2026-11
 THICK = 12.4         # thickness at the front (calipers, read from the photo as ~12.4)
 TAIL_THICK = 9.0     # thickness at the back: the top curves down toward it (user, approximate)
 SKIN = 4.0           # the top skin, and the finger holes' floors (user)
-# The underside is hollow up to the top skin, out to the outside edge (no rim: the sides are just
-# the top skin), leaving the finger holes' walls (the "butterfly" wings seen from below) and a ring
-# round the port hole standing down to the bottom as its feet (photos, 2026-11-21; wall thicknesses
-# ESTIMATES)
-FINGER_WALL_T = 1.5  # round each finger hole
-RING_T = 2.0         # round the port hole
+# Underside: a "butterfly" stands down to the bottom, set well in from the outside edge (a moat
+# round it, hollow up to the top skin, no rim): the outline inset by MOAT_SIDE at the sides and
+# MOAT_END at the front and back, corners rounded, with a notch at the back between the two wings,
+# NOTCH_W across where they meet the ring round the port hole. The wings are thin shells: below the
+# top skin each finger hole widens out to within WING_WALL of the butterfly's edge, the notch and
+# the port hole (the user, 2026-11-22: thick inner walls were what made v3-v4 look like a blob).
+# (photos and calipers, 2026-11-22. v1-v2: separate oval wings and a free-standing ring, 13.08
+# apart where the real one measures 11.23; v3 filled the underside to 2.5 from the edge and v4's
+# first try grew the wings out from the finger holes: both "a blob", the wings lost.)
+MOAT_SIDE = 6.0      # outside edge to the butterfly, sides (ESTIMATE from photos: ~35 across)
+MOAT_END = 3.5       # outside edge to the butterfly, front and back (ESTIMATE: ~21.5 long)
+WING_CORNER_R = 3.0  # the wings' rounded outer corners, seen from below (ESTIMATE)
+WING_WALL = 1.5      # the wings' shell (ESTIMATE)
+NOTCH_W = 11.23      # between the wings, where they meet the ring (calipers)
+NOTCH_R = 2.0        # the notch's rounded inside corners (ESTIMATE)
+RING_T = 1.5         # wall round the port hole, seen where the notch exposes it (calipers, 2026-11-22)
+EDGE_R = 1.0         # the top face's outside edge is rounded (ESTIMATE)
 
 # Finger recesses, mirror images, one each side. The outer wall follows the side FINGER_EDGE in
 # from the cover's edge, the front wall follows the front edge FINGER_FROM in, and the inner walls
@@ -52,12 +63,17 @@ FINGER_EDGE = 4.0    # outer wall in from the cover's side (user, 2026-11-21)
 FINGER_FROM = 3.33   # front wall in from the front edge: the thinnest wall there (calipers, 2026-11-21)
 FINGER_GAP = 17.0    # between the two recesses' inner walls (user, 2026-11-21)
 FINGER_L = 18.12     # front to back (calipers, 2026-11-21; its rounded corners make it approximate)
-FINGER_CORNER_R = 3.0  # rounded corners of the recess, seen from above (ESTIMATE)
+FINGER_CORNER_R = 1.5  # rounded corners of the recess, seen from above (v1-v2's 3.0 made them
+                       # slots; the real one's front end is 11.77 across, user 2026-11-22)
 
 # Hole in the underside that the charging port fits into, on the centreline (calipers, 2026-11-21):
 # 13.18 across, its centre 12.00 behind the front edge (taken as the edge's flat middle, straight
-# in front of it). It is blind: the top skin over it is 4.00 thick.
-CUP_D = 13.18
+# in front of it). It is blind: the top skin over it is 4.00 thick. The rubber stretches over the
+# port; the rigid print at 13.18 didn't go over it (v1, 2026-11-22), so the dummy's hole is opened
+# up by CUP_CLEAR. The dummy is located by its outline, so a loose fit on the port is fine.
+CUP_D_MEASURED = 13.18
+CUP_CLEAR = 1.8
+CUP_D = CUP_D_MEASURED + CUP_CLEAR
 CUP_Y = FRONT_DIP + 12.0   # centre, behind the front corners
 
 
@@ -123,6 +139,8 @@ def above_top():
 
 def finger_recess(sign):
     """The recess on the +x side (sign 1) or the -x side (-1)."""
+    if sign < 0:
+        return finger_recess(1).mirror([1, 0, 0])    # an exact mirror image
     o = outline()
     # Within FINGER_EDGE of the sides is solid; within FINGER_FROM of the front edge is solid.
     near_front = CrossSection([list(map(tuple, np.array(
@@ -146,19 +164,68 @@ def finger_recess(sign):
     shape = ((inside ^ behind) ^ rows).offset(-c, circular_segments=32).offset(c, circular_segments=32).simplify(0.01)
     if sign < 0:
         shape = shape.mirror([1, 0])
-    floor = -THICK + SKIN
-    return shape.extrude(1 - floor).translate([0, 0, floor])
+    # Below the skin the hole fills its wing, leaving WING_WALL to the butterfly's edge and the port
+    # hole, and NOTCH_W / 2 + WING_WALL from the centreline. Through the top skin it morphs from the
+    # opening to that, in steps of STEP: the parts of the opening outside the wing retreat while the
+    # wing's interior grows in.
+    inner = NOTCH_W / 2 + WING_WALL
+    side = CrossSection.square([40, 60]).translate([inner, -50])
+    if sign < 0:
+        side = side.mirror([1, 0])
+    wing = (body().offset(-WING_WALL, circular_segments=32) ^ side) \
+        - CrossSection.circle(CUP_D / 2 + WING_WALL, 64).translate([0, -CUP_Y])
+    floor, step, grow = -THICK + SKIN, 0.4, 8.0
+    zs = list(np.arange(0.0, -SKIN, -step)) + [-SKIN]
+    layers = [wing.simplify(0.01).extrude(-SKIN - floor).translate([0, 0, floor])]
+    for k in range(len(zs) - 1):
+        z_top, z_bot = zs[k], zs[k + 1]
+        t = -z_top / SKIN                       # 0 at the top face, toward 1 at the skin's underside
+        sec = (shape ^ wing.offset(grow * (1 - t), circular_segments=32)) + \
+            (wing ^ shape.offset(grow * t, circular_segments=32))
+        top = 1.0 if k == 0 else z_top
+        sec = sec.offset(0.05).offset(-0.05)    # merge pieces that only touch (pinched mesh edges)
+        layers.append(sec.simplify(0.01).extrude(top - z_bot).translate([0, 0, z_bot]))
+    return Manifold.batch_boolean(layers, OpType.Add)
+
+
+def body():
+    """The butterfly seen from below: the outline inset by the moat, its corners rounded, minus the
+    notch between the wings behind the port ring (rounded where it meets the ring)."""
+    o = outline()
+    ds = np.linspace(-10, DEPTH + 10, 90)
+    right = [(float(half_width(np.clip(d, 0, DEPTH))) - MOAT_SIDE, -float(d)) for d in ds]
+    sides = CrossSection([right + [(-x, y) for x, y in right[::-1]]])
+    if sides.area() == 0:
+        sides = CrossSection([(right + [(-x, y) for x, y in right[::-1]])[::-1]])
+    b = o.offset(-MOAT_END, circular_segments=48) ^ sides
+    ring = CrossSection.circle(CUP_D / 2 + RING_T, 64).translate([0, -CUP_Y])
+    notch = CrossSection.square([NOTCH_W, DEPTH]).translate([-NOTCH_W / 2, -CUP_Y - DEPTH])
+    b = b - (notch - ring)
+    r = WING_CORNER_R
+    b = b.offset(-r, circular_segments=32).offset(r, circular_segments=32)       # round the corners
+    b = b.offset(NOTCH_R, circular_segments=32).offset(-NOTCH_R, circular_segments=32)  # and inside ones
+    return b.simplify(0.01)
 
 
 def underside_cavity():
-    """The hollow underside: everywhere out to the outside edge except the finger holes' walls (the
-    "butterfly" wings seen from below) and the ring round the port hole, up to SKIN under the top
-    (flat here; cover() bends it down with the top)."""
-    o = outline()
-    fingers = Manifold.batch_boolean([finger_recess(s) for s in (1, -1)], OpType.Add).project()
-    region = (o.offset(1.0, circular_segments=48) - fingers.offset(FINGER_WALL_T, circular_segments=48)
-              - CrossSection.circle(CUP_D / 2 + RING_T, 64).translate([0, -CUP_Y]))
+    """The hollow underside: everything round the body, out past the outside edge, up to SKIN under
+    the top (flat here; cover() bends it down with the top)."""
+    region = outline().offset(1.0, circular_segments=48) - body()
     return region.simplify(0.01).extrude(THICK + 1 - SKIN).translate([0, 0, -THICK - 1])
+
+
+def top_plate():
+    """The cover as a flat-topped prism with the top face's outside edge rounded by EDGE_R (in
+    steps, each inset by the round at its height)."""
+    o = outline()
+    parts = [o.extrude(THICK - EDGE_R).translate([0, 0, -THICK])]
+    n = 6
+    for i in range(n):
+        z0, z1 = -EDGE_R + EDGE_R * i / n, -EDGE_R + EDGE_R * (i + 1) / n
+        dz = z1 + EDGE_R              # height above the start of the round, 0..EDGE_R
+        inset = EDGE_R - np.sqrt(EDGE_R ** 2 - dz ** 2)
+        parts.append(o.offset(-inset, circular_segments=32).simplify(0.01).extrude(z1 - z0 + 0.001).translate([0, 0, z0]))
+    return Manifold.batch_boolean(parts, OpType.Add)
 
 
 def bend_top(xyz):
@@ -175,12 +242,12 @@ def bend_top(xyz):
 def cover():
     """Built flat-topped, refined, then bent (a boolean cut with a curved surface left slivers that
     slicers had to repair)."""
-    c = outline().extrude(THICK).translate([0, 0, -THICK])
+    c = top_plate()
     for s in (1, -1):
         c -= finger_recess(s)
     c -= underside_cavity()
     c -= Manifold.cylinder(THICK - SKIN + 1, CUP_D / 2, circular_segments=48).translate([0, -CUP_Y, -THICK - 1])
-    return c.refine_to_length(1.0).warp_batch(bend_top)
+    return c.simplify(0.01).refine_to_length(1.0).warp_batch(bend_top).simplify(0.001)
 
 
 def main():
