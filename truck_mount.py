@@ -9,7 +9,7 @@ the plate's plane. The clamp wraps that strut:
           screw, its rear arm ends in a hook pocket, and it carries the platform
   keeper  flat bar slid through the window from the front, under the strut; its
           rear end goes into the saddle's hook, its front end holds the nut
-  1x M4 x 20 socket-head cap screw (ISO 4762) with an M4 nyloc nut, in front of the plate, fitted and
+  1x M4 x 20 socket-head cap screw (ISO 4762) with a plain M4 nut (m17; m10-m16: nyloc), in front of the plate, fitted and
           tightened through the receiver's own slot (with the light removed)
 
 The receiver is a platform: v7's lip plate, slot and barbs, face up and level fore
@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold, OpType
 
 import shredlight_mount as receiver
 
-VERSION = 16
+VERSION = 18
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -52,6 +52,9 @@ STRUT_ANGLE = 45.0   # strut angle in the plate's plane (photo estimate; head-on
 # --- Clamp ---
 LINER = 0.25         # gap all round the strut: a snug PLA fit, no liner (m1-m11: 1.0 for a 1 mm rubber liner)
 PARTING_GAP = 3.0    # gap between the saddle's front arm and the keeper so the screw can pull
+FRONT_ARM_DROP = 2.0 # m18: the front arm reaches this much further down, leaving PARTING_GAP - this
+                     # (1 mm) over the keeper: the keeper clamps on the strut and has never closed the
+                     # gap, so the arm can stop its front end bending up much sooner (user, 2026-11-22)
 LENGTH = 20.0        # keeper length along the strut; it must fit the ~35 mm window side
 SADDLE_LENGTH = 30.0 # saddle length along the strut's top face (~55 mm free between beam and block)
 SADDLE_T = 5.0       # saddle thickness over the skyward face
@@ -60,10 +63,15 @@ KEEPER_T = 5.0       # keeper thickness under the strut, inside the window (m1-m
 SCREW_D = 4.5        # M4 clearance (m6-m9: M5, 5.5); M4 matches the rest of the board
 HEAD_D = 8.0         # M4 socket head (7.0) plus clearance; also the screw's and 3 mm hex key's path through the slot
 SCREW_LEN = 20.0
-NUT_AF = 7.3         # M4 nyloc across flats (7.0), plus clearance
-NUT_H = 5.0
-NUT_CEILING = 1.2    # keeper material left above the nut pocket; the nut stands proud of the
-                     # keeper's underside by whatever doesn't fit (1.2 mm with a 5 mm keeper)
+# m17: the m16 keepers (PETG) shattered round the nut on the road; the screw stayed in. The pocket
+# was still a 5 mm nyloc's (a plain nut sat under the same 1.2 mm ceiling) with ~1.7 mm of wall
+# outboard. Now a plain nut, snug, under a 3 mm ceiling, in a block with NUT_WALL all round it,
+# and the keeper prints on its end so the screw's pull runs along the layers, not across them.
+NUT_AF = 7.1         # plain M4 nut: the user's measure 6.90 across flats; snug, as rear r6 (m1-m16: 7.3, nyloc)
+NUT_H = 3.18 + 0.3   # their nuts are 3.18 thick (m1-m16: 5.0, nyloc)
+NUT_CEILING = 3.0    # keeper material above the nut pocket (m1-m16: 1.2); the nut block reaches
+                     # below the keeper's underside by whatever doesn't fit (1.48 mm)
+NUT_WALL = 3.0       # m17: block wall round the nut pocket, at its corners
 SCREW_EXTRA_REACH = NUT_H + 1.0  # m13: the screw must catch the whole nut, +1 mm, while the keeper
                      # still hangs at the bottom of its hook pocket, not only once it's pulled up.
                      # m12 printed: the screw only touched the nut.
@@ -198,6 +206,9 @@ def driver_access():
 def saddle_local():
     top = STRUT_H + SADDLE_T
     s = box(-SADDLE_LENGTH / 2, SADDLE_LENGTH / 2, ARM_BOTTOM, top, -BACK_W, FRONT_W)
+    # m18: the front arm (in front of the plate only, so the strut's chamfer corners stay open)
+    # reaches FRONT_ARM_DROP further down over the keeper's front end.
+    s += box(-SADDLE_LENGTH / 2, SADDLE_LENGTH / 2, ARM_BOTTOM - FRONT_ARM_DROP, ARM_BOTTOM, FACE, FRONT_W)
     # Rear arm continues down past the keeper and turns in under it: the hook.
     hook_bottom = KEEPER_BOTTOM - HOOK_CLEAR - HOOK_T
     s += box(-SADDLE_LENGTH / 2, SADDLE_LENGTH / 2, hook_bottom, ARM_BOTTOM, -BACK_W, -FACE)
@@ -267,8 +278,35 @@ def keeper_local():
     ck = POCKET_CHAMFER + HOOK_CLEAR * np.sqrt(2) - 2 * HOOK_CLEAR
     k = chamfered_floor(-LENGTH / 2, LENGTH / 2, KEEPER_BOTTOM, KEEPER_TOP, -FACE - HOOK_ENGAGE, FRONT_W, ck)
     k += fin_ridge()
-    nut = along_v(CrossSection.circle(NUT_AF / np.sqrt(3), 6).extrude(NUT_H)).translate([0, nut_bottom(), SCREW_W])
-    return k - screw_hole() - nut
+    k += nut_block()
+    return k - keeper_screw_hole() - nut_pocket()
+
+
+def keeper_screw_hole():
+    """m17: the screw hole with a 45 deg peak toward -u (up as the keeper prints, on its end), so
+    its roof needs no support."""
+    r = SCREW_D / 2
+    tear = (CrossSection.circle(r, 32) + CrossSection.square([0.01, 0.01], center=True).translate([-r * np.sqrt(2), 0])).hull()
+    return along_v(tear.extrude(200)).translate([0, -100, SCREW_W])
+
+
+def nut_hex():
+    """The nut pocket's outline in (u, w) about the screw axis, corners along w: printed on its end
+    (u up), its roof is then a short flat bridge, not two shallow slopes."""
+    return CrossSection.circle(NUT_AF / np.sqrt(3), 6).rotate(30)
+
+
+def nut_pocket():
+    return along_v(nut_hex().extrude(NUT_H)).translate([0, nut_bottom(), SCREW_W])
+
+
+def nut_block():
+    """m17: solid round the nut, NUT_WALL past its corners across the keeper (w) and its flats
+    along it (u), from the nut's open end up to the keeper's top. Toward the keeper's lower end
+    (-u, nearer the axle beam) it stops there; toward the upper end it runs to the end, which
+    prints on the bed, so nothing overhangs."""
+    r = NUT_AF / np.sqrt(3) + NUT_WALL
+    return box(-NUT_AF / 2 - NUT_WALL, LENGTH / 2, nut_bottom(), KEEPER_TOP, SCREW_W - r, SCREW_W + r)
 
 
 def receiver_rot(roll=None, pitch_down=None):
@@ -670,10 +708,12 @@ def main():
         scene[f"{side}_saddle"] = (saddle.translate(list(shift)), "saddle")
         scene[f"{side}_keeper"] = (keeper.translate(list(shift)), "keeper")
         scene[f"{side}_light_placeholder"] = (light_envelope(srot, off).translate(list(shift)), "light_placeholder")
-        # Print orientations: saddle receiver-face down, keeper flat side down.
+        # Print orientations: saddle receiver-face down, keeper on its end.
         receiver.write_stl(face_down(saddle, srot[:, 2]), out / f"{tag}_saddle.stl")
         kl = keeper_local() if side == "right" else keeper_local().mirror([1, 0, 0])
-        receiver.write_stl(to_bed(kl, [-90, 0, 0]), out / f"{tag}_keeper.stl")  # m16: flat top on the bed, fin up
+        # m17: on its upper end (where the nut block runs out), screw axis level, so the screw's pull
+        # and the keeper's bending run along the layers (m16 printed flat and split across them).
+        receiver.write_stl(to_bed(kl, [0, 90 if side == "right" else -90, 0]), out / f"{tag}_keeper.stl")
         print(f"{tag}: saddle {saddle.volume() / 1000:.1f} cm^3, keeper {keeper.volume() / 1000:.1f} cm^3")
         if Path(ART["image"]).exists():
             n = art_wall_normal(rot, rrot) * (np.array([-1.0, 1, 1]) if side == "left" else 1)
