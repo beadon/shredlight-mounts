@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rear lights for the Radium Mach One S rear truck (prototype r5).
+"""Rear lights for the Radium Mach One S rear truck (prototype r6).
 
 The rear truck's motors hide anything mounted on the hanger arms, so two SL-300 lights sit
 side by side above the motors, facing the tail. Everything hangs off the oval hole ("hole A")
@@ -25,6 +25,10 @@ r3: the nut pockets fit the user's plain M4 hex nuts (3.11 mm measured), not 5 m
 r4: the shoe's nose end is 3 mm shorter, clear of the Ra button, and the screw is steeper to suit;
 it's an M4 x 16, like the bar bolts, with its head hidden in the counterbore. The r4 shoe fit well.
 r5: the r4 shoe and light bar as one part; the two bar bolts and their nuts are gone.
+r6: the receivers are 56 mm apart (r5: 23), so the charging-port cover lifts straight up between the
+lights and both its finger holes are open to the sky; the bridge stops short of the cover's front edge,
+and a solid 16 mm 45 deg slope runs along the bar's nose end, under the lights, like the front mounts.
+r5's lights sat over the finger holes and left 7.5 mm under the plates for a 12.4 mm thick cover.
 
 World frame: x to the rider's right, y toward the nose, z up (sky). Origin: centre of hole A,
 on the surface around it. That surface faces the nose, tipped 30 deg up from flat.
@@ -37,10 +41,11 @@ from pathlib import Path
 import numpy as np
 from manifold3d import CrossSection, Manifold
 
+import charge_cover as cc
 import shredlight_mount as receiver
 import truck_mount as tm
 
-VERSION = 5
+VERSION = 6
 
 # --- Hole A, in the hanger pocket (user's measurements, 2026-11-15) ---
 SURFACE_TILT = 30.0  # surface round the hole: tipped 30 deg from flat, facing the nose (inclinometer)
@@ -85,18 +90,38 @@ B_RETRACT = 5.0      # backed off this far, its end is inside the plug, so the p
 B_NUT_AT = 11.5
 
 # --- Light bar: two v7 receivers, side by side, facing the tail ---
-PLUG_GAP = 23.0      # gap between the receivers: the lights overhang them 0.7 mm, leaving 21.6 between the lights
-                     # for the 17.5 mm charging plug
+PLUG_GAP = 56.0      # gap between the receivers: the lights overhang them 0.7 mm, leaving 54.6 between the lights,
+                     # so the 51.7 mm charging-port cover lifts out between them (r5: 23, for the plug alone)
 CLEAR_Z = 15.0       # receivers' undersides (and the shoe's top) this high above the hole (bar C's top is 12)
 PLATE_T = 7.0        # plate under each receiver; the flange channel's roof is cut into it
 CHAMFER = 5.0        # 45 deg chamfers up into that roof, so the bridge over the channel is short
 FRONT_Y = 10.0       # receivers' nose ends, this far ahead of the hole's centre (the deck is clear: user, 2026-11-15)
-BRIDGE_REAR = -10.2  # bridge's tail end, short of the charging plug
+CROWN = 16.0         # r6: a solid 45 deg slope ahead of the bar's nose end, under the lights' overhang (the
+                     # lights reach ~16 mm past it), to match the front mounts' ~16 mm 45 deg faces. Its top
+                     # is flush with the receivers' faces, so it prints on the bed. Each receiver's tunnel runs on through
+                     # it, so air still flows nose to tail under the lights.
+SIDE_EXTRA = 1.5     # r6: each receiver's outer side thickened (the front mounts' RAIL_EXTRA), so the side
+                     # slashes cut into added material: the receiver's own side wall is only ~1.6 mm
+
+# --- Recessed racing stripes (r6) ---
+STRIPE_D = 0.6       # recess depth: 3 layers at 0.2 mm
+LEMANS_W = 6.0       # Le Mans twin stripes, nose to tail over the top between the lights and down the nose slope
+LEMANS_GAP = 5.0     # between them
+SLASH_W = 3.0        # three raked slashes on each outer side, measured nose to tail
+SLASH_RAKE = 0.5     # each leans this far toward the nose per mm of height (top toward the nose)
+SLASHES = [(-8.0, 10.0), (-2.0, 13.0), (4.0, 10.0)]   # (y at mid-height, height): the middle one longest
+
+# --- The charging port's rubber cover (charge_cover.py), which must lift out with the bar fitted ---
+COVER_GAP = 5.5      # hole A's rear edge to the cover's front edge (its flat middle), level (user, 2026-11-23)
+COVER_CLEAR = 1.0    # the bridge's tail end, this far ahead of the cover's front corners
 
 T_RAD = np.radians(SURFACE_TILT)
 N = np.array([0.0, np.sin(T_RAD), np.cos(T_RAD)])    # out of the surface (up, toward the nose)
 A = np.array([0.0, -np.cos(T_RAD), np.sin(T_RAD)])   # along the surface, toward the tail (and up)
 HOLE_FRAME = np.column_stack([[-1.0, 0, 0], A, N])   # local (X, s, h) -> world; right-handed
+HOLE_REAR_Y = (HOLE_L / 2 * A)[1]                    # hole A's rear edge, level from its centre
+COVER_Y = HOLE_REAR_Y - COVER_GAP + cc.FRONT_DIP     # the cover's front corners (its local y = 0)
+BRIDGE_REAR = round(COVER_Y + cc.outline().bounds()[3] + COVER_CLEAR, 2)   # r5: -10.2
 
 
 def hole_section():
@@ -187,6 +212,10 @@ def light_bar():
     recv = Manifold()
     for off in offs:
         recv += tm.place(one, rot, off)
+    hw, rl = (hi[0] - lo[0]) / 2, hi[1] - lo[1]
+    for sg in (1, -1):                          # the thickened outer sides (into the receiver by 0.5: no seam)
+        recv += Manifold.cube([SIDE_EXTRA + 0.5, rl + 0.5, zr + hi[2] - CLEAR_Z]).translate(
+            [xc + hw - 0.5 if sg > 0 else -xc - hw - SIDE_EXTRA, FRONT_Y - rl, CLEAR_Z])
     top = zr + rail_bottom                      # plate tops
     face = zr + hi[2]                           # receivers' faces (the bed, as printed)
     L = FRONT_Y - BRIDGE_REAR
@@ -194,7 +223,50 @@ def light_bar():
     # above the plates it stays between the rails, under where the lights sit.
     bridge = (Manifold.cube([PLUG_GAP + 2, L, top - CLEAR_Z]).translate([-PLUG_GAP / 2 - 1, BRIDGE_REAR, CLEAR_Z])
               + Manifold.cube([PLUG_GAP + 0.4, L, face - top + 0.5]).translate([-PLUG_GAP / 2 - 0.2, BRIDGE_REAR, top - 0.5]))
-    return recv + bridge, rot, offs, face
+    # Over the shoe the bridge reaches back to the shoe's rear face, so the two meet flush: r6's first
+    # cut left the shoe's top 1 mm past the bridge, a ledge the slicer supported. The cover's front
+    # edge dips back to -12.9 across this width, so the cover still clears it.
+    sb = min(SHOE_REAR_TOP, BRIDGE_REAR)
+    bridge += Manifold.cube([SHOE_W, BRIDGE_REAR - sb + 0.5, face - CLEAR_Z]).translate([-SHOE_W / 2, sb, CLEAR_Z])
+    c, f, w = CROWN, FRONT_Y, xc + hw + SIDE_EXTRA
+    slope = CrossSection([[(f - 0.5, face - c - 0.5), (f + c, face), (f - 0.5, face)]]).extrude(2 * w)
+    bridge += slope.transform(np.array([[0, 0, 1.0, -w], [1.0, 0, 0, 0], [0, 1.0, 0, 0]]))
+    # Keep each receiver's tunnel (the space under its lip and the channel roof below it) open nose
+    # to tail through the slope, so air and water still pass under the lights.
+    n = hi[1] - lo[1] + c + 4                  # through the whole receiver, so no end face sits inside its tunnel
+    vent = Manifold.cube([2 * inner, n, gap - rail_bottom]).translate([-inner, lo[1] - c - 2, rail_bottom])
+    y_ = lo[1] - c - 2
+    vent += Manifold.hull(Manifold.cube([2 * inner, n, 0.01]).translate([-inner, y_, rail_bottom])
+                          + Manifold.cube([2 * (inner - CHAMFER), n, 0.01]).translate([-inner + CHAMFER, y_, rail_bottom - CHAMFER]))
+    vents = Manifold()
+    for off in offs:
+        vents += tm.place(vent, rot, off)
+    return recv + bridge - vents - stripes(face, w), rot, offs, face
+
+
+def stripes(face, w):
+    """The recessed racing stripes: Le Mans twins over the top between the lights and on down the
+    nose slope, and three raked slashes on each outer side (x = +-w)."""
+    d, f, c = STRIPE_D, FRONT_Y, CROWN
+    yz_to_x = np.array([[0, 0, 1.0, 0], [1.0, 0, 0, 0], [0, 1.0, 0, 0]])   # (y, z) sketch, extruded along +x
+    k = 1 / np.sqrt(2)
+    # slope sketch (x, s): s runs down the slope from its top edge; the third axis points into the part
+    on_slope = np.array([[1.0, 0, 0, 0], [0, -k, -k, f + c], [0, k, -k, face]])
+    cut = Manifold()
+    for sg in (-1, 1):
+        x0 = sg * (LEMANS_GAP + LEMANS_W) / 2 - LEMANS_W / 2
+        y0 = min(SHOE_REAR_TOP, BRIDGE_REAR) - 1         # off the tail end of the bridge (and its part over the shoe)
+        cut += Manifold.cube([LEMANS_W, f + c - y0 + 1, d + 1]).translate([x0, y0, face - d])
+        cut += Manifold.cube([LEMANS_W, c * np.sqrt(2) + 1, d + 1]).translate([x0, -0.5, -1]).transform(on_slope)
+    zc = CLEAR_Z + (face - CLEAR_Z) / 2
+    side = CrossSection()
+    for yc, h in SLASHES:
+        lo, hi = (yc - SLASH_RAKE * h / 2, zc - h / 2), (yc + SLASH_RAKE * h / 2, zc + h / 2)
+        side += CrossSection([[(lo[0] - SLASH_W / 2, lo[1]), (lo[0] + SLASH_W / 2, lo[1]),
+                               (hi[0] + SLASH_W / 2, hi[1]), (hi[0] - SLASH_W / 2, hi[1])]])
+    slab = side.extrude(d + 1).transform(yz_to_x)
+    cut += slab.translate([w - d, 0, 0]) + slab.mirror([1, 0, 0]).translate([-w + d, 0, 0])
+    return cut
 
 
 def mount():
@@ -202,7 +274,18 @@ def mount():
     pocket, counterbore and the hex key's path. Also returns the screw and the light bar."""
     sh, screw, cut = shoe()
     bar, rot, offs, face = light_bar()
-    return sh + bar - cut, screw, cut, bar, rot, offs
+    # simplify: the hex key's path through the nose slope and the stripes leave slivers (zero-area triangles)
+    return (sh + bar - cut).simplify(0.005), screw, cut, bar, rot, offs
+
+
+def cover_placed():
+    """The dummy charging-port cover in its recess, flush with the port's surface."""
+    return cc.cover().translate([0, COVER_Y, STEP_Z])
+
+
+def cover_lift_path():
+    """Everything the cover passes through, lifted straight up out of its recess."""
+    return cc.outline().extrude(150).translate([0, COVER_Y, STEP_Z - cc.THICK - 0.5])
 
 
 def port_column():
@@ -218,7 +301,8 @@ def hanger_schematic():
     rear_edge = (HOLE_L / 2 * A)[1]
     step = Manifold.cube([50, 40, STEP_Z + 20]).translate([-25, rear_edge - 40, -20]) - at_hole(hole + under_lip)
     port_stub = Manifold.cylinder(6, 9, circular_segments=32).translate([0, PORT_Y, STEP_Z])
-    housing = floor + step + port_stub
+    recess = cc.outline().extrude(cc.THICK).translate([0, COVER_Y, STEP_Z - cc.THICK])   # the cover's recess
+    housing = floor + step - recess + port_stub
     motors = Manifold()
     for s in (1, -1):
         motors += Manifold.cylinder(72, MOTOR_D / 2, circular_segments=48).rotate([0, 90, 0]).translate(
@@ -278,6 +362,11 @@ def main():
     assert all(((part + loose).translate(list(dd * N)) ^ sch["housing"]).volume() < 0.01 for dd in (0, 2, 5, 10, 20))
     assert ((part + set_).translate(list(0.5 * N)) ^ sch["housing"]).volume() > 0.01
     print("  fits in with the screw backed off, and can't lift once it's set")
+    path = cover_lift_path()
+    assert (part ^ path).is_empty() and all((lb ^ path).is_empty() for lb in lights), "the cover can't lift out"
+    side = min(min(abs(b[0]), abs(b[3])) for b in (lb.bounding_box() for lb in lights)) - cc.outline().bounds()[2]
+    print(f"  the charging-port cover lifts straight out between the lights ({side:.1f} mm each side); "
+          f"bridge ends {BRIDGE_REAR - (COVER_Y + cc.outline().bounds()[3]):.1f} mm ahead of it")
     # Receiver faces down, the shoe and its plug pointing up (as the r4 shoe printed, top face down).
     receiver.write_stl(tm.face_down(part, [0, 0, 1.0]), out / f"rear_mount_r{VERSION}.stl")
     scene = {"rear_hanger_schematic": (sch["housing"] + sch["motor_plates"], "hanger_schematic"),
@@ -286,6 +375,7 @@ def main():
              "wheels_schematic": (sch["wheels"], "hanger_schematic"),
              "rear_mount": (part, "saddle"),
              "screw": (set_, "hanger_schematic"),
+             "charge_cover": (cover_placed(), "light_placeholder"),
              "charging_plug_column": (port ^ Manifold.cube([60, 60, 60]).translate([-30, -50, 0]), "light_placeholder")}
     for i, lb in enumerate(lights):
         scene[f"light_placeholder_{i}"] = (lb, "light_placeholder")

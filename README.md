@@ -28,8 +28,8 @@ Ready-to-slice STLs, each exported in its print orientation (see [PRINT_SETTINGS
 | Folder | What |
 |---|---|
 | [`out/`](out) | The Shredlight mount itself (the receiver the light clips into), left and right, every fit version: `shredlight_mount_{left,right}_v1`…`v7`. **v7 is the mount to print.** |
-| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m18** (current; m16 is the last printed and ridden), plus `assembly_m*.obj` for Blender. |
-| [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r5.stl` (current) and `rear_assembly_r5.obj` for Blender; `dummy_charge_cover_v5.stl`, a stand-in for the charging-port cover. |
+| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m19** (current; m18 is the last printed, fitted 2026-11-23), plus `assembly_m*.obj` for Blender. |
+| [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r6.stl` (current) and `rear_assembly_r6.obj` for Blender; `dummy_charge_cover_v5.stl`, a stand-in for the charging-port cover. |
 
 Older versions are in the git history. The `*_art` engraved saddles aren't in the repo: the artwork
 isn't GPL (see [art/NOTICE.md](art/NOTICE.md)), so `truck_mount.py` builds them locally only.
@@ -74,7 +74,7 @@ Keep the corners at the top of the slot sharp. v6 rounded them, and the light lo
 
 v2 and v4 both spread about 1 mm, which puts the SL-300's upper tongue at about 14 mm. v5 leaves about 0.5 mm of clearance around it.
 
-## Truck mount (Radium Mach One S): m18
+## Truck mount (Radium Mach One S): m19
 
 A two-part clamp holds the v7 receiver on the truck. The Mach One S hanger has no mounting holes, so the clamp grips a strut directly: the diagonal "rake" above each triangular window in the hanger plate. Left and right are mirror images, one per strut.
 
@@ -95,6 +95,7 @@ The renders come from `render_views.py`. A three-view silhouette drawing of one 
   
   The screw head now sits 1.2 mm higher in the front arm, with more arm under it. The light's position is unchanged. m17 keepers don't fit m16 saddles, and the other way round. A second nut, or a nut slot in the saddle, is left until m17's changes have been tested.
 - **Longer front arm (m18):** the keeper clamps on the strut and has never closed the 3 mm parting gap under the saddle's front arm, in any version. So m18 extends the front arm 2 mm further down over the keeper's front end (`FRONT_ARM_DROP`), leaving 1 mm. An impact that bends the keeper's nut end up now meets the arm after 1 mm instead of 3. Only the arm in front of the plate grows, so the strut's chamfer corners stay open. The keeper (m17's) still slides straight in, and the light's position is unchanged.
+- **Racing stripes (m19), matching the rear mount r6:** recessed 0.6 mm. **Le Mans twin stripes** run nose to tail on the rail side that looks up and inboard, in front of the pedestal. That face is only about 14 mm tall there, so the pair is scaled to 4.65 mm stripes with a 3.9 mm gap (r6: 6 and 5). **Three raked slashes** (3 mm, leaning toward the nose, the middle one 13 mm tall) sit on the outboard rail side near the nose. The rails are 0.6 mm thicker (`RAIL_EXTRA` 1.5 → 2.1), so the walls under the stripes stay 3.1 mm as in m15–m18. The stripes print on vertical walls, so their upper sides slope 45° into the part, like the artwork's grooves; the slicer adds no supports for them. Otherwise m19 is m18 (same keeper, same fit).
 - **Hardware per side:** **1× M4×20 socket-head cap screw** (3 mm hex key), an **M4 split spring washer** under the head, and a **plain M4 hex nut** with blue threadlocker (m17; m10–m16 were drawn for an M4 nyloc; see [Known issues](#known-issues)), the same M4 size used elsewhere on the board (m10; m6–m9 used M5). It's fitted and tightened **through the receiver's own slot** (with the light removed), so no access holes are needed. The head sits 6 mm deeper in the front arm than in m12, so the screw goes right through the nut even while the keeper still hangs loose at the bottom of its hook; tightened, about 5.5 mm of screw shows below the nut (m12's screw only touched the nut). The keeper is 5 mm thick (m1–m12: 6 mm), with the nut block below it (m17). No liner: the clamp leaves 0.25 mm all round the strut, a snug PLA fit (m1–m11 left 1 mm for a rubber liner; m11 printed without one could slide about 1 mm front to back). If it buzzes or scuffs the powder coat, a layer of electrical tape inside the saddle fixes that.
 - **Fitting:** drop the saddle over the strut, slide the keeper in through the window from the front until its rear end is in the hook, then fit the screw down through the slot.
 
@@ -116,11 +117,11 @@ Files are in [`out/truck/`](out/truck):
 
 | File | What it is |
 |---|---|
-| `truck_mount_{left,right}_m18_saddle.stl` | Print receiver-face down, so the lip and barbs are on the bed, as for v7. m9 is designed to need little or no support: the flange channel's roof is chamfered at 45° up to a ~15 mm bridge (m12), and the only other real overhang is the short hook lip at the top. Slice it without supports first and check the preview. |
-| `truck_mount_{left,right}_m18_keeper.stl` | Prints **standing on its upper end** with no supports (m17; m16 printed flat top down, m1–m15 nut pocket down), so the screw's pull runs along the layers. The footprint is small (about 39 × 6.5 mm, 20 mm tall), but it prints fine without a brim. The pocket takes a plain M4 nut (6.9 mm across flats, 3.2 mm thick). |
-| `assembly_m18.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m18_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
+| `truck_mount_{left,right}_m19_saddle.stl` | Print receiver-face down, so the lip and barbs are on the bed, as for v7. m9 is designed to need little or no support: the flange channel's roof is chamfered at 45° up to a ~15 mm bridge (m12), and the only other real overhang is the short hook lip at the top. Slice it without supports first and check the preview. |
+| `truck_mount_{left,right}_m19_keeper.stl` | Prints **standing on its upper end** with no supports (m17; m16 printed flat top down, m1–m15 nut pocket down), so the screw's pull runs along the layers. The footprint is small (about 39 × 6.5 mm, 20 mm tall), but it prints fine without a brim. The pocket takes a plain M4 nut (6.9 mm across flats, 3.2 mm thick). |
+| `assembly_m19.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m19_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
 
-**Engraved artwork (optional):** if `art/source.png` exists, `truck_mount.py` also writes `truck_mount_{left,right}_m18_saddle_art.stl` (and `assembly_m18_art.obj`), with the picture recessed 0.6 mm into the pedestal's tail-facing wall. Each groove's upper side slopes down 45° into the wall instead of being a flat little ceiling, so the engraving needs no supports (m14; m12's grooves drew supports onto the picture). The wall is the flat, roughly 28 mm square side you see from behind the board. `artwork.py` turns the picture into black-and-white ink with every line at least 0.4 mm wide, so a 0.4 mm nozzle can cut it. It's turned to fit the tipped wall as large as it can (about 21 mm) and mirrored on the left mount. The settings are in `ART` in `truck_mount.py`. The `*_art` files are gitignored, and the artwork in `art/` is not GPL (see [its notice](art/NOTICE.md)).
+**Engraved artwork (optional):** if `art/source.png` exists, `truck_mount.py` also writes `truck_mount_{left,right}_m19_saddle_art.stl` (and `assembly_m19_art.obj`), with the picture recessed 0.6 mm into the pedestal's tail-facing wall. Each groove's upper side slopes down 45° into the wall instead of being a flat little ceiling, so the engraving needs no supports (m14; m12's grooves drew supports onto the picture). The wall is the flat, roughly 28 mm square side you see from behind the board. `artwork.py` turns the picture into black-and-white ink with every line at least 0.4 mm wide, so a 0.4 mm nozzle can cut it. It's turned to fit the tipped wall as large as it can (about 21 mm) and mirrored on the left mount. The settings are in `ART` in `truck_mount.py`. The `*_art` files are gitignored, and the artwork in `art/` is not GPL (see [its notice](art/NOTICE.md)).
 
 Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 
@@ -129,12 +130,12 @@ Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 - Radium's R6 pre-order listing, quoted on the esk8.news forum (June 2023): "60 degree front, 30 degree rear pivot angle" ([thread](https://forum.esk8.news/t/radium-r6-trucks-thane-belts/77112)). The original listing (`radium-performance.com/products/radium-prototype-trucks-pre-order`) now returns 404. The measured front truck is 30°, so this listing is outdated or uses a different convention.
 - A Radium photo of both trucks is kept in [`docs/reference/vendor/`](docs/reference/vendor). It is **© Radium Performance and not covered by this repo's licence**; see the [notice](docs/reference/vendor/NOTICE.md).
 
-## Rear light mount (Radium Mach One S rear truck): r5
+## Rear light mount (Radium Mach One S rear truck): r6
 
 On the rear truck the motors hide anything clamped to the hanger, so the two rear lights sit side
 by side on one bar above the motors, facing the tail. It hangs off the oval hole ("hole A") in the
 floor of the hanger's pocket, just in front of the charging port
-([photos](docs/reference/truck/rear-2026-11-15)). `rear_mount.py` builds it as one part (r5; r2–r4
+([photos](docs/reference/truck/rear-2026-11-15)). `rear_mount.py` builds it as one part (r5 on; r2–r4
 were a shoe and a light bar bolted together):
 
 - **Shoe:** a solid 24 mm block on a flat foot on the pocket floor, stopping short of the Ra button,
@@ -146,8 +147,20 @@ were a shoe and a light bar bolted together):
 - **Light bar:** two v7 receivers, unchanged, on plates joined by a solid bridge on top of the shoe.
   The flange channels' roofs are chamfered to ~17 mm bridges.
 
-The receivers' undersides are 15 mm above hole A, clearing the bar behind the motors (12 mm). They
-are 23 mm apart, so the 17.5 mm charging plug still fits between the lights.
+The receivers' undersides are 15 mm above hole A, clearing the bar behind the motors (12 mm). In r6
+they are 56 mm apart (r5: 23), so the charging port's rubber cover (51.7 mm wide) lifts straight up
+between the lights, about 1.4 mm clear each side, and both its finger holes are open from above. The
+bridge stops 1 mm short of the cover's front corners. A solid 45° slope runs along the bar's nose
+end, 16 mm out and 16 mm down, under the lights' overhang, like the front mounts' 16 mm faces; its top
+is flush with the receivers' faces, so it prints on the bed. Each receiver's tunnel (under its lip and
+channel roof, about 340 mm²) runs on through the slope, so air still flows nose to tail under the lights.
+
+Racing stripes (r6), recessed 0.6 mm (3 layers): **Le Mans twin stripes** (6 mm wide, 5 mm apart)
+run nose to tail over the top between the lights and on down the nose slope, and **three raked
+slashes** (3 mm, leaning toward the nose, the middle one longest) sit on each outer side. Each outer
+side is 1.5 mm thicker (like the front mounts' rails since m15), so the slashes cut into added
+material rather than the receiver's ~1.6 mm side wall. As printed, the Le Mans stripes face the bed,
+so the layer above them bridges 6 mm and their floors look a little rougher than the face round them. The bar is now about 117 mm across (r5: 84).
 
 To fit it: slide a plain M4 hex nut (3 mm thick; the slot fits 3.11 mm nuts with 0.3 mm to spare)
 into the slot in the shoe's side. Back the screw off until its end is inside the plug, drop the plug
@@ -157,16 +170,17 @@ threadlocker.
 
 | File (in `out/rear/`) | |
 |---|---|
-| `rear_mount_r5.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
-| `rear_assembly_r5.obj` | The mount and screw on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the motors' diameter and the bar's height are measured. |
+| `rear_mount_r6.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
+| `rear_assembly_r6.obj` | The mount, screw and charging-port cover on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the cover (5.5 mm behind hole A's rear edge), the motors' diameter and the bar's height are measured. |
 | `dummy_charge_cover_v5.stl` | A printable stand-in for the rubber charging-port cover (`charge_cover.py`), measured with calipers: for test-fitting in the recess and for designing the light bar around it. v4 fitted the recess but was slightly loose round the port; v5 makes the port hole 0.2 mm smaller (14.78 mm). Exported **top face down**: the hollow underside opens upward, supports reach up to about 6 mm, under the curved top and inside the finger holes. |
 
-**Known problem (r5): the light bar blocks the charging-port cover.** The cover fills the recess
-around the port (51.7 mm wide at the front, 31.65 deep, 12.4 thick) and comes out by two finger
-holes near its front edge, 17 mm apart at their inner walls. r5's receivers leave only a 22 mm gap
-over it, with their plates about 7.5 mm above the cover, so the finger holes can't be reached and
-the cover can't come out with the bar fitted. `charge_cover.py` models the cover (v1) so r6 can be
-designed around it.
+**r5's problem, fixed in r6 (not yet printed): the light bar blocked the charging-port cover.** The
+cover fills the recess around the port (51.7 mm wide at the front, 31.65 deep, 12.4 thick) and comes
+out by two finger holes near its front edge. r5's lights sat over the finger holes, with the plates
+only 7.5 mm above the cover, so it couldn't come out with the bar fitted. `rear_mount.py` now places
+the dummy cover (`charge_cover.py`) and checks that it lifts straight out past the part and the lights.
+The cover's measured position (5.5 mm behind hole A's rear edge) puts its port about 2.9 mm further
+back than the 22 mm port measurement; the bar clears both.
 
 ## Printing
 
@@ -189,7 +203,7 @@ python3 -m venv .venv
 .venv/bin/python preview.py docs           # preview images
 .venv/bin/python render_views.py           # shaded truck-mount renders (docs/truck_render.png)
 .venv/bin/python flyaround.py              # fly-around GIFs (docs/) and the browser-view STLs (needs Blender)
-.venv/bin/python slice_check.py out/truck/truck_mount_left_m18_saddle.stl  # where PrusaSlicer puts supports (needs the PrusaSlicer Flatpak)
+.venv/bin/python slice_check.py out/truck/truck_mount_left_m19_saddle.stl  # where PrusaSlicer puts supports (needs the PrusaSlicer Flatpak)
 ```
 
 All receiver dimensions are named constants, in inches, at the top of `shredlight_mount.py`. The
@@ -270,7 +284,10 @@ clamp path (head, front arm, keeper, nut), or it will lose preload faster.
 - [x] Truck mount m15 (backbone behind the whole receiver, rails 1.5 mm thicker, 5 mm beam clearance). The clamp still rattles a little fully seated, so m16 follows
 - [x] Truck mount m16 (m15 with a V fin and groove locating the keeper in the hook pocket, and chamfered pocket edges), in PETG with an M4 spring washer under the screw head: the light now stays tight to the clamp, but both keepers shattered round the nut on the road (2026-11-22); the right light was lost
 - [x] Truck mount m17 (plain-nut pocket under a 3 mm ceiling, a nut block with 3 mm walls, keeper printed on its end): carried into m18
-- [ ] Truck mount m18 (m17 with the saddle's front arm 2 mm longer, 1 mm over the keeper): print, fit and ride
+- [ ] Truck mount m18 (m17 with the saddle's front arm 2 mm longer, 1 mm over the keeper): keepers printed solid, no brim; fitted on both sides and very sturdy (2026-11-23). Ride it
+- [x] Dummy charging-port cover v5 (`charge_cover.py`): v4 fitted the recess; v5's port hole is 0.2 mm tighter
+- [ ] Rear mount r6 (receivers 56 mm apart so the charging-port cover lifts out between the lights; a solid 45° nose slope under the lights with the air tunnels kept open; Le Mans stripes on top and raked slashes on the sides): print and fit
+- [ ] Truck mount m19 (m18 plus the same racing stripes, rails 0.6 mm thicker): print and fit
 - [ ] Later candidates, after m18 is tested: a second nut, a nut slot in the saddle, other ways of holding the keeper
 
 ## License

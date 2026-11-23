@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold, OpType
 
 import shredlight_mount as receiver
 
-VERSION = 18
+VERSION = 19
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -108,7 +108,17 @@ CHANNEL_CHAMFER = 6.0  # m12: 45 deg chamfers this tall up from each rail into t
 BACKBONE = True      # solid block behind the whole receiver, rail to rail and end to end
 BACKBONE_BRIDGE = 3.0  # backbone material over the channel roof's flat bridge
 BACKBONE_ROOT = 6.0  # extra depth where the backbone leaves the pedestal, tapering to 0 at the nose
-RAIL_EXTRA = 1.5     # each rail thickened outward by this much, full length, up to the face
+RAIL_EXTRA = 1.5 + 0.6  # each rail thickened outward by this much, full length, up to the face
+                     # (m15-m18: 1.5; m19 adds the racing stripes' depth, so they cut into added material)
+# m19: recessed racing stripes, as on the rear mount r6 (user, 2026-11-23): Le Mans twin stripes on the
+# rail side that looks up and inboard (nose half, in front of the pedestal), raked slashes on the
+# outboard rail side, near the nose. Vertical as printed, so their ceilings slope 45 deg (no supports).
+STRIPE_D = 0.6       # recess depth: 3 layers at 0.2 mm
+LEMANS_W = 6.0       # Le Mans twin stripes, running nose to tail
+LEMANS_GAP = 5.0     # between them
+SLASH_W = 3.0        # slash width, measured nose to tail
+SLASH_RAKE = 0.5     # each leans this far toward the nose per mm of height
+SLASHES = [(18.0, 10.0), (12.0, 13.0), (6.0, 10.0)]   # (mid-height distance behind the nose end, height)
 BEAM_CLEAR = 5.0     # minimum gap from the receiver end of the part to the (schematic) axle beam
 # Optional picture engraved on the pedestal's tail-facing wall (the large flat side you see
 # from behind the board). Off unless the image exists; it's kept out of the repo (art/ is
@@ -482,7 +492,63 @@ def right_parts():
     saddle = (saddle + webs) + pod - strut - access - place(fin_groove(), rot)
     if BACKBONE:
         saddle -= beam_keepout(rot, rrot, roff)
+    inv = np.column_stack([rrot.T, -rrot.T @ roff])
+    saddle -= place(stripes_local(saddle.transform(inv)), rrot, roff)
     return {"saddle": saddle, "keeper": keeper, "webs": webs, "pod": pod}, rot, rrot, roff
+
+
+def stripes_local(saddle):
+    """m19, in the receiver's frame (`saddle` given in that frame): the racing stripes' cutter.
+    Each design is clipped to its rail side's exposed flat face, 1 mm in from its edges."""
+    _, lo, hi, _, _ = receiver_dims()
+    d = STRIPE_D
+    sk = saddle.transform(np.array([[0, 1.0, 0, 0], [0, 0, 1.0, 0], [1.0, 0, 0, 0]]))  # (y, z, x): slice at x
+
+    def face(xf, out):
+        """The flat face at x = xf, facing +-x (out), as a (y, z) region with a 1 mm margin."""
+        return (sk.slice(xf - out * 0.05) - sk.slice(xf + out * 0.05)).offset(-1.0)
+
+    def cutter(cs, xf, out):
+        """(y, z) sketch cut d deep into the face at x = xf. As printed (receiver face down, so local
+        -z is up) each groove's upper side would be a flat ceiling; it slopes 45 deg instead."""
+        straight = cs.extrude(d + 1)                                  # t: 0 at the floor, d at the face
+        deeper = cs.extrude(d + 1.02).translate([0, 0, -0.01])
+        shear = np.array([[1.0, 0, 0, 0], [0, 1.0, -1.0, d], [0, 0, 1.0, 0]])   # deeper -> toward the bed (+z)
+        m = straight ^ deeper.transform(shear)
+        return m.transform(np.array([[0, 0, out, xf - out * d], [1.0, 0, 0, 0], [0, 1.0, 0, 0]]))
+
+    def band(cs_region):
+        lo_, hi_ = np.array(cs_region.bounds()).reshape(2, 2)
+        return lo_, hi_
+
+    # Slashes on the outboard rail side, near the nose (local +y).
+    xo, nose = hi[0] + RAIL_EXTRA, hi[1]
+    r_out = face(xo, 1)
+    near = r_out ^ CrossSection.square([30, 60]).translate([nose - 30, -30])
+    zlo, zhi = band(near)[0][1], band(near)[1][1]
+    zc = (zlo + zhi) / 2
+    sl = CrossSection()
+    for back, h in SLASHES:
+        yc = nose - back
+        a, b = (yc - SLASH_RAKE * h / 2, zc - h / 2), (yc + SLASH_RAKE * h / 2, zc + h / 2)
+        sl += CrossSection([[(a[0] - SLASH_W / 2, a[1]), (a[0] + SLASH_W / 2, a[1]),
+                             (b[0] + SLASH_W / 2, b[1]), (b[0] - SLASH_W / 2, b[1])]])
+    cut = cutter(sl ^ r_out, xo, 1)
+    # Le Mans twins on the inboard rail side (it looks up and inboard), nose to tail. That face is
+    # only ~14 mm tall clear of the pedestal, so the pair is scaled down to fit it, 1 mm in from its edges.
+    xi = lo[0] - RAIL_EXTRA
+    r_in = face(xi, -1)
+    (ylo, _), (yhi, _) = band(r_in)
+    ends = [band(r_in ^ CrossSection.square([1, 60]).translate([y, -30])) for y in (ylo, yhi - 1)]
+    zlo, zhi = max(e[0][1] for e in ends), min(e[1][1] for e in ends)   # clear of the face's notches
+    k = min(1.0, (zhi - zlo - 0.6) / (2 * LEMANS_W + LEMANS_GAP))
+    w, g, zc = LEMANS_W * k, LEMANS_GAP * k, (zlo + zhi) / 2
+    lm = CrossSection()
+    for sg in (-1, 1):
+        lm += CrossSection.square([yhi - ylo + 2, w]).translate([ylo - 1, zc + sg * (g + w) / 2 - w / 2])
+    stripes_local.lemans = (w, g)
+    cut += cutter(lm ^ r_in, xi, -1)
+    return cut
 
 
 def light_envelope(rrot, roff):

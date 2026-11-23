@@ -55,7 +55,7 @@ channels that would be hard to clear.
 All STLs are exported in their print orientation; slice them without rotating.
 
 - **Receivers** (`out/shredlight_mount_*_v7.stl`): lip down. Supports off.
-- **Front truck saddles** (`out/truck/truck_mount_*_m18_saddle.stl`): receiver face down, in PETG (above). Designed to
+- **Front truck saddles** (`out/truck/truck_mount_*_m19_saddle.stl`): receiver face down, in PETG (above). Designed to
   need little support: the flange channel's roof is chamfered at 45° up to a ~15 mm bridge, which sags
   slightly but doesn't affect the fit (it sits ~6 mm above the flange's path). With the profile above,
   "don't support bridges" leaves it unsupported; for a cleaner roof, block supports in the channel. m15's backbone
@@ -63,13 +63,13 @@ All STLs are exported in their print orientation; slice them without rotating.
   Auto supports also grow one tree up into the screw-head recess, to the flat ring the head (and its
   spring washer) clamps on: as printed it faces down, tilted ~21°, but it's only 1.75 mm wide. Paint a
   **support blocker** on it: it prints fine unsupported, and a tree there would scar the clamping face.
-- **Keepers** (`out/truck/truck_mount_*_m18_keeper.stl`): **standing on the keeper's upper end** (m17), screw
+- **Keepers** (`out/truck/truck_mount_*_m19_keeper.stl`): **standing on the keeper's upper end** (m17), screw
   axis level, so the screw's pull and the keeper's bending run along the layers. m16 printed flat, and both keepers
   split round the nut. Supports off: the nut pocket's roof is a short flat bridge, and the screw hole has a 45° teardrop top.
   It stands 20 mm tall on about 39 × 6.5 mm, but prints fine without a brim (2026-11-23). PETG, printed **solid (100 % infill)**: select both
   keepers in the object list, right-click → Add settings → Infill → Fill density, and set 100 %. The saddles keep the
   global infill (3D honeycomb at 20 % also works for them). Solid m18 keepers made a very strong joint (2026-11-23).
-- **Rear light mount** (`out/rear/rear_mount_r5.stl`): receiver faces down, the shoe and its plug
+- **Rear light mount** (`out/rear/rear_mount_r6.stl`): receiver faces down, the shoe and its plug
   pointing up. Supports off: what overhangs is the two chamfered channel-roof bridges, the nut slot's
   ceiling and near-level round holes (the r4 shoe printed this way cleanly).
 
@@ -80,7 +80,7 @@ settings above, and reports where the supports land, in the STL's own coordinate
 height. That's enough to tell which feature a tree is reaching for before opening the slicer.
 
 ```sh
-.venv/bin/python slice_check.py out/truck/truck_mount_left_m18_saddle.stl out/truck/truck_mount_left_m18_keeper.stl
+.venv/bin/python slice_check.py out/truck/truck_mount_left_m19_saddle.stl out/truck/truck_mount_left_m19_keeper.stl
 ```
 
 How it works, in case it needs fixing:
