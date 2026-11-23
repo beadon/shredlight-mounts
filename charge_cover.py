@@ -25,7 +25,7 @@ from manifold3d import CrossSection, Manifold, OpType
 
 import shredlight_mount as receiver
 
-VERSION = 4
+VERSION = 5
 
 # Width across the cover at distances back from its front corners (calipers, 2026-11-21)
 WIDTHS = [(0.0, 51.70), (10.0, 47.83), (20.0, 43.6), (25.0, 37.0), (30.0, 22.0)]
@@ -72,7 +72,7 @@ FINGER_CORNER_R = 1.5  # rounded corners of the recess, seen from above (v1-v2's
 # port; the rigid print at 13.18 didn't go over it (v1, 2026-11-22), so the dummy's hole is opened
 # up by CUP_CLEAR. The dummy is located by its outline, so a loose fit on the port is fine.
 CUP_D_MEASURED = 13.18
-CUP_CLEAR = 1.8
+CUP_CLEAR = 1.6    # v2-v4: 1.8 fitted the port but a fraction loose (user, 2026-11-22)
 CUP_D = CUP_D_MEASURED + CUP_CLEAR
 CUP_Y = FRONT_DIP + 12.0   # centre, behind the front corners
 

@@ -29,7 +29,7 @@ Ready-to-slice STLs, each exported in its print orientation (see [PRINT_SETTINGS
 |---|---|
 | [`out/`](out) | The Shredlight mount itself (the receiver the light clips into), left and right, every fit version: `shredlight_mount_{left,right}_v1`…`v7`. **v7 is the mount to print.** |
 | [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m18** (current; m16 is the last printed and ridden), plus `assembly_m*.obj` for Blender. |
-| [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r5.stl` (current) and `rear_assembly_r5.obj` for Blender; `dummy_charge_cover_v1.stl`, a stand-in for the charging-port cover. |
+| [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r5.stl` (current) and `rear_assembly_r5.obj` for Blender; `dummy_charge_cover_v5.stl`, a stand-in for the charging-port cover. |
 
 Older versions are in the git history. The `*_art` engraved saddles aren't in the repo: the artwork
 isn't GPL (see [art/NOTICE.md](art/NOTICE.md)), so `truck_mount.py` builds them locally only.
@@ -159,7 +159,7 @@ threadlocker.
 |---|---|
 | `rear_mount_r5.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
 | `rear_assembly_r5.obj` | The mount and screw on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the motors' diameter and the bar's height are measured. |
-| `dummy_charge_cover_v1.stl` | A printable stand-in for the rubber charging-port cover (`charge_cover.py`), measured with calipers: for test-fitting in the recess and for designing the light bar around it. Exported **top face down**: the hollow underside opens upward, and only the back of the curved top (up to ~3 mm off the bed) needs a little support. |
+| `dummy_charge_cover_v5.stl` | A printable stand-in for the rubber charging-port cover (`charge_cover.py`), measured with calipers: for test-fitting in the recess and for designing the light bar around it. v4 fitted the recess but was slightly loose round the port; v5 makes the port hole 0.2 mm smaller (14.78 mm). Exported **top face down**: the hollow underside opens upward, supports reach up to about 6 mm, under the curved top and inside the finger holes. |
 
 **Known problem (r5): the light bar blocks the charging-port cover.** The cover fills the recess
 around the port (51.7 mm wide at the front, 31.65 deep, 12.4 thick) and comes out by two finger
