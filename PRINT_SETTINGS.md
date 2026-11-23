@@ -66,7 +66,7 @@ All STLs are exported in their print orientation; slice them without rotating.
 - **Keepers** (`out/truck/truck_mount_*_m18_keeper.stl`): **standing on the keeper's upper end** (m17), screw
   axis level, so the screw's pull and the keeper's bending run along the layers. m16 printed flat, and both keepers
   split round the nut. Supports off: the nut pocket's roof is a short flat bridge, and the screw hole has a 45° teardrop top.
-  It stands 20 mm tall on about 39 × 6.5 mm, so add a **brim**. PETG, printed **solid (100 % infill)**: select both
+  It stands 20 mm tall on about 39 × 6.5 mm, but prints fine without a brim (2026-11-23). PETG, printed **solid (100 % infill)**: select both
   keepers in the object list, right-click → Add settings → Infill → Fill density, and set 100 %. The saddles keep the
   global infill (3D honeycomb at 20 % also works for them). Solid m18 keepers made a very strong joint (2026-11-23).
 - **Rear light mount** (`out/rear/rear_mount_r5.stl`): receiver faces down, the shoe and its plug
