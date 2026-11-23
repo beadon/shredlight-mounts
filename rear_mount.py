@@ -70,7 +70,11 @@ SHOE_REAR_TOP = -10.0  # above the step's top the shoe reaches further back, sho
 STEP_GAP = 1.2       # gap over the step's top
 
 # --- Hardware: M4 socket-head cap screws and plain M4 hex nuts ---
-NUT_AF, NUT_T = 7.0 + 0.3, 3.11 + 0.3  # nut pocket: across flats and thickness (3.11 measured, r3; r2: 5 mm nylocs)
+NUT_AF, NUT_T = 7.1, 3.18 + 0.3  # nut pocket: across flats and thickness. The user's plain M4 nuts measure
+                                   # 6.90 across flats and 3.18 thick (2026-11-21; r3 used 3.11; r2: 5 mm nylocs)
+# r6: across flats 7.3 -> 7.1, a snug fit. Blue Loctite bonds the screw to the nut, and with 0.3 mm of
+# play the nut turned until its corners dug in and rounded out the PLA pocket, so the screw couldn't be
+# backed out (the r5 unit had to be pried out of hole A). Snug, it bears on its flats instead.
 BOLT_HOLE = 4.5      # clearance hole for M4
 HEAD_BORE = 8.5      # counterbore for the M4 head (7 mm) and the hex key
 # Screw under the lip
