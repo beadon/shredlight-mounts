@@ -65,6 +65,14 @@ MOTOR_D = 64.0       # motor can diameter (measured); the rest of the surroundin
 
 # --- Plug ---
 CLR = 0.2            # clearance per side, plug to hole
+# V-block nose (test plug, 2026-11-24): r6 wobbles a fraction of a mm side to side, wearing the screw and
+# the truck's lip. Its plug is the hole shrunk CLR all round, so the screw's push lands its nose on the
+# hole's front wall at ONE point, and it can pivot about it. Shaving the nose's middle back NOSE_RELIEF
+# more (fading out NOSE_SPAN deg either side of the centre line) moves the contact to two shoulders,
+# ~41 deg either side, which pin it left/right like a rod in a V-block. The user confirmed the hole's
+# front end is a smooth oval. Off (0) for r6; the test shoe uses it.
+NOSE_RELIEF = 0.35
+NOSE_SPAN = 45.0
 PLUG_DEPTH = HOLE_D - 0.6  # stops short of the floor
 
 # --- Shoe ---
@@ -158,10 +166,42 @@ def rod(length, d, start=0.0, seg=24):
 
 # ---------------------------------------------------------------- parts
 
-def plug_and_screw():
+def plug_section(relief=0.0):
+    """The plug's outline in hole-local (X, s) (s toward the tail): the hole shrunk CLR all round,
+    with `relief` more taken off the middle of its nose (the V-block nose, see NOSE_RELIEF)."""
+    if relief <= 0:
+        return hole_section().offset(-CLR, circular_segments=64)
+    b, a = HOLE_W / 2, HOLE_L / 2
+    t = np.linspace(0, 2 * np.pi, 720, endpoint=False)
+    p = np.column_stack([b * np.cos(t), a * np.sin(t)])
+    n = np.column_stack([a * np.cos(t), b * np.sin(t)])
+    n /= np.linalg.norm(n, axis=1)[:, None]                      # outward normals
+    phi = np.degrees(np.arccos(np.clip(-n[:, 1], -1, 1)))        # from the nose (-s)
+    g = np.full_like(t, CLR)
+    f = phi < NOSE_SPAN
+    g[f] += relief * (1 + np.cos(np.radians(phi[f] * 180 / NOSE_SPAN))) / 2
+    return CrossSection([p - g[:, None] * n])
+
+
+def nose_contact(relief):
+    """How far the screw pushes the plug toward the nose before it touches, and where (deg from the
+    centre line), for a plug outline from plug_section."""
+    b, a = HOLE_W / 2, HOLE_L / 2
+    t = np.linspace(np.pi, 2 * np.pi, 3601)                      # the nose half (s < 0)
+    n = np.column_stack([a * np.cos(t), b * np.sin(t)])
+    n /= np.linalg.norm(n, axis=1)[:, None]
+    phi = np.degrees(np.arccos(np.clip(-n[:, 1], -1, 1)))
+    g = np.full_like(t, CLR)
+    f = phi < NOSE_SPAN
+    g[f] += relief * (1 + np.cos(np.radians(phi[f] * 180 / NOSE_SPAN))) / 2
+    need = g / np.maximum(-n[:, 1], 1e-9)
+    k = np.argmin(need)
+    return need[k], phi[k]
+
+
+def plug_and_screw(relief=0.0):
     """Plug and screw cutters, in hole-local coordinates."""
-    e = hole_section()
-    q = e.offset(-CLR, circular_segments=64)
+    q = plug_section(relief)
     plug = q.extrude(PLUG_DEPTH + 1).translate([0, 0, -PLUG_DEPTH])
     a = np.radians(B_ANGLE)
     d = np.array([0.0, -np.cos(a), np.sin(a)])     # out of the hole toward the nose, rising
@@ -179,8 +219,8 @@ def plug_and_screw():
     return plug, cut, screw
 
 
-def shoe():
-    plug, cut, screw = plug_and_screw()
+def shoe(relief=0.0):
+    plug, cut, screw = plug_and_screw(relief)
     above = at_hole(Manifold.cube([200, 200, 100]).translate([-100, -100, 0]))
     w = SHOE_W / 2
     top = CLEAR_Z + 0.5                        # reaches 0.5 into the light bar's bridge: no coplanar seam
@@ -380,6 +420,18 @@ def main():
     for i, lb in enumerate(lights):
         scene[f"light_placeholder_{i}"] = (lb, "light_placeholder")
     tm.write_obj(scene, out / f"rear_assembly_r{VERSION}.obj")
+
+    # Test shoe: the r6 shoe on its own (no light bar) with the V-block nose, to check the plug seats on
+    # both shoulders in hole A before the next full part. Prints like the r4 shoe: top face down, plug up.
+    sh, _, cut = shoe(NOSE_RELIEF)
+    test = sh - cut
+    report("test shoe (V-block nose)", test)
+    assert all(((test + loose).translate(list(dd * N)) ^ sch["housing"]).volume() < 0.01 for dd in (0, 2, 5, 10, 20))
+    slide, at = nose_contact(NOSE_RELIEF)
+    s0, _ = nose_contact(0.0)
+    print(f"  r6 plug: the screw pushes it {s0:.2f} mm to one contact at the nose's tip")
+    print(f"  V-block nose: {slide:.2f} mm to two contacts, {at:.0f} deg either side of the centre line")
+    receiver.write_stl(tm.face_down(test, [0, 0, 1.0]), out / "rear_shoe_test_vnose.stl")
 
 if __name__ == "__main__":
     main()
