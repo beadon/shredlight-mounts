@@ -73,6 +73,9 @@ CLR = 0.2            # clearance per side, plug to hole
 # front end is a smooth oval. Off (0) for r6; the test shoe uses it.
 NOSE_RELIEF = 0.35
 NOSE_SPAN = 45.0
+RUNOUT = 4.0         # the screw hole runs on this far past the screw's tip (r2-r6: 1), so its exit from the
+                     # plug's rear face is fully open; at 1 mm a thin, tilted skin was left across the bottom of
+                     # the exit (seen in the slicer, 2026-11-24). Used by the test shoe; r6 keeps 1.
 PLUG_DEPTH = HOLE_D - 0.6  # stops short of the floor
 
 # --- Shoe ---
@@ -199,7 +202,7 @@ def nose_contact(relief):
     return need[k], phi[k]
 
 
-def plug_and_screw(relief=0.0):
+def plug_and_screw(relief=0.0, runout=1.0):
     """Plug and screw cutters, in hole-local coordinates."""
     q = plug_section(relief)
     plug = q.extrude(PLUG_DEPTH + 1).translate([0, 0, -PLUG_DEPTH])
@@ -212,15 +215,15 @@ def plug_and_screw(relief=0.0):
     s_tip = edge + LIP_OVER - 2.0 * np.sin(a) - 0.1
     tip = np.array([0.0, s_tip, h_edge - (s_tip - edge) * np.tan(a)])
     head = B_LEN
-    cut = along(rod(head + 1, BOLT_HOLE, -1), tip, d)
+    cut = along(rod(head + runout, BOLT_HOLE, -runout), tip, d)
     cut += along(rod(60, HEAD_BORE, head - 0.5), tip, d)
     cut += along(nut_pocket(), tip, d, B_NUT_AT)
     screw = {"tip": tip, "d": d, "len": B_LEN, "set": 0.0, "loose": B_RETRACT}
     return plug, cut, screw
 
 
-def shoe(relief=0.0):
-    plug, cut, screw = plug_and_screw(relief)
+def shoe(relief=0.0, runout=1.0):
+    plug, cut, screw = plug_and_screw(relief, runout)
     above = at_hole(Manifold.cube([200, 200, 100]).translate([-100, -100, 0]))
     w = SHOE_W / 2
     top = CLEAR_Z + 0.5                        # reaches 0.5 into the light bar's bridge: no coplanar seam
@@ -423,7 +426,7 @@ def main():
 
     # Test shoe: the r6 shoe on its own (no light bar) with the V-block nose, to check the plug seats on
     # both shoulders in hole A before the next full part. Prints like the r4 shoe: top face down, plug up.
-    sh, _, cut = shoe(NOSE_RELIEF)
+    sh, _, cut = shoe(NOSE_RELIEF, RUNOUT)
     test = sh - cut
     report("test shoe (V-block nose)", test)
     assert all(((test + loose).translate(list(dd * N)) ^ sch["housing"]).volume() < 0.01 for dd in (0, 2, 5, 10, 20))
