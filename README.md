@@ -6,7 +6,7 @@ male side of the connection: the light lies on the receiver's face, and its moun
 from the slot's open end (the end the lens points to), hugging the underside of the lip until the
 barbs snap over it.
 
-**Status: v1.1** (2026-11-24). Every part in the release is printed and fitted on the board: the receiver (v7), the front truck clamps (m19, both sides: m14 broke in PLA, so they now have a backbone, an anti-rattle fin and a stronger keeper) and the rear light mount (r6, one part, anchored in the rear truck's oval hole, with the lights spread so the charging-port cover comes out between them). The [v1.1 release](https://github.com/beadon/shredlight-mounts/releases/tag/v1.1) has the STLs to print. The version history of each part is in the roadmap below.
+**Status: v1.2** (2026-11-24). Every part in the release is printed and fitted on the board: the receiver (v7), the front truck clamps (m19, both sides: m14 broke in PLA, so they now have a backbone, an anti-rattle fin and a stronger keeper) and the rear light mount (r6, one part, anchored in the rear truck's oval hole, with the lights spread so the charging-port cover comes out between them). The [v1.2 release](https://github.com/beadon/shredlight-mounts/releases/tag/v1.2) has the STLs to print. The version history of each part is in the roadmap below.
 
 ## See it mounted
 
@@ -288,7 +288,7 @@ clamp path (head, front arm, keeper, nut), or it will lose preload faster.
 - [x] Dummy charging-port cover v5 (`charge_cover.py`): v4 fitted the recess; v5's port hole is 0.2 mm tighter
 - [x] Rear mount r6 (receivers 56 mm apart so the charging-port cover lifts out between the lights; a solid 45° nose slope under the lights with the air tunnels kept open; Le Mans stripes on top and raked slashes on the sides): printed and fitted (2026-11-24)
 - [x] Truck mount m19 (m18 plus the same racing stripes, rails 0.6 mm thicker): printed and fitted on both sides (2026-11-24)
-- [x] **v1.1** (2026-11-24): receiver v7, front truck clamps m19, rear light mount r6
+- [x] **v1.2** (2026-11-24; the v1.1 tag was cut before r6 was confirmed, so it has no release): receiver v7, front truck clamps m19, rear light mount r6
 - [ ] Ride m19 and r6, and check the keepers and nut pockets for cracks
 - [ ] Later candidates, after m19 is ridden: a second nut, a nut slot in the saddle, other ways of holding the keeper
 
