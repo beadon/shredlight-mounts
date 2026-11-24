@@ -172,6 +172,7 @@ threadlocker.
 |---|---|
 | `rear_mount_r6.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
 | `rear_shoe_test_vnose.stl` | **Test part:** the r6 shoe on its own (no light bar) with a V-block nose on the plug (`NOSE_RELIEF`, see below). Prints like `rear_mount_r6.stl`, top face down, no supports. |
+| `rear_shoe_test_vnose_ribs.stl` | **Test part:** the same, plus four crush ribs up the plug's sides (`RIB_*`). Prints the same way. |
 | `rear_assembly_r6.obj` | The mount, screw and charging-port cover on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the cover (5.5 mm behind hole A's rear edge), the motors' diameter and the bar's height are measured. |
 | `dummy_charge_cover_v5.stl` | A printable stand-in for the rubber charging-port cover (`charge_cover.py`), measured with calipers: for test-fitting in the recess and for designing the light bar around it. v4 fitted the recess but was slightly loose round the port; v5 makes the port hole 0.2 mm smaller (14.78 mm). Exported **top face down**: the hollow underside opens upward, supports reach up to about 6 mm, under the curved top and inside the finger holes. |
 
@@ -189,7 +190,9 @@ shank bears on the lip all the time. The plug is the hole's oval shrunk 0.2 mm a
 screw's push lands its nose on the hole's front wall at a single point, and it can pivot about it.
 The test shoe's plug has the middle of its nose shaved back a further 0.35 mm (`NOSE_RELIEF`, fading
 out 45° either side): pushed forward 0.27 mm, it seats on two shoulders about 41° either side of the
-centre line instead, which pin it left and right like a rod in a V-block. If it holds, the next
+centre line instead, which pin it left and right like a rod in a V-block. A second test shoe adds
+four crush ribs (half-round, 1.2 mm wide, two up each side of the plug) that squash 0.15 mm into the
+hole's side walls, tapering to flush over the bottom 1.5 mm so they start in easily. If it holds, the next
 version also keeps the steel off the lip (a plastic flap under it, pushed out by the screw).
 
 ## Printing
@@ -300,7 +303,7 @@ clamp path (head, front arm, keeper, nut), or it will lose preload faster.
 - [x] Truck mount m19 (m18 plus the same racing stripes, rails 0.6 mm thicker): printed and fitted on both sides (2026-11-24)
 - [x] **v1.2** (2026-11-24; the v1.1 tag was cut before r6 was confirmed, so it has no release): receiver v7, front truck clamps m19, rear light mount r6
 - [ ] Ride m19 and r6, and check the keepers and nut pockets for cracks
-- [ ] Rear test shoe with a V-block nose (`rear_shoe_test_vnose.stl`): print and fit; check that it can't slide side to side with the screw tight
+- [ ] Rear test shoes, V-block nose (`rear_shoe_test_vnose.stl`) and V-block nose plus crush ribs (`rear_shoe_test_vnose_ribs.stl`): print both and fit; check that neither can slide side to side with the screw tight
 - [ ] Rear mount r7: the V-block nose, and a plastic flap under the lip so the screw's steel doesn't wear it
 - [ ] Later candidates, after m19 is ridden: a second nut, a nut slot in the saddle, other ways of holding the keeper
 

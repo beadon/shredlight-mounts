@@ -73,6 +73,13 @@ CLR = 0.2            # clearance per side, plug to hole
 # front end is a smooth oval. Off (0) for r6; the test shoe uses it.
 NOSE_RELIEF = 0.35
 NOSE_SPAN = 45.0
+# Crush ribs (second test shoe, with the V-block nose too, 2026-11-24): another way to stop the wobble. Half-round ribs up the
+# plug's sides stand RIB_PROUD off the plug, so they squash RIB_PROUD - CLR into the hole's side walls
+# as it goes in; the bottom RIB_LEAD of each tapers to flush, so they start in easily.
+RIB_R = 0.6          # 1.2 mm wide
+RIB_PROUD = 0.35     # 0.15 mm interference with the hole's wall
+RIB_LEAD = 1.5
+RIB_S = (-3.5, 3.5)  # along the hole (s, toward the tail) on each side: clear of the nose and the screw's exit
 RUNOUT = 4.0         # the screw hole runs on this far past the screw's tip (r2-r6: 1), so its exit from the
                      # plug's rear face is fully open; at 1 mm a thin, tilted skin was left across the bottom of
                      # the exit (seen in the slicer, 2026-11-24). Used by the test shoe; r6 keeps 1.
@@ -202,10 +209,31 @@ def nose_contact(relief):
     return need[k], phi[k]
 
 
-def plug_and_screw(relief=0.0, runout=1.0):
+def crush_ribs():
+    """The crush ribs, in hole-local coordinates (see RIB_R)."""
+    b, a = HOLE_W / 2, HOLE_L / 2
+    ribs = Manifold()
+    for side in (-1, 1):
+        for s in RIB_S:
+            t = np.arcsin(s / a)
+            p = np.array([side * b * np.cos(t), a * np.sin(t)])
+            n = np.array([side * a * np.cos(t), b * np.sin(t)]); n /= np.linalg.norm(n)
+            c = p - (CLR + RIB_R - RIB_PROUD) * n                  # rib axis: its side stands RIB_PROUD off the plug
+            inner = RIB_R - RIB_PROUD - 0.05                        # just inside the plug at the bottom (flush
+                                                                    # faces leave the mesh with open edges)
+            z0 = -PLUG_DEPTH + 0.05
+            rib = Manifold.cylinder(PLUG_DEPTH - RIB_LEAD + 0.4, RIB_R, circular_segments=24).translate([0, 0, z0 + RIB_LEAD - 0.05])
+            rib += Manifold.cylinder(RIB_LEAD, inner, RIB_R, circular_segments=24).translate([0, 0, z0])
+            ribs += rib.translate([c[0], c[1], 0])
+    return ribs
+
+
+def plug_and_screw(relief=0.0, runout=1.0, ribs=False):
     """Plug and screw cutters, in hole-local coordinates."""
     q = plug_section(relief)
     plug = q.extrude(PLUG_DEPTH + 1).translate([0, 0, -PLUG_DEPTH])
+    if ribs:
+        plug += crush_ribs()
     a = np.radians(B_ANGLE)
     d = np.array([0.0, -np.cos(a), np.sin(a)])     # out of the hole toward the nose, rising
     edge = HOLE_L / 2                              # the lip's edge (the hole's rear end)
@@ -222,8 +250,8 @@ def plug_and_screw(relief=0.0, runout=1.0):
     return plug, cut, screw
 
 
-def shoe(relief=0.0, runout=1.0):
-    plug, cut, screw = plug_and_screw(relief, runout)
+def shoe(relief=0.0, runout=1.0, ribs=False):
+    plug, cut, screw = plug_and_screw(relief, runout, ribs)
     above = at_hole(Manifold.cube([200, 200, 100]).translate([-100, -100, 0]))
     w = SHOE_W / 2
     top = CLEAR_Z + 0.5                        # reaches 0.5 into the light bar's bridge: no coplanar seam
@@ -435,6 +463,19 @@ def main():
     print(f"  r6 plug: the screw pushes it {s0:.2f} mm to one contact at the nose's tip")
     print(f"  V-block nose: {slide:.2f} mm to two contacts, {at:.0f} deg either side of the centre line")
     receiver.write_stl(tm.face_down(test, [0, 0, 1.0]), out / "rear_shoe_test_vnose.stl")
+
+    # Second test shoe: the V-block nose plus crush ribs, printed alongside the first.
+    sh, _, cut = shoe(NOSE_RELIEF, RUNOUT, ribs=True)
+    pieces = [p for p in (sh - cut).decompose() if p.volume() > 0.01]   # drop zero-volume boolean slivers
+    assert len(pieces) == 1
+    test = pieces[0]
+    tm.check_mesh(test, "test shoe (V-block nose + crush ribs)")
+    ribs = at_hole(crush_ribs())
+    squash = (test ^ sch["housing"]).volume()
+    assert abs(squash - (ribs ^ sch["housing"]).volume()) < 1e-3, "something besides the ribs runs into the truck"
+    print(f"test shoe (V-block nose + crush ribs): {test.volume() / 1000:.1f} cm^3; the ribs squash {squash:.2f} mm^3 of plastic "
+          f"({RIB_PROUD - CLR:.2f} mm into the wall), nothing else touches")
+    receiver.write_stl(tm.face_down(test, [0, 0, 1.0]), out / "rear_shoe_test_vnose_ribs.stl")
 
 if __name__ == "__main__":
     main()
