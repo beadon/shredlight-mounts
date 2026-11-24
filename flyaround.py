@@ -24,7 +24,7 @@ FRAME_MS = 90
 
 # (OBJ, GIF, STL, title); per-object colours override the OBJ's materials for a clearer picture.
 JOBS = [
-    ("out/truck/assembly_m14.obj", "docs/flyaround_front.gif", "out/truck/assembly_m14_view.stl", "front truck, m14"),
+    ("out/truck/assembly_m19.obj", "docs/flyaround_front.gif", "out/truck/assembly_m19_view.stl", "front truck, m19"),
     ("out/rear/rear_assembly_r5.obj", "docs/flyaround_rear.gif", "out/rear/rear_assembly_r5_view.stl", "rear truck, r5"),
 ]
 COLOURS = {   # name prefix -> RGB

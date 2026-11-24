@@ -6,20 +6,20 @@ male side of the connection: the light lies on the receiver's face, and its moun
 from the slot's open end (the end the lens points to), hugging the underside of the lip until the
 barbs snap over it.
 
-**Status: v1.0** (2026-11-16). Every part is printed and fitted on the board: the receiver (v7), the front truck clamps (m14, both sides) and the rear light mount (r5, one part, anchored in the rear truck's oval hole). The [v1.0 release](https://github.com/beadon/shredlight-mounts/releases/tag/v1.0) has the STLs to print. The version history of each part is in the roadmap below.
+**Status: v1.1** (2026-11-24). Every part in the release is printed and fitted on the board: the receiver (v7), the front truck clamps (m19, both sides: m14 broke in PLA, so they now have a backbone, an anti-rattle fin and a stronger keeper) and the rear light mount (r5, one part, anchored in the rear truck's oval hole). The [v1.1 release](https://github.com/beadon/shredlight-mounts/releases/tag/v1.1) has the STLs to print. Rear mount r6, which lets the charging-port cover come out with the lights fitted, is designed but not yet printed. The version history of each part is in the roadmap below.
 
 ## See it mounted
 
 The lights (blue boxes) on their mounts (red), on **schematic** trucks: only the parts the mounts
 touch are measured; the rest are placeholder shapes.
 
-| Front truck (m14) | Rear truck (r5) |
+| Front truck (m19) | Rear truck (r5) |
 |---|---|
 | ![Fly-around of the front truck mounts](docs/flyaround_front.gif) | ![Fly-around of the rear light mount](docs/flyaround_rear.gif) |
-| [Turn it in your browser](out/truck/assembly_m14_view.stl) | [Turn it in your browser](out/rear/rear_assembly_r5_view.stl) |
+| [Turn it in your browser](out/truck/assembly_m19_view.stl) | [Turn it in your browser](out/rear/rear_assembly_r5_view.stl) |
 
 The browser links open GitHub's 3D viewer (drag to turn, scroll to zoom). For colours and separate
-parts, open `out/truck/assembly_m14.obj` or `out/rear/rear_assembly_r5.obj` in Blender.
+parts, open `out/truck/assembly_m19.obj` or `out/rear/rear_assembly_r5.obj` in Blender.
 
 ## Where the files are
 
@@ -28,7 +28,7 @@ Ready-to-slice STLs, each exported in its print orientation (see [PRINT_SETTINGS
 | Folder | What |
 |---|---|
 | [`out/`](out) | The Shredlight mount itself (the receiver the light clips into), left and right, every fit version: `shredlight_mount_{left,right}_v1`…`v7`. **v7 is the mount to print.** |
-| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m19** (current; m18 is the last printed, fitted 2026-11-23), plus `assembly_m*.obj` for Blender. |
+| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m19** (current; printed and fitted 2026-11-24), plus `assembly_m*.obj` for Blender. |
 | [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r6.stl` (current) and `rear_assembly_r6.obj` for Blender; `dummy_charge_cover_v5.stl`, a stand-in for the charging-port cover. |
 
 Older versions are in the git history. The `*_art` engraved saddles aren't in the repo: the artwork
@@ -284,11 +284,13 @@ clamp path (head, front arm, keeper, nut), or it will lose preload faster.
 - [x] Truck mount m15 (backbone behind the whole receiver, rails 1.5 mm thicker, 5 mm beam clearance). The clamp still rattles a little fully seated, so m16 follows
 - [x] Truck mount m16 (m15 with a V fin and groove locating the keeper in the hook pocket, and chamfered pocket edges), in PETG with an M4 spring washer under the screw head: the light now stays tight to the clamp, but both keepers shattered round the nut on the road (2026-11-22); the right light was lost
 - [x] Truck mount m17 (plain-nut pocket under a 3 mm ceiling, a nut block with 3 mm walls, keeper printed on its end): carried into m18
-- [ ] Truck mount m18 (m17 with the saddle's front arm 2 mm longer, 1 mm over the keeper): keepers printed solid, no brim; fitted on both sides and very sturdy (2026-11-23). Ride it
+- [x] Truck mount m18 (m17 with the saddle's front arm 2 mm longer, 1 mm over the keeper): keepers printed solid, no brim; fitted on both sides and very sturdy (2026-11-23). Carried into m19
 - [x] Dummy charging-port cover v5 (`charge_cover.py`): v4 fitted the recess; v5's port hole is 0.2 mm tighter
 - [ ] Rear mount r6 (receivers 56 mm apart so the charging-port cover lifts out between the lights; a solid 45° nose slope under the lights with the air tunnels kept open; Le Mans stripes on top and raked slashes on the sides): print and fit
-- [ ] Truck mount m19 (m18 plus the same racing stripes, rails 0.6 mm thicker): print and fit
-- [ ] Later candidates, after m18 is tested: a second nut, a nut slot in the saddle, other ways of holding the keeper
+- [x] Truck mount m19 (m18 plus the same racing stripes, rails 0.6 mm thicker): printed and fitted on both sides (2026-11-24)
+- [x] **v1.1** (2026-11-24): receiver v7, front truck clamps m19, rear light mount r5
+- [ ] Ride m19 and check the keepers and nut pockets for cracks
+- [ ] Later candidates, after m19 is ridden: a second nut, a nut slot in the saddle, other ways of holding the keeper
 
 ## License
 
