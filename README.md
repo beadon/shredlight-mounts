@@ -192,7 +192,15 @@ The test shoe's plug has the middle of its nose shaved back a further 0.35 mm (`
 out 45° either side): pushed forward 0.27 mm, it seats on two shoulders about 41° either side of the
 centre line instead, which pin it left and right like a rod in a V-block. A second test shoe adds
 four crush ribs (half-round, 1.2 mm wide, two up each side of the plug) that squash 0.15 mm into the
-hole's side walls, tapering to flush over the bottom 1.5 mm so they start in easily. If it holds, the next
+hole's side walls, tapering to flush over the bottom 1.5 mm so they start in easily.
+
+![The three plugs in hole A, seen from above](docs/plug_options.png)
+
+![The nose end, screw loose and tight: one contact point for r6's plug, two for the V-block nose](docs/plug_vblock.png)
+
+`plug_figures.py` draws these from `rear_mount.py`'s numbers, and writes `out/rear/plug_options.obj`:
+the three plugs in hole A at true scale for Blender (look straight down at each plug's nose end, the
+−Y side). If it holds, the next
 version also keeps the steel off the lip (a plastic flap under it, pushed out by the screw).
 
 ## Printing
@@ -213,6 +221,7 @@ python3 -m venv .venv
 .venv/bin/python truck_mount.py out        # truck clamp STLs (out/truck/)
 .venv/bin/python rear_mount.py out         # rear light mount STLs (out/rear/)
 .venv/bin/python charge_cover.py out       # dummy charging-port cover (out/rear/)
+.venv/bin/python plug_figures.py            # rear plug comparison: docs/plug_*.png, out/rear/plug_options.obj
 .venv/bin/python preview.py docs           # preview images
 .venv/bin/python render_views.py           # shaded truck-mount renders (docs/truck_render.png)
 .venv/bin/python flyaround.py              # fly-around GIFs (docs/) and the browser-view STLs (needs Blender)
