@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rear lights for the Radium Mach One S rear truck (prototype r6).
+"""Rear lights for the Radium Mach One S rear truck (prototype r7; r6 is the last one printed).
 
 The rear truck's motors hide anything mounted on the hanger arms, so two SL-300 lights sit
 side by side above the motors, facing the tail. Everything hangs off the oval hole ("hole A")
@@ -29,6 +29,10 @@ r6: the receivers are 56 mm apart (r5: 23), so the charging-port cover lifts str
 lights and both its finger holes are open to the sky; the bridge stops short of the cover's front edge,
 and a solid 16 mm 45 deg slope runs along the bar's nose end, under the lights, like the front mounts.
 r5's lights sat over the finger holes and left 7.5 mm under the plates for a 12.4 mm thick cover.
+r7: a split shoe (see the r7 constants below). Hole A is 7 mm deep, not 9. A lower part slides under the lip
+and one M4, square to the surface and reached from above between the lights, pulls it up into a nut; a 45 deg
+face pushes the upper part's V-nose forward. The angled screw above (r2-r6) is gone from the part; its code
+stays for reference. main() writes the r7 part, the lower part and a test shoe without the light bar.
 
 World frame: x to the rider's right, y toward the nose, z up (sky). Origin: centre of hole A,
 on the surface around it. That surface faces the nose, tipped 30 deg up from flat.
@@ -39,21 +43,26 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from manifold3d import CrossSection, Manifold
+from manifold3d import CrossSection, Manifold, OpType
 
 import charge_cover as cc
 import shredlight_mount as receiver
 import truck_mount as tm
 
-VERSION = 6
+VERSION = 7
 
 # --- Hole A, in the hanger pocket (user's measurements, 2026-11-15) ---
 SURFACE_TILT = 30.0  # surface round the hole: tipped 30 deg from flat, facing the nose (inclinometer)
 HOLE_W = 16.0        # across the board ("probably 16"; the photo readings were 15.4-16.6)
 HOLE_L = 17.0        # along the surface, nose to tail
-HOLE_D = 9.0         # deep, square to the surface; solid floor
-LIP_T = 2.0          # the plate forming the lip at the hole's rear end is ~2 mm thick
-LIP_OVER = 2.0       # how far the space under the lip reaches past the lip's edge ("try 2 to start")
+HOLE_D = 7.0         # deep, square to the surface; solid floor. Measured 7 (2026-11-26); r2-r6 used 9, so their plugs
+                     # (8.4 deep) bottomed out 1.4 mm early, the shoe stood proud and rocked on the plug
+LIP_T = 2.0          # the plate forming the lip at the hole's rear end is ~2 mm thick (user: at least 1.5, maybe 2)
+LIP_OVER = 2.0       # r2-r6 only: how far the space under the lip reaches past the lip's edge ("try 2 to start")
+UNDER_LIP = 5.5      # r7: the space under the lip is a square section the full 16 mm wide, reaching 5.5-6.5 mm
+                     # past the lip's edge, its floor level with the hole's (user, 2026-11-26). ASSUMED: it opens
+                     # off the hole from about the hole's middle back (like a T-slot), so it isn't measured where
+                     # the oval's sides curve in
 # Only the rear end has a lip; the sides and the front are plain walls.
 
 # --- Behind the hole: the step up to the charging port (user's measurements, 2026-11-15) ---
@@ -84,6 +93,30 @@ RUNOUT = 4.0         # the screw hole runs on this far past the screw's tip (r2-
                      # plug's rear face is fully open; at 1 mm a thin, tilted skin was left across the bottom of
                      # the exit (seen in the slicer, 2026-11-24). Used by the test shoe; r6 keeps 1.
 PLUG_DEPTH = HOLE_D - 0.6  # stops short of the floor
+
+# --- r7: split shoe (2026-11-26) ---
+# The plug is split in two. The LOWER part goes into hole A first, on its own, and slides toward the tail
+# under the lip. Then the shoe and light bar (the UPPER part, with the V-block nose, which tested better than
+# crush ribs) drop in in front of it. One M4 screw, square to the surface, comes down through the upper part
+# into a nut lying flat in the lower part. Tightening pulls the lower part up; a 45 deg face between the two
+# turns that pull into a push apart, the lower part back under the lip and against the back of the space
+# under it, the upper part's V-nose into the hole's front wall. Only plastic touches the lip (r2-r6: the steel
+# screw's shank, which wore the lip). The screw is reached from above, between the lights.
+LOW_FLOOR = 0.2      # gap under the lower part
+TOE_GAP = 0.3        # the lower part's top under the lip, below the lip's underside (as LIP_T: if the lip is
+                     # only 1.5 thick there is 0.8, and the screw pulls it up that much further)
+LOW_REAR = 0.3       # gap behind the lower part, to the back of the space under the lip
+LOW_TOP = -0.8       # the lower part's top in front of the lip's edge (0.8 under the shoe, room to rise)
+LOW_SLIDE = 5.6      # how far it slides toward the tail after it drops in
+WEDGE_H = 2.5        # height of the 45 deg face, up to LOW_TOP
+WEDGE_FRONT = -1.5   # the lower part's front face (s), below the 45 deg face
+WEDGE_CLR = 0.15     # 45 deg face, lower to upper, square to the face
+R7_SCREW_S = 4.2     # the screw's axis (s): the nut stays in front of the lip's edge, under 1.9 mm of plastic
+R7_NUT_FLOOR = 0.6   # plastic under the nut
+R7_SCREW_LEN = 16.0  # M4 x 16 socket head
+R7_TIP_GAP = 0.5     # the screw's end above the hole's floor
+R7_SLOT = 1.2        # the screw's hole in the upper part is a slot this long toward the tail: the lower part moves
+                     # back relative to the upper part as the two push apart
 
 # --- Shoe ---
 SHOE_W = 24.0        # across the board: inside the pocket floor's two hex screws (~34 mm apart, estimated)
@@ -261,6 +294,73 @@ def shoe(relief=0.0, runout=1.0, ribs=False):
     return body + at_hole(plug), screw, at_hole(cut)
 
 
+def lower_pieces(grow=0.0):
+    """r7: the lower part's two convex pieces, in hole-local coordinates (X, s, h), in place under the lip:
+    the tall piece in front of the lip's edge (up to LOW_TOP, its front a 45 deg face) and the toe that runs
+    under the lip. `grow` enlarges both, for the clearance the upper part keeps from them. Its outline seen
+    from above is the plug's, moved LOW_SLIDE toward the tail, so it drops into the hole that far forward
+    and slides back."""
+    plan = plug_section().translate([0, LOW_SLIDE])
+    oval = plug_section()                                   # in front of the lip's edge (CLR inside it)
+    rear = HOLE_L / 2 + UNDER_LIP - LOW_REAR
+    toe_rect = CrossSection.square([HOLE_W - 2 * CLR, rear + 20]).translate([-HOLE_W / 2 + CLR, -20])
+    bottom, toe_top = -HOLE_D + LOW_FLOOR, -LIP_T - TOE_GAP
+    f, w = WEDGE_FRONT, WEDGE_H
+    side = CrossSection([[(f, bottom), (40, bottom), (40, LOW_TOP), (f + w, LOW_TOP), (f, LOW_TOP - w)]])
+    if grow:
+        side = side.offset(grow, circular_segments=16)
+    side = side.extrude(40).translate([0, 0, -20]).transform(
+        np.array([[0, 0, 1.0, 0], [1.0, 0, 0, 0], [0, 1.0, 0, 0]]))     # (s, h) sketch, extruded along X
+    tall = (plan ^ oval).offset(grow, circular_segments=64).extrude(LOW_TOP - bottom + 2 * grow).translate([0, 0, bottom - grow]) ^ side
+    toe = (plan ^ toe_rect).offset(grow, circular_segments=64).extrude(toe_top - bottom + 2 * grow).translate([0, 0, bottom - grow]) ^ side
+    return [tall, toe]
+
+
+def r7_screw():
+    """The M4's axis (square to the surface) and its ends, hole-local."""
+    tip = -HOLE_D + R7_TIP_GAP
+    return {"s": R7_SCREW_S, "tip": tip, "seat": tip + R7_SCREW_LEN}
+
+
+def lower_part():
+    """r7: the lower part, with the nut pocket (slot out of its side, +X) and the screw's hole."""
+    sc = r7_screw()
+    low = Manifold.batch_boolean(lower_pieces(), OpType.Add)
+    nb = -HOLE_D + LOW_FLOOR + R7_NUT_FLOOR
+    nut = nut_pocket(slot=20.0).translate([0, sc["s"], nb + NUT_T / 2])
+    hole = rod(40, BOLT_HOLE, -20).translate([0, sc["s"], 0])
+    return low - nut - hole
+
+
+def upper_plug():
+    """r7: the upper part's plug, V-block nose, PLUG_DEPTH deep, clear of the lower part wherever it can
+    move as the two push apart (it slides up and back along the 45 deg face)."""
+    plug = plug_section(NOSE_RELIEF).extrude(PLUG_DEPTH + 1).translate([0, 0, -PLUG_DEPTH])
+    keep = Manifold()
+    for p in lower_pieces(WEDGE_CLR):
+        keep += Manifold.hull(p + p.translate([0, 1.0, 1.0]))
+    return plug - keep
+
+
+def r7_cuts():
+    """r7: the screw's slot through the upper part and the counterbore above it, out through the bar."""
+    sc = r7_screw()
+    def slot(d, h0, h1):
+        c = rod(h1 - h0, d, h0, seg=32)
+        return Manifold.hull(c.translate([0, sc["s"], 0]) + c.translate([0, sc["s"] + R7_SLOT, 0]))
+    return slot(BOLT_HOLE, -10, sc["seat"]) + slot(HEAD_BORE, sc["seat"], 80)
+
+
+def shoe_r7():
+    above = at_hole(Manifold.cube([200, 200, 100]).translate([-100, -100, 0]))
+    w = SHOE_W / 2
+    top = CLEAR_Z + 0.5
+    body = Manifold.cube([SHOE_W, SHOE_FRONT - SHOE_REAR, top + 40]).translate([-w, SHOE_REAR, -40]) ^ above
+    z0 = STEP_Z + STEP_GAP
+    body += Manifold.cube([SHOE_W, SHOE_REAR - SHOE_REAR_TOP + 1, top - z0]).translate([-w, SHOE_REAR_TOP, z0])
+    return body + at_hole(upper_plug())
+
+
 def rear_rot():
     """Receiver local -> world: slot's open end (+Y, the lens) toward the tail, face up."""
     return np.column_stack([[-1.0, 0, 0], [0, -1.0, 0], [0, 0, 1.0]])
@@ -367,7 +467,8 @@ def hanger_schematic():
     """Schematic surroundings (ESTIMATES from photos, except the hole, the step, the port and bar C's height)."""
     floor = Manifold.cube([50, 52, 20]).translate([-25, -38, -20])
     hole = hole_section().extrude(HOLE_D + 1).translate([0, 0, -HOLE_D])
-    under_lip = hole_section().translate([0, LIP_OVER]).extrude(HOLE_D - LIP_T).translate([0, 0, -HOLE_D])
+    # r7: the space under the lip, a square section the full width (see UNDER_LIP)
+    under_lip = Manifold.cube([HOLE_W, HOLE_L / 2 + UNDER_LIP, HOLE_D - LIP_T]).translate([-HOLE_W / 2, 0, -HOLE_D])
     floor = at_hole(floor - hole - under_lip)
     rear_edge = (HOLE_L / 2 * A)[1]
     step = Manifold.cube([50, 40, STEP_Z + 20]).translate([-25, rear_edge - 40, -20]) - at_hole(hole + under_lip)
@@ -403,6 +504,18 @@ def screw_solid(screw, travel):
     return at_hole(m)
 
 
+def mount_r7():
+    """r7: the upper part (shoe, plug and light bar in one, with the screw's slot and counterbore)."""
+    bar, rot, offs, face = light_bar()
+    return (shoe_r7() + bar - at_hole(r7_cuts())).simplify(0.005), bar, rot, offs
+
+
+def r7_screw_solid():
+    sc = r7_screw()
+    m = rod(sc["seat"] - sc["tip"], 4.0, sc["tip"]) + rod(4.0, 7.0, sc["seat"])
+    return at_hole(m.translate([0, sc["s"], 0]))
+
+
 def main():
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "out") / "rear"
     out.mkdir(parents=True, exist_ok=True)
@@ -423,59 +536,61 @@ def main():
     for i, lb in enumerate(lights):
         print(f"  light {i}: bottom {lb.bounding_box()[2]:.1f} above the hole; "
               f"overlaps schematic {sum((lb ^ m).volume() for m in world):.1f}, plug column {(lb ^ port).volume():.1f}")
-    part, screw, cut, _, _, _ = mount()
-    report("rear mount", part)
+    part, _, _, _ = mount_r7()
+    lower = at_hole(lower_part())
+    report("rear mount (upper part)", part)
+    report("lower part", lower)
     assert all((lb ^ part).is_empty() for lb in lights), "the part runs into a light"
-    set_ = screw_solid(screw, 0.0)
-    loose = screw_solid(screw, screw["loose"])
-    assert (set_ ^ sch["housing"]).is_empty(), "the screw, set, runs into the truck"
-    # Drops straight in along the hole's axis with the screw backed off; can't lift once it's set.
-    assert all(((part + loose).translate(list(dd * N)) ^ sch["housing"]).volume() < 0.01 for dd in (0, 2, 5, 10, 20))
-    assert ((part + set_).translate(list(0.5 * N)) ^ sch["housing"]).volume() > 0.01
-    print("  fits in with the screw backed off, and can't lift once it's set")
+    assert all((lb ^ at_hole(r7_cuts())).is_empty() for lb in lights), "the screw's counterbore runs into a light"
+    # The lower part drops in LOW_SLIDE toward the nose, then slides back under the lip.
+    A_ = A
+    for dd in (0, 2, 5, 10, 20):
+        assert (lower.translate(list(-LOW_SLIDE * A_ + dd * N)) ^ sch["housing"]).volume() < 0.01, "lower part can't drop in"
+    for t in np.linspace(0, LOW_SLIDE, 23):
+        assert (lower.translate(list(-t * A_)) ^ sch["housing"]).volume() < 0.01, "lower part can't slide under the lip"
+    assert (lower.translate(list(1.0 * N)) ^ sch["housing"]).volume() > 0.01, "lower part isn't under the lip"
+    print(f"  the lower part drops in {LOW_SLIDE} mm forward and slides back under the lip, which then holds it down")
+    # Then the upper part drops straight in, in front of and over it.
+    for dd in (0, 2, 5, 10, 20):
+        assert (part.translate(list(dd * N)) ^ (sch["housing"] + lower)).volume() < 0.01, "upper part can't drop in"
+    print("  the upper part drops straight in over it")
+    screw = r7_screw_solid()
+    assert (screw ^ sch["housing"]).is_empty() and (screw ^ part).volume() < 0.01 and (screw ^ lower).volume() < 0.01
+    sc = r7_screw()
+    nb = -HOLE_D + LOW_FLOOR + R7_NUT_FLOOR
+    nut = at_hole(Manifold.cylinder(NUT_T - 0.3, 6.9 / np.sqrt(3), circular_segments=6).translate([0, sc["s"], nb]))
+    lo_env = at_hole(Manifold.batch_boolean(lower_pieces(), OpType.Add))
+    assert (nut - lo_env).volume() < 0.01, "the nut pokes out of the lower part"
+    ceiling = LOW_TOP - (nb + NUT_T)
+    print(f"  M4 x {R7_SCREW_LEN:.0f} square to the surface, end {R7_TIP_GAP} mm above the floor; nut under {ceiling:.1f} mm of plastic")
+    exit_ = at_hole(r7_cuts()) ^ part.hull()
+    print(f"  counterbore top reaches z {exit_.bounding_box()[5]:.1f}, between the lights (x 0)")
     path = cover_lift_path()
     assert (part ^ path).is_empty() and all((lb ^ path).is_empty() for lb in lights), "the cover can't lift out"
-    side = min(min(abs(b[0]), abs(b[3])) for b in (lb.bounding_box() for lb in lights)) - cc.outline().bounds()[2]
-    print(f"  the charging-port cover lifts straight out between the lights ({side:.1f} mm each side); "
-          f"bridge ends {BRIDGE_REAR - (COVER_Y + cc.outline().bounds()[3]):.1f} mm ahead of it")
-    # Receiver faces down, the shoe and its plug pointing up (as the r4 shoe printed, top face down).
     receiver.write_stl(tm.face_down(part, [0, 0, 1.0]), out / f"rear_mount_r{VERSION}.stl")
+    # Test shoe: the r7 upper part without the light bar, to try the split shoe in hole A before the whole
+    # part. Prints like the r4 and test shoes: top face down, plug up.
+    test = (shoe_r7() - at_hole(r7_cuts())).simplify(0.005)
+    report("test shoe r7 (upper part, no light bar)", test)
+    for dd in (0, 2, 5, 10, 20):
+        assert (test.translate(list(dd * N)) ^ (sch["housing"] + lower)).volume() < 0.01
+    assert (screw ^ test).volume() < 0.01
+    receiver.write_stl(tm.face_down(test, [0, 0, 1.0]), out / f"rear_shoe_test_r{VERSION}.stl")
+    # The lower part prints on its bottom face.
+    receiver.write_stl(tm.face_down(lower, list(-N)), out / f"rear_lower_r{VERSION}.stl")
     scene = {"rear_hanger_schematic": (sch["housing"] + sch["motor_plates"], "hanger_schematic"),
              "motors_schematic": (sch["motors"], "hanger_schematic"),
              "bar_c_schematic": (sch["bar_c"], "hanger_schematic"),
              "wheels_schematic": (sch["wheels"], "hanger_schematic"),
              "rear_mount": (part, "saddle"),
-             "screw": (set_, "hanger_schematic"),
+             "lower_part": (lower, "keeper"),
+             "screw": (screw, "hanger_schematic"),
              "charge_cover": (cover_placed(), "light_placeholder"),
              "charging_plug_column": (port ^ Manifold.cube([60, 60, 60]).translate([-30, -50, 0]), "light_placeholder")}
     for i, lb in enumerate(lights):
         scene[f"light_placeholder_{i}"] = (lb, "light_placeholder")
     tm.write_obj(scene, out / f"rear_assembly_r{VERSION}.obj")
 
-    # Test shoe: the r6 shoe on its own (no light bar) with the V-block nose, to check the plug seats on
-    # both shoulders in hole A before the next full part. Prints like the r4 shoe: top face down, plug up.
-    sh, _, cut = shoe(NOSE_RELIEF, RUNOUT)
-    test = sh - cut
-    report("test shoe (V-block nose)", test)
-    assert all(((test + loose).translate(list(dd * N)) ^ sch["housing"]).volume() < 0.01 for dd in (0, 2, 5, 10, 20))
-    slide, at = nose_contact(NOSE_RELIEF)
-    s0, _ = nose_contact(0.0)
-    print(f"  r6 plug: the screw pushes it {s0:.2f} mm to one contact at the nose's tip")
-    print(f"  V-block nose: {slide:.2f} mm to two contacts, {at:.0f} deg either side of the centre line")
-    receiver.write_stl(tm.face_down(test, [0, 0, 1.0]), out / "rear_shoe_test_vnose.stl")
-
-    # Second test shoe: the V-block nose plus crush ribs, printed alongside the first.
-    sh, _, cut = shoe(NOSE_RELIEF, RUNOUT, ribs=True)
-    pieces = [p for p in (sh - cut).decompose() if p.volume() > 0.01]   # drop zero-volume boolean slivers
-    assert len(pieces) == 1
-    test = pieces[0]
-    tm.check_mesh(test, "test shoe (V-block nose + crush ribs)")
-    ribs = at_hole(crush_ribs())
-    squash = (test ^ sch["housing"]).volume()
-    assert abs(squash - (ribs ^ sch["housing"]).volume()) < 1e-3, "something besides the ribs runs into the truck"
-    print(f"test shoe (V-block nose + crush ribs): {test.volume() / 1000:.1f} cm^3; the ribs squash {squash:.2f} mm^3 of plastic "
-          f"({RIB_PROUD - CLR:.2f} mm into the wall), nothing else touches")
-    receiver.write_stl(tm.face_down(test, [0, 0, 1.0]), out / "rear_shoe_test_vnose_ribs.stl")
 
 if __name__ == "__main__":
     main()

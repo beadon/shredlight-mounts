@@ -28,8 +28,8 @@ Ready-to-slice STLs, each exported in its print orientation (see [PRINT_SETTINGS
 | Folder | What |
 |---|---|
 | [`out/`](out) | The Shredlight mount itself (the receiver the light clips into), left and right, every fit version: `shredlight_mount_{left,right}_v1`…`v7`. **v7 is the mount to print.** |
-| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m19** (current; printed and fitted 2026-11-24), plus `assembly_m*.obj` for Blender. |
-| [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r6.stl` (current; printed and fitted 2026-11-24) and `rear_assembly_r6.obj` for Blender; `dummy_charge_cover_v5.stl`, a stand-in for the charging-port cover. |
+| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m19** (current; printed and fitted 2026-11-24), **m20** (built, not yet printed: a thicker front arm after an impact broke m19), plus `assembly_m*.obj` for Blender. |
+| [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r6.stl` (current; printed and fitted 2026-11-24) and `rear_assembly_r6.obj` for Blender; **r7** (built, not yet printed: a split shoe), `rear_mount_r7.stl`, `rear_lower_r7.stl` and the bar-less `rear_shoe_test_r7.stl`; `dummy_charge_cover_v5.stl`, a stand-in for the charging-port cover. |
 
 Older versions are in the git history. The `*_art` engraved saddles aren't in the repo: the artwork
 isn't GPL (see [art/NOTICE.md](art/NOTICE.md)), so `truck_mount.py` builds them locally only.
@@ -94,6 +94,9 @@ The renders come from `render_views.py`. A three-view silhouette drawing of one 
   - **prints on its upper end**, with the screw axis level, so the screw's pull and the keeper's bending run along the layers instead of across them. The keeper's screw hole has a 45° teardrop peak so it prints without support.
   
   The screw head now sits 1.2 mm higher in the front arm, with more arm under it. The light's position is unchanged. m17 keepers don't fit m16 saddles, and the other way round. A second nut, or a nut slot in the saddle, is left until m17's changes have been tested.
+- **Thicker front arm (m20, built, not yet printed):** the right m19, with no light fitted, was pushed nose-first into a post and broke with fairly little force. The saddle's front arm sheared off straight across about 30 layers, along the line of the strut's top front chamfer: a hit on the receiver shoves the saddle toward the tail, and the strut's chamfer corner bears on the inside of the front arm like a blade. That arm was only 3 mm thick outside the screw (`CHEEK`), and the screw head's bore takes most of the rest where the screw passes. m20 makes the arm 5 mm thicker toward the nose (`CHEEK` 3 → 8), which gives the shear line about 1.5× the area (289 → 446 mm²). The keeper is unchanged (`KEEPER_CHEEK` keeps its front end where it was), so m17–m19 keepers fit, and the light's position is unchanged. The broken saddle was 3D honeycomb infill, so the fracture face was mostly air: **print the m20 saddle solid**, like the keepers (see [PRINT_SETTINGS.md](PRINT_SETTINGS.md)).
+
+  ![m19 vs m20, cut across the strut through the screw and 10 mm beside it. Blue: the line the m19 arm sheared along](docs/m20_front_arm.png)
 - **Longer front arm (m18):** the keeper clamps on the strut and has never closed the 3 mm parting gap under the saddle's front arm, in any version. So m18 extends the front arm 2 mm further down over the keeper's front end (`FRONT_ARM_DROP`), leaving 1 mm. An impact that bends the keeper's nut end up now meets the arm after 1 mm instead of 3. Only the arm in front of the plate grows, so the strut's chamfer corners stay open. The keeper (m17's) still slides straight in, and the light's position is unchanged.
 - **Racing stripes (m19), matching the rear mount r6:** recessed 0.6 mm. **Le Mans twin stripes** run nose to tail on the rail side that looks up and inboard, in front of the pedestal. That face is only about 14 mm tall there, so the pair is scaled to 4.65 mm stripes with a 3.9 mm gap (r6: 6 and 5). **Three raked slashes** (3 mm, leaning toward the nose, the middle one 13 mm tall) sit on the outboard rail side near the nose. The rails are 0.6 mm thicker (`RAIL_EXTRA` 1.5 → 2.1), so the walls under the stripes stay 3.1 mm as in m15–m18. The stripes print on vertical walls, so their upper sides slope 45° into the part, like the artwork's grooves; the slicer adds no supports for them. Otherwise m19 is m18 (same keeper, same fit).
 - **Hardware per side:** **1× M4×20 socket-head cap screw** (3 mm hex key), an **M4 split spring washer** under the head, and a **plain M4 hex nut** with blue threadlocker (m17; m10–m16 were drawn for an M4 nyloc; see [Known issues](#known-issues)), the same M4 size used elsewhere on the board (m10; m6–m9 used M5). It's fitted and tightened **through the receiver's own slot** (with the light removed), so no access holes are needed. The head sits 6 mm deeper in the front arm than in m12, so the screw goes right through the nut even while the keeper still hangs loose at the bottom of its hook; tightened, about 5.5 mm of screw shows below the nut (m12's screw only touched the nut). The keeper is 5 mm thick (m1–m12: 6 mm), with the nut block below it (m17). No liner: the clamp leaves 0.25 mm all round the strut, a snug PLA fit (m1–m11 left 1 mm for a rubber liner; m11 printed without one could slide about 1 mm front to back). If it buzzes or scuffs the powder coat, a layer of electrical tape inside the saddle fixes that.
@@ -170,6 +173,9 @@ threadlocker.
 
 | File (in `out/rear/`) | |
 |---|---|
+| `rear_mount_r7.stl` | **r7, not yet printed:** the upper part of the split shoe with the light bar. Receiver faces down, like r6. The slicer wants one tree inside the counterbore, up to the screw head's seat: block it and let it bridge. |
+| `rear_lower_r7.stl` | **r7, not yet printed:** the lower part. Prints on its flat bottom. Block supports in the nut pocket (its ceiling bridges 6.9 mm). Takes a plain M4 nut. |
+| `rear_shoe_test_r7.stl` | **Test part:** the r7 upper part without the light bar. Prints top face down, plug up, like the earlier test shoes; block the tree in the counterbore. |
 | `rear_mount_r6.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
 | `rear_shoe_test_vnose.stl` | **Test part:** the r6 shoe on its own (no light bar) with a V-block nose on the plug (`NOSE_RELIEF`, see below). Prints like `rear_mount_r6.stl`, top face down, no supports. |
 | `rear_shoe_test_vnose_ribs.stl` | **Test part:** the same, plus four crush ribs up the plug's sides (`RIB_*`). Prints the same way. |
@@ -183,6 +189,43 @@ only 7.5 mm above the cover, so it couldn't come out with the bar fitted. `rear_
 the dummy cover (`charge_cover.py`) and checks that it lifts straight out past the part and the lights.
 The cover's measured position (5.5 mm behind hole A's rear edge) puts its port about 2.9 mm further
 back than the 22 mm port measurement; the bar clears both.
+
+**r7, the split shoe (built, not yet printed).** The two r6 test shoes were both better than r6, and
+the V-block nose alone was better than the one with crush ribs. Fitting them showed the plug was also
+about 2 mm too deep: hole A is **7 mm** deep (r2–r6 used 9), so the 8.4 mm plug hit the floor before the
+shoe sat on the surface, and it rocked on the plug. And under the lip there is more room than r2–r6
+assumed: a square-section space the full 16 mm wide, reaching 5.5–6.5 mm past the lip's edge, its floor
+level with the hole's.
+
+r7 splits the plug in two, and no steel touches the lip any more:
+
+- The **lower part** (`rear_lower_r7.stl`, about 15.6 × 15.2 × 6 mm) carries a plain M4 nut, slid in through
+  a slot in its side. It goes in first, on its own: drop it into hole A 5.6 mm toward the nose, then
+  push it toward the tail under the lip, where the lip holds it down.
+- The **upper part** (the shoe and light bar, `rear_mount_r7.stl`) drops straight in, in front of and
+  over it. Its plug is 6.4 mm deep, with the V-block nose and no ribs.
+- **One M4×16 socket-head screw**, square to the surface, goes in from above between the lights (the
+  counterbore comes out of the bar on its centre line) and down into the nut. Tightening pulls the lower
+  part up. A 45° face between the two parts turns that pull into a push apart: the lower part goes back
+  under the lip and against the back of the space under it, and the upper part's V-nose goes into the
+  hole's front wall. The screw's hole in the upper part is a 1.2 mm slot so they can move apart.
+
+![r7, cut through the screw and 5 mm beside it](docs/r7_split_shoe.png)
+
+`rear_shoe_test_r7.stl` is the upper part without the light bar (24 × 17.5 × 25 mm), to try the split
+shoe in hole A cheaply. **Not yet measured, so check before relying on it:** the space under the lip is
+modelled as a T-slot, full width from about the hole's middle back (`UNDER_LIP`). If it only opens behind
+the oval's rear edge, the lower part's sides catch as it slides back. The lip is taken as 2 mm thick
+(`LIP_T`); if it's 1.5 mm, the lower part rises 0.5 mm further before it presses on the lip, and the push
+apart does more of the holding.
+
+![The r7 test shoe and lower part, as printed](docs/r7_test_parts.png)
+
+**Reusing the split shoe.** Nothing in the shoe depends on the lights. Anything that should bolt to
+hole A (a GPS, a display, a camera) can sit on the test shoe's top face in place of the light bar:
+`shoe_r7()`, `lower_part()` and `r7_cuts()` in `rear_mount.py` give the shoe, the lower part and the
+screw's slot and counterbore, and the same idea works for any blind hole with an undercut lip. Keep
+the screw square to the surface and reachable from above.
 
 **r6's wobble, and a test fix.** On the road, r6 rocks side to side a fraction of a mm, and with the
 tall light bar that's visible. It wears the screw and the truck's thin lip, because the screw's steel
@@ -225,7 +268,7 @@ python3 -m venv .venv
 .venv/bin/python preview.py docs           # preview images
 .venv/bin/python render_views.py           # shaded truck-mount renders (docs/truck_render.png)
 .venv/bin/python flyaround.py              # fly-around GIFs (docs/) and the browser-view STLs (needs Blender)
-.venv/bin/python slice_check.py out/truck/truck_mount_left_m19_saddle.stl  # where PrusaSlicer puts supports (needs the PrusaSlicer Flatpak)
+.venv/bin/python slice_check.py out/truck/truck_mount_left_m20_saddle.stl  # where PrusaSlicer puts supports (needs the PrusaSlicer Flatpak)
 ```
 
 All receiver dimensions are named constants, in inches, at the top of `shredlight_mount.py`. The
@@ -312,8 +355,10 @@ clamp path (head, front arm, keeper, nut), or it will lose preload faster.
 - [x] Truck mount m19 (m18 plus the same racing stripes, rails 0.6 mm thicker): printed and fitted on both sides (2026-11-24)
 - [x] **v1.2** (2026-11-24; the v1.1 tag was cut before r6 was confirmed, so it has no release): receiver v7, front truck clamps m19, rear light mount r6
 - [ ] Ride m19 and r6, and check the keepers and nut pockets for cracks
-- [ ] Rear test shoes, V-block nose (`rear_shoe_test_vnose.stl`) and V-block nose plus crush ribs (`rear_shoe_test_vnose_ribs.stl`): print both and fit; check that neither can slide side to side with the screw tight
-- [ ] Rear mount r7: the V-block nose, and a plastic flap under the lip so the screw's steel doesn't wear it
+- [x] Rear test shoes, V-block nose and V-block nose plus crush ribs: both improved on r6; the V-block nose alone was best. Both plugs were ~2 mm too deep (hole A is 7 mm deep, not 9) (2026-11-26)
+- [x] m19 right, with no light, pushed nose-first into a post: the saddle's front arm sheared off along the strut's chamfer line (2026-11-26)
+- [ ] Truck mount m20 (front arm 5 mm thicker toward the nose): print the saddles solid and repeat the push test
+- [ ] Rear mount r7 (split shoe: a lower part under the lip, pulled up by one M4 square to the surface, with a 45° face that pushes the V-nose forward): print `rear_shoe_test_r7.stl` and `rear_lower_r7.stl` first; check the lower part slides fully under the lip and the rock is gone
 - [ ] Later candidates, after m19 is ridden: a second nut, a nut slot in the saddle, other ways of holding the keeper
 
 ## License

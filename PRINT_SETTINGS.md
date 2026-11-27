@@ -63,12 +63,19 @@ All STLs are exported in their print orientation; slice them without rotating.
   Auto supports also grow one tree up into the screw-head recess, to the flat ring the head (and its
   spring washer) clamps on: as printed it faces down, tilted ~21°, but it's only 1.75 mm wide. Paint a
   **support blocker** on it: it prints fine unsupported, and a tree there would scar the clamping face.
-- **Keepers** (`out/truck/truck_mount_*_m19_keeper.stl`): **standing on the keeper's upper end** (m17), screw
+- **Front truck saddles m20** (`out/truck/truck_mount_*_m20_saddle.stl`): as m19, but print them **solid (100 % infill)**,
+  the same per-object override as the keepers below, or at least 5–6 perimeters. A 3D-honeycomb m19 saddle broke
+  through its front arm when pushed into a post (2026-11-26), and the fracture face was mostly infill.
+- **Keepers** (`out/truck/truck_mount_*_m19_keeper.stl`, also used with m20): **standing on the keeper's upper end** (m17), screw
   axis level, so the screw's pull and the keeper's bending run along the layers. m16 printed flat, and both keepers
   split round the nut. Supports off: the nut pocket's roof is a short flat bridge, and the screw hole has a 45° teardrop top.
   It stands 20 mm tall on about 39 × 6.5 mm, but prints fine without a brim (2026-11-23). PETG, printed **solid (100 % infill)**: select both
   keepers in the object list, right-click → Add settings → Infill → Fill density, and set 100 %. The saddles keep the
   global infill (3D honeycomb at 20 % also works for them). Solid m18 keepers made a very strong joint (2026-11-23).
+- **Rear split shoe r7** (`out/rear/rear_mount_r7.stl`, or the bar-less `rear_shoe_test_r7.stl`, and `rear_lower_r7.stl`):
+  the upper part prints like r6 (the test shoe top face down, plug up). Auto supports grow one tree up the screw's
+  counterbore to the head's seat: paint a support blocker there. The lower part prints on its flat bottom; block
+  supports in the nut pocket, whose ceiling bridges 6.9 mm. PETG.
 - **Rear light mount** (`out/rear/rear_mount_r6.stl`): receiver faces down, the shoe and its plug
   pointing up. Supports off: what overhangs is the two chamfered channel-roof bridges, the nut slot's
   ceiling and near-level round holes (the r4 shoe printed this way cleanly).
