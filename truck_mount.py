@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold, OpType
 
 import shredlight_mount as receiver
 
-VERSION = 19
+VERSION = 20
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -77,7 +77,10 @@ SCREW_EXTRA_REACH = NUT_H + 1.0  # m13: the screw must catch the whole nut, +1 m
                      # m12 printed: the screw only touched the nut.
 PLATFORM_ANCHOR = 13.0  # where the platform's screw path starts, above KEEPER_TOP (m12's head
                      # seat, kept so the light doesn't move when the seat drops)
-CHEEK = 3.0          # wall outside the screw
+CHEEK = 8.0          # front arm wall outside the screw (m1-m19: 3.0). m20: m19 right broke when the light's
+                     # receiver was pushed nose-first into a post: the front arm sheared off along the line
+                     # of the strut's top front chamfer. 8 mm gives that plane ~1.5x the area
+KEEPER_CHEEK = 3.0   # keeper wall outside the screw: m17-m19's keeper, unchanged
 HOOK_ENGAGE = 5.0    # how far the keeper's rear end reaches into the hook pocket
 HOOK_T = 4.0         # hook lip under the keeper's rear end (m1-m15: 3.0; m16 adds 1 mm for the fin's groove)
 # m16: the clamp still rattled a little fully seated. The hook pocket's inside corners along its
@@ -143,6 +146,7 @@ FACE = HALF_T + LINER                         # clamp faces sit this far from th
 SCREW_W = FACE + HEAD_D / 2 + 0.5             # screw axis outside the plate's front face, far enough
                                               # that the (now lower) head sits wholly on the front arm (m1-m12: FACE + 1 + SCREW_D / 2)
 FRONT_W = SCREW_W + SCREW_D / 2 + CHEEK       # front arm's outer face
+KEEPER_FRONT = SCREW_W + SCREW_D / 2 + KEEPER_CHEEK  # keeper's front end
 BACK_W = FACE + HOOK_ENGAGE + HOOK_CLEAR + HOOK_WALL  # rear arm's outer face
 KEEPER_TOP = -LINER  # keeper's upper face, pressing the window-side land
 KEEPER_BOTTOM = KEEPER_TOP - KEEPER_T
@@ -286,7 +290,7 @@ def keeper_local():
     # m16: its bottom edges along the sides and the rear end are chamfered to match the hook
     # pocket's (less HOOK_CLEAR), and it carries the V fin under its rear end.
     ck = POCKET_CHAMFER + HOOK_CLEAR * np.sqrt(2) - 2 * HOOK_CLEAR
-    k = chamfered_floor(-LENGTH / 2, LENGTH / 2, KEEPER_BOTTOM, KEEPER_TOP, -FACE - HOOK_ENGAGE, FRONT_W, ck)
+    k = chamfered_floor(-LENGTH / 2, LENGTH / 2, KEEPER_BOTTOM, KEEPER_TOP, -FACE - HOOK_ENGAGE, KEEPER_FRONT, ck)
     k += fin_ridge()
     k += nut_block()
     return k - keeper_screw_hole() - nut_pocket()
