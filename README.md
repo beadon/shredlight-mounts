@@ -174,7 +174,7 @@ threadlocker.
 | File (in `out/rear/`) | |
 |---|---|
 | `rear_mount_r7.stl` | **r7, not yet printed:** the upper part of the split shoe with the light bar. Receiver faces down, like r6. The slicer wants one tree inside the counterbore, up to the screw head's seat: block it and let it bridge. |
-| `rear_lower_r7.stl` | **r7, not yet printed:** the lower part. Prints on its flat bottom, **no supports**. Takes a plain M4 nut, pressed into a pocket in its bottom face; push the screw through the 0.3 mm skin over its hole first. |
+| `rear_lower_r7.stl` | **r7, not yet printed:** the lower part. Prints on its flat bottom, **no supports**. **Pause the print at 3.8 mm** (with 0.2 mm layers, add the pause on the 4.00 mm layer) and drop a plain M4 nut into the hex pocket, then resume. |
 | `rear_shoe_test_r7.stl` | **Test part:** the r7 upper part without the light bar. Prints top face down, plug up, like the earlier test shoes; block the tree in the counterbore. |
 | `rear_mount_r6.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
 | `rear_shoe_test_vnose.stl` | **Test part:** the r6 shoe on its own (no light bar) with a V-block nose on the plug (`NOSE_RELIEF`, see below). Prints like `rear_mount_r6.stl`, top face down, no supports. |
@@ -201,15 +201,18 @@ its floor level with the hole's. So there is a ~1 mm strip at the hole's rear en
 
 r7 splits the plug in two, and no steel touches the lip any more:
 
-- The **lower part** (`rear_lower_r7.stl`, about 14.9 × 10.4 × 6 mm) carries a plain M4 nut, pressed into a
-  pocket in its bottom face (in hole A the floor, 0.2 mm below, keeps it in). It goes in first, on its own: drop it into hole A 5.6 mm toward the nose, then
-  push it toward the tail under the lip. Its outline is the hole moved 5.6 mm back and trimmed to the box,
-  so its rear corners slide into both corner pockets, where the lip holds it down.
-- The **upper part** (the shoe and light bar, `rear_mount_r7.stl`) drops straight in, in front of and
-  over it. Its plug is 6.4 mm deep, with the V-block nose and no ribs.
+- The **lower part** (`rear_lower_r7.stl`, about 14.9 × 13.2 × 6 mm) carries a plain M4 nut, sealed inside it
+  during the print (pause at 3.8 mm, drop the nut in, resume). It goes in first, on its own: drop it into
+  hole A. The hole's surface tips toward the nose, so it slides to the front of the hole; that's fine. Its
+  outline is the hole moved 3.7 mm back and trimmed to the space under the lip, so its rear corners fit the
+  corner pockets once it's pushed home. Its front is one 45° ramp from the floor to its top.
+- The **upper part** (the shoe and light bar, `rear_mount_r7.stl`) goes straight down into the hole. Its plug
+  (6.4 mm deep, V-block nose) has the matching ramp underneath, so pressing it down pushes the lower part
+  back under the lip from wherever it slid to (it can slide 3.9 mm forward; the ramps meet over at least
+  2 mm even then).
 - **One M4×16 socket-head screw**, square to the surface, goes in from above between the lights (the
   counterbore comes out of the bar on its centre line) and down into the nut. Tightening pulls the lower
-  part up. A 45° face between the two parts turns that pull into a push apart: the lower part goes back
+  part up. The 45° ramp between the two parts turns that pull into a push apart: the lower part goes back
   under the lip and against the back of the space under it, and the upper part's V-nose goes into the
   hole's front wall. The screw's hole in the upper part is a 1.2 mm slot so they can move apart.
 
@@ -228,6 +231,12 @@ unchanged, so a printed r7 upper part only needs the new lower part. That one st
 upper part's plug, drawn 15.6 × 16.6, fits well). The lower part is now drawn from the measured hole
 (`HOLE_W_MEAS`, `HOLE_L_MEAS`) with the usual 0.2–0.3 mm clearances: 14.92 mm wide at the bottom, 14.1 at
 the top of the toe, its back 0.3 mm short of the back wall. The upper part still uses 16 × 17.
+That version fitted, but was impossible to fit in practice: it slid down to the front of the tilted hole
+before the upper part went in, its nut fell out of the pocket in its bottom face, and the skin over its
+screw hole took minutes to clear. So (2026-11-27) the lower part's front became a full-height 45° ramp,
+with the slide shortened from 5.6 to 3.7 mm so the ramp always catches it, and the upper plug is cut by the
+ramp's plane across its full width. The nut is sealed in at a print pause, with the screw ending inside the
+nut, so there's no skin and no hole under the pocket. **Both parts changed: print both.**
 **Not yet measured, so check before relying on it:** the lip is taken as 1.5 mm thick
 (`LIP_T`, from an estimate of 1.5–2), so the lower part's toe stands 5.0 mm tall under it with 0.3 mm to
 spare. If the lip is really 2 mm, the toe catches its underside as it slides back: sand 0.5 mm off the

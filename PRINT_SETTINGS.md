@@ -75,9 +75,10 @@ All STLs are exported in their print orientation; slice them without rotating.
 - **Rear split shoe r7** (`out/rear/rear_mount_r7.stl`, or the bar-less `rear_shoe_test_r7.stl`, and `rear_lower_r7.stl`):
   the upper part prints like r6 (the test shoe top face down, plug up). Auto supports grow one tree up the screw's
   counterbore to the head's seat: paint a support blocker there. The lower part prints on its flat bottom with
-  **supports off**: its nut pocket opens through the bottom face, so the pocket's ceiling is a bridge walled all
-  round, with a 0.3 mm skin over the screw's hole (the slicer check finds no supports). Push the screw or a
-  4 mm drill through the skin, then press the nut in from below. PETG.
+  **supports off** and **a pause to seal in the nut**: its hex pocket runs from 0.4 to 3.8 mm above the bed.
+  In PrusaSlicer's preview, drag the layer slider to 4.00 mm (with 0.2 mm layers; check the 3.80 layer still
+  shows the open pocket), right-click the + and *Add pause print*. At the pause, drop a plain M4 nut in (flat,
+  either way up) and resume; the next layers bridge across it. PETG.
 - **Rear light mount** (`out/rear/rear_mount_r6.stl`): receiver faces down, the shoe and its plug
   pointing up. Supports off: what overhangs is the two chamfered channel-roof bridges, the nut slot's
   ceiling and near-level round holes (the r4 shoe printed this way cleanly).
