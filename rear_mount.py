@@ -59,10 +59,14 @@ HOLE_D = 7.0         # deep, square to the surface; solid floor. Measured 7 (202
                      # (8.4 deep) bottomed out 1.4 mm early, the shoe stood proud and rocked on the plug
 LIP_T = 2.0          # the plate forming the lip at the hole's rear end is ~2 mm thick (user: at least 1.5, maybe 2)
 LIP_OVER = 2.0       # r2-r6 only: how far the space under the lip reaches past the lip's edge ("try 2 to start")
-UNDER_LIP = 5.5      # r7: the space under the lip is a square section the full 16 mm wide, reaching 5.5-6.5 mm
-                     # past the lip's edge, its floor level with the hole's (user, 2026-11-26). ASSUMED: it opens
-                     # off the hole from about the hole's middle back (like a T-slot), so it isn't measured where
-                     # the oval's sides curve in
+# The space under the lip (user, 2026-11-27; r7 first assumed a full-width slot reaching 5.5 mm back, which was
+# wrong): seen from above it is the box drawn round the hole's rear half. Side walls flush with the hole's
+# sides, back wall LIP_BACK behind the hole's rear apex, square corners, floor level with the hole's floor;
+# the front half has no lip. So under the lip there is a ~1 mm strip at the apex (the "apex gap") and two
+# near-triangular "corner pockets", back-left and back-right (~4.1 mm from the hole's edge into each
+# corner, on the diagonal). Its height is HOLE_D - LIP_T (lip 1.5-2.0, estimated). r7's lower part still
+# fits: its outline is the hole moved LOW_SLIDE back, trimmed to this box, so it reaches into both pockets.
+LIP_BACK = 1.0
 # Only the rear end has a lip; the sides and the front are plain walls.
 
 # --- Behind the hole: the step up to the charging port (user's measurements, 2026-11-15) ---
@@ -105,7 +109,7 @@ PLUG_DEPTH = HOLE_D - 0.6  # stops short of the floor
 LOW_FLOOR = 0.2      # gap under the lower part
 TOE_GAP = 0.3        # the lower part's top under the lip, below the lip's underside (as LIP_T: if the lip is
                      # only 1.5 thick there is 0.8, and the screw pulls it up that much further)
-LOW_REAR = 0.3       # gap behind the lower part, to the back of the space under the lip
+LOW_REAR = 0.3       # gap behind the lower part's toe, to the back wall of the space under the lip
 LOW_TOP = -0.8       # the lower part's top in front of the lip's edge (0.8 under the shoe, room to rise)
 LOW_SLIDE = 5.6      # how far it slides toward the tail after it drops in
 WEDGE_H = 2.5        # height of the 45 deg face, up to LOW_TOP
@@ -302,7 +306,7 @@ def lower_pieces(grow=0.0):
     and slides back."""
     plan = plug_section().translate([0, LOW_SLIDE])
     oval = plug_section()                                   # in front of the lip's edge (CLR inside it)
-    rear = HOLE_L / 2 + UNDER_LIP - LOW_REAR
+    rear = HOLE_L / 2 + LIP_BACK - LOW_REAR
     toe_rect = CrossSection.square([HOLE_W - 2 * CLR, rear + 20]).translate([-HOLE_W / 2 + CLR, -20])
     bottom, toe_top = -HOLE_D + LOW_FLOOR, -LIP_T - TOE_GAP
     f, w = WEDGE_FRONT, WEDGE_H
@@ -467,8 +471,8 @@ def hanger_schematic():
     """Schematic surroundings (ESTIMATES from photos, except the hole, the step, the port and bar C's height)."""
     floor = Manifold.cube([50, 52, 20]).translate([-25, -38, -20])
     hole = hole_section().extrude(HOLE_D + 1).translate([0, 0, -HOLE_D])
-    # r7: the space under the lip, a square section the full width (see UNDER_LIP)
-    under_lip = Manifold.cube([HOLE_W, HOLE_L / 2 + UNDER_LIP, HOLE_D - LIP_T]).translate([-HOLE_W / 2, 0, -HOLE_D])
+    # the space under the lip: the box round the hole's rear half (see LIP_BACK)
+    under_lip = Manifold.cube([HOLE_W, HOLE_L / 2 + LIP_BACK, HOLE_D - LIP_T]).translate([-HOLE_W / 2, 0, -HOLE_D])
     floor = at_hole(floor - hole - under_lip)
     rear_edge = (HOLE_L / 2 * A)[1]
     step = Manifold.cube([50, 40, STEP_Z + 20]).translate([-25, rear_edge - 40, -20]) - at_hole(hole + under_lip)

@@ -194,14 +194,17 @@ back than the 22 mm port measurement; the bar clears both.
 the V-block nose alone was better than the one with crush ribs. Fitting them showed the plug was also
 about 2 mm too deep: hole A is **7 mm** deep (r2–r6 used 9), so the 8.4 mm plug hit the floor before the
 shoe sat on the surface, and it rocked on the plug. And under the lip there is more room than r2–r6
-assumed: a square-section space the full 16 mm wide, reaching 5.5–6.5 mm past the lip's edge, its floor
-level with the hole's.
+assumed. Seen from above, the space under the lip is the box drawn round the hole's rear half: side walls
+flush with the hole's sides, a flat back wall about 1 mm behind the hole's rear end, square corners, and
+its floor level with the hole's. So there is a ~1 mm strip at the hole's rear end and two near-triangular
+**corner pockets**, back-left and back-right, reaching about 4 mm past the hole's edge into each corner.
 
 r7 splits the plug in two, and no steel touches the lip any more:
 
-- The **lower part** (`rear_lower_r7.stl`, about 15.6 × 15.2 × 6 mm) carries a plain M4 nut, slid in through
+- The **lower part** (`rear_lower_r7.stl`, about 15.6 × 10.7 × 6 mm) carries a plain M4 nut, slid in through
   a slot in its side. It goes in first, on its own: drop it into hole A 5.6 mm toward the nose, then
-  push it toward the tail under the lip, where the lip holds it down.
+  push it toward the tail under the lip. Its outline is the hole moved 5.6 mm back and trimmed to the box,
+  so its rear corners slide into both corner pockets, where the lip holds it down.
 - The **upper part** (the shoe and light bar, `rear_mount_r7.stl`) drops straight in, in front of and
   over it. Its plug is 6.4 mm deep, with the V-block nose and no ribs.
 - **One M4×16 socket-head screw**, square to the surface, goes in from above between the lights (the
@@ -213,9 +216,10 @@ r7 splits the plug in two, and no steel touches the lip any more:
 ![r7, cut through the screw and 5 mm beside it](docs/r7_split_shoe.png)
 
 `rear_shoe_test_r7.stl` is the upper part without the light bar (24 × 17.5 × 25 mm), to try the split
-shoe in hole A cheaply. **Not yet measured, so check before relying on it:** the space under the lip is
-modelled as a T-slot, full width from about the hole's middle back (`UNDER_LIP`). If it only opens behind
-the oval's rear edge, the lower part's sides catch as it slides back. The lip is taken as 2 mm thick
+shoe in hole A cheaply. The first r7 (commit 6116c1f) modelled the space under the lip as a full-width
+T-slot reaching 5.5 mm back, which was wrong: its lower part's toe can't slide under the lip. The current
+r7 trims the toe to the real back wall (`LIP_BACK`, 1 mm behind the hole's rear end, estimated by eye).
+**Not yet measured, so check before relying on it:** the lip is taken as 2 mm thick
 (`LIP_T`); if it's 1.5 mm, the lower part rises 0.5 mm further before it presses on the lip, and the push
 apart does more of the holding.
 
