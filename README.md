@@ -219,9 +219,10 @@ r7 splits the plug in two, and no steel touches the lip any more:
 shoe in hole A cheaply. The first r7 (commit 6116c1f) modelled the space under the lip as a full-width
 T-slot reaching 5.5 mm back, which was wrong: its lower part's toe can't slide under the lip. The current
 r7 trims the toe to the real back wall (`LIP_BACK`, 1 mm behind the hole's rear end, estimated by eye).
-**Not yet measured, so check before relying on it:** the lip is taken as 2 mm thick
-(`LIP_T`); if it's 1.5 mm, the lower part rises 0.5 mm further before it presses on the lip, and the push
-apart does more of the holding.
+**Not yet measured, so check before relying on it:** the lip is taken as 1.5 mm thick
+(`LIP_T`, from an estimate of 1.5–2), so the lower part's toe stands 5.0 mm tall under it with 0.3 mm to
+spare. If the lip is really 2 mm, the toe catches its underside as it slides back: sand 0.5 mm off the
+toe's top, or set `LIP_T` to 2 and print again.
 
 ![The r7 test shoe and lower part, as printed](docs/r7_test_parts.png)
 

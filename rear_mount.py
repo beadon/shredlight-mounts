@@ -57,7 +57,8 @@ HOLE_W = 16.0        # across the board ("probably 16"; the photo readings were 
 HOLE_L = 17.0        # along the surface, nose to tail
 HOLE_D = 7.0         # deep, square to the surface; solid floor. Measured 7 (2026-11-26); r2-r6 used 9, so their plugs
                      # (8.4 deep) bottomed out 1.4 mm early, the shoe stood proud and rocked on the plug
-LIP_T = 2.0          # the plate forming the lip at the hole's rear end is ~2 mm thick (user: at least 1.5, maybe 2)
+LIP_T = 1.5          # the plate forming the lip at the hole's rear end (user's estimate 1.5-2; 2.0 looked thicker than
+                     # the real metal in the r7 cutaway, so 1.5 from 2026-11-27; r2-r6 used 2.0)
 LIP_OVER = 2.0       # r2-r6 only: how far the space under the lip reaches past the lip's edge ("try 2 to start")
 # The space under the lip (user, 2026-11-27; r7 first assumed a full-width slot reaching 5.5 mm back, which was
 # wrong): seen from above it is the box drawn round the hole's rear half. Side walls flush with the hole's
@@ -108,7 +109,7 @@ PLUG_DEPTH = HOLE_D - 0.6  # stops short of the floor
 # screw's shank, which wore the lip). The screw is reached from above, between the lights.
 LOW_FLOOR = 0.2      # gap under the lower part
 TOE_GAP = 0.3        # the lower part's top under the lip, below the lip's underside (as LIP_T: if the lip is
-                     # only 1.5 thick there is 0.8, and the screw pulls it up that much further)
+                     # thicker than 1.5 the toe catches it as it slides back; if thinner, the screw pulls it up further)
 LOW_REAR = 0.3       # gap behind the lower part's toe, to the back wall of the space under the lip
 LOW_TOP = -0.8       # the lower part's top in front of the lip's edge (0.8 under the shoe, room to rise)
 LOW_SLIDE = 5.6      # how far it slides toward the tail after it drops in
@@ -276,7 +277,7 @@ def plug_and_screw(relief=0.0, runout=1.0, ribs=False):
     edge = HOLE_L / 2                              # the lip's edge (the hole's rear end)
     # The shank's top passes just under the lip's edge; its end (a disc square to the axis)
     # stops 0.1 short of the back of the space under the lip.
-    h_edge = -(LIP_T + 0.2 + 2.0 / np.cos(a))      # axis height at the lip's edge
+    h_edge = -(2.0 + 0.2 + 2.0 / np.cos(a))        # axis height at the lip's edge (r2-r6 took the lip as 2.0 thick)
     s_tip = edge + LIP_OVER - 2.0 * np.sin(a) - 0.1
     tip = np.array([0.0, s_tip, h_edge - (s_tip - edge) * np.tan(a)])
     head = B_LEN
