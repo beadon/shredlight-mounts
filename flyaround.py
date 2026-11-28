@@ -25,13 +25,13 @@ FRAME_MS = 90
 # (OBJ, GIF, STL, title); per-object colours override the OBJ's materials for a clearer picture.
 JOBS = [
     ("out/truck/assembly_m19.obj", "docs/flyaround_front.gif", "out/truck/assembly_m19_view.stl", "front truck, m19"),
-    ("out/rear/rear_assembly_r6.obj", "docs/flyaround_rear.gif", "out/rear/rear_assembly_r6_view.stl", "rear truck, r6"),
+    ("out/rear/rear_assembly_r7.obj", "docs/flyaround_rear.gif", "out/rear/rear_assembly_r7_view.stl", "rear truck, r7"),
 ]
 COLOURS = {   # name prefix -> RGB
     "hanger_schematic": (0.60, 0.60, 0.63), "rear_hanger_schematic": (0.60, 0.60, 0.63),
     "motors_schematic": (0.22, 0.22, 0.24), "wheels_schematic": (0.16, 0.16, 0.17), "bar_c_schematic": (0.45, 0.45, 0.48),
     "right_saddle": (0.80, 0.15, 0.12), "left_saddle": (0.80, 0.15, 0.12), "rear_mount": (0.80, 0.15, 0.12),
-    "right_keeper": (0.15, 0.60, 0.35), "left_keeper": (0.15, 0.60, 0.35), "screw": (0.10, 0.10, 0.10),
+    "right_keeper": (0.15, 0.60, 0.35), "left_keeper": (0.15, 0.60, 0.35), "lower_part": (0.15, 0.60, 0.35), "screw": (0.10, 0.10, 0.10),
     "right_light": (0.25, 0.45, 0.85), "left_light": (0.25, 0.45, 0.85), "light_placeholder": (0.25, 0.45, 0.85),
 }
 SKIP = ("charging_plug_column",)   # a clearance volume, not a part

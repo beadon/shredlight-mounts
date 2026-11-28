@@ -6,20 +6,20 @@ male side of the connection: the light lies on the receiver's face, and its moun
 from the slot's open end (the end the lens points to), hugging the underside of the lip until the
 barbs snap over it.
 
-**Status: v1.2** (2026-11-24). Every part in the release is printed and fitted on the board: the receiver (v7), the front truck clamps (m19, both sides: m14 broke in PLA, so they now have a backbone, an anti-rattle fin and a stronger keeper) and the rear light mount (r6, one part, anchored in the rear truck's oval hole, with the lights spread so the charging-port cover comes out between them). The [v1.2 release](https://github.com/beadon/shredlight-mounts/releases/tag/v1.2) has the STLs to print. The version history of each part is in the roadmap below.
+**Status: v1.3** (2026-11-27). Every part in the release is printed and fitted on the board: the receiver (v7), the front truck clamps (m19, both sides: m14 broke in PLA, so they now have a backbone, an anti-rattle fin and a stronger keeper) and the rear light mount (r7: a split shoe in the rear truck's oval hole, a lower part under the hole's lip with a nut sealed inside it and an upper part that carries the lights; very stable, and the charging-port cover still comes out between the lights). The [v1.3 release](https://github.com/beadon/shredlight-mounts/releases/tag/v1.3) has the STLs to print. The version history of each part is in the roadmap below.
 
 ## See it mounted
 
 The lights (blue boxes) on their mounts (red), on **schematic** trucks: only the parts the mounts
 touch are measured; the rest are placeholder shapes.
 
-| Front truck (m19) | Rear truck (r6) |
+| Front truck (m19) | Rear truck (r7) |
 |---|---|
 | ![Fly-around of the front truck mounts](docs/flyaround_front.gif) | ![Fly-around of the rear light mount](docs/flyaround_rear.gif) |
-| [Turn it in your browser](out/truck/assembly_m19_view.stl) | [Turn it in your browser](out/rear/rear_assembly_r6_view.stl) |
+| [Turn it in your browser](out/truck/assembly_m19_view.stl) | [Turn it in your browser](out/rear/rear_assembly_r7_view.stl) |
 
 The browser links open GitHub's 3D viewer (drag to turn, scroll to zoom). For colours and separate
-parts, open `out/truck/assembly_m19.obj` or `out/rear/rear_assembly_r6.obj` in Blender.
+parts, open `out/truck/assembly_m19.obj` or `out/rear/rear_assembly_r7.obj` in Blender.
 
 ## Where the files are
 
@@ -29,7 +29,7 @@ Ready-to-slice STLs, each exported in its print orientation (see [PRINT_SETTINGS
 |---|---|
 | [`out/`](out) | The Shredlight mount itself (the receiver the light clips into), left and right, every fit version: `shredlight_mount_{left,right}_v1`…`v7`. **v7 is the mount to print.** |
 | [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m19** (current; printed and fitted 2026-11-24), **m20** (built, not yet printed: a thicker front arm after an impact broke m19), plus `assembly_m*.obj` for Blender. |
-| [`out/rear/`](out/rear) | Rear light mount: `rear_mount_r6.stl` (current; printed and fitted 2026-11-24) and `rear_assembly_r6.obj` for Blender; **r7** (built, not yet printed: a split shoe), `rear_mount_r7.stl`, `rear_lower_r7.stl` and the bar-less `rear_shoe_test_r7.stl`; `dummy_charge_cover_v5.stl`, a stand-in for the charging-port cover. |
+| [`out/rear/`](out/rear) | Rear light mount: **r7** (current; printed and fitted 2026-11-27: a split shoe), `rear_mount_r7.stl` and `rear_lower_r7.stl`, the bar-less `rear_shoe_test_r7.stl`, and `rear_assembly_r7.obj` for Blender; r5 and r6 (one part, superseded); `dummy_charge_cover_v5.stl`, a stand-in for the charging-port cover. |
 
 Older versions are in the git history. The `*_art` engraved saddles aren't in the repo: the artwork
 isn't GPL (see [art/NOTICE.md](art/NOTICE.md)), so `truck_mount.py` builds them locally only.
@@ -133,7 +133,9 @@ Truck reference photos are in [`docs/reference/truck/`](docs/reference/truck).
 - Radium's R6 pre-order listing, quoted on the esk8.news forum (June 2023): "60 degree front, 30 degree rear pivot angle" ([thread](https://forum.esk8.news/t/radium-r6-trucks-thane-belts/77112)). The original listing (`radium-performance.com/products/radium-prototype-trucks-pre-order`) now returns 404. The measured front truck is 30°, so this listing is outdated or uses a different convention.
 - A Radium photo of both trucks is kept in [`docs/reference/vendor/`](docs/reference/vendor). It is **© Radium Performance and not covered by this repo's licence**; see the [notice](docs/reference/vendor/NOTICE.md).
 
-## Rear light mount (Radium Mach One S rear truck): r6
+## Rear light mount (Radium Mach One S rear truck): r7
+
+**Current: r7, the split shoe** ([below](#r7-the-split-shoe)). This first part describes r2–r6, which r7 builds on.
 
 On the rear truck the motors hide anything clamped to the hanger, so the two rear lights sit side
 by side on one bar above the motors, facing the tail. It hangs off the oval hole ("hole A") in the
@@ -165,7 +167,7 @@ side is 1.5 mm thicker (like the front mounts' rails since m15), so the slashes 
 material rather than the receiver's ~1.6 mm side wall. As printed, the Le Mans stripes face the bed,
 so the layer above them bridges 6 mm and their floors look a little rougher than the face round them. The bar is now about 117 mm across (r5: 84).
 
-To fit it: slide a plain M4 hex nut (3 mm thick; the slot fits 3.11 mm nuts with 0.3 mm to spare)
+To fit r6: slide a plain M4 hex nut (3 mm thick; the slot fits 3.11 mm nuts with 0.3 mm to spare)
 into the slot in the shoe's side. Back the screw off until its end is inside the plug, drop the plug
 into hole A, and tighten the screw from the nose side until it's snug. Hardware: one M4×16
 socket-head screw and one plain M4 hex nut. The nut has no nylon insert, so use a drop of removable
@@ -173,13 +175,13 @@ threadlocker.
 
 | File (in `out/rear/`) | |
 |---|---|
-| `rear_mount_r7.stl` | **r7, not yet printed:** the upper part of the split shoe with the light bar. Receiver faces down, like r6. The slicer wants one tree inside the counterbore, up to the screw head's seat: block it and let it bridge. |
-| `rear_lower_r7.stl` | **r7, not yet printed:** the lower part. Prints on its flat bottom, **no supports**. **Pause the print at 3.8 mm** (with 0.2 mm layers, add the pause on the 4.00 mm layer) and drop a plain M4 nut into the hex pocket, then resume. |
+| `rear_mount_r7.stl` | **r7, current (printed and fitted 2026-11-27):** the upper part of the split shoe with the light bar. Receiver faces down, like r6. The slicer wants one tree inside the counterbore, up to the screw head's seat: block it and let it bridge. |
+| `rear_lower_r7.stl` | **r7, current:** the lower part. Prints on its flat bottom, **no supports**. **Pause the print at 3.8 mm** (with 0.2 mm layers, add the pause on the 4.00 mm layer) and drop a plain M4 nut into the hex pocket, then resume. |
 | `rear_shoe_test_r7.stl` | **Test part:** the r7 upper part without the light bar. Prints top face down, plug up, like the earlier test shoes; block the tree in the counterbore. |
-| `rear_mount_r6.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
+| `rear_mount_r6.stl` | **Superseded by r7.** Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
 | `rear_shoe_test_vnose.stl` | **Test part:** the r6 shoe on its own (no light bar) with a V-block nose on the plug (`NOSE_RELIEF`, see below). Prints like `rear_mount_r6.stl`, top face down, no supports. |
 | `rear_shoe_test_vnose_ribs.stl` | **Test part:** the same, plus four crush ribs up the plug's sides (`RIB_*`). Prints the same way. |
-| `rear_assembly_r6.obj` | The mount, screw and charging-port cover on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the cover (5.5 mm behind hole A's rear edge), the motors' diameter and the bar's height are measured. |
+| `rear_assembly_r7.obj` (r7), `rear_assembly_r6.obj` (r6) | The mount, screw and charging-port cover on a **schematic** rear truck for Blender. Only hole A, the step to the charging port, the port's position, the cover (5.5 mm behind hole A's rear edge), the motors' diameter and the bar's height are measured. |
 | `dummy_charge_cover_v5.stl` | A printable stand-in for the rubber charging-port cover (`charge_cover.py`), measured with calipers: for test-fitting in the recess and for designing the light bar around it. v4 fitted the recess but was slightly loose round the port; v5 makes the port hole 0.2 mm smaller (14.78 mm). Exported **top face down**: the hollow underside opens upward, supports reach up to about 6 mm, under the curved top and inside the finger holes. |
 
 **r5's problem, fixed in r6: the light bar blocked the charging-port cover.** The
@@ -190,7 +192,9 @@ the dummy cover (`charge_cover.py`) and checks that it lifts straight out past t
 The cover's measured position (5.5 mm behind hole A's rear edge) puts its port about 2.9 mm further
 back than the 22 mm port measurement; the bar clears both.
 
-**r7, the split shoe (built, not yet printed).** The two r6 test shoes were both better than r6, and
+### r7, the split shoe
+
+**Printed and fitted (2026-11-27): the winner.** Fitting it is easy with the sealed nut and the ramp, and the mount is very stable in hole A. The two r6 test shoes were both better than r6, and
 the V-block nose alone was better than the one with crush ribs. Fitting them showed the plug was also
 about 2 mm too deep: hole A is **7 mm** deep (r2–r6 used 9), so the 8.4 mm plug hit the floor before the
 shoe sat on the surface, and it rocked on the plug. And under the lip there is more room than r2–r6
@@ -215,6 +219,18 @@ r7 splits the plug in two, and no steel touches the lip any more:
   part up. The 45° ramp between the two parts turns that pull into a push apart: the lower part goes back
   under the lip and against the back of the space under it, and the upper part's V-nose goes into the
   hole's front wall. The screw's hole in the upper part is a 1.2 mm slot so they can move apart.
+
+To fit r7:
+
+1. Print the lower part with a pause on the 4.00 mm layer (0.2 mm layers), drop a plain M4 hex nut into
+   its pocket, and resume. The nut is then sealed in.
+2. Drop the lower part into hole A, ramp toward the nose. It slides to the front of the hole; leave it.
+3. Press the upper part (shoe and lights) straight down into the hole. Its ramp pushes the lower part
+   back under the lip.
+4. From above, between the lights, fit an M4×16 socket-head screw down through the upper part into the
+   nut and tighten it until it's snug.
+
+Hardware: one M4×16 socket-head screw and one plain M4 hex nut. Only plastic touches the truck.
 
 ![r7, cut through the screw and 5 mm beside it](docs/r7_split_shoe.png)
 
@@ -381,7 +397,9 @@ clamp path (head, front arm, keeper, nut), or it will lose preload faster.
 - [x] Rear test shoes, V-block nose and V-block nose plus crush ribs: both improved on r6; the V-block nose alone was best. Both plugs were ~2 mm too deep (hole A is 7 mm deep, not 9) (2026-11-26)
 - [x] m19 right, with no light, pushed nose-first into a post: the saddle's front arm sheared off along the strut's chamfer line (2026-11-26)
 - [ ] Truck mount m20 (front arm 5 mm thicker toward the nose): print the saddles solid and repeat the push test
-- [ ] Rear mount r7 (split shoe: a lower part under the lip, pulled up by one M4 square to the surface, with a 45° face that pushes the V-nose forward): print `rear_shoe_test_r7.stl` and `rear_lower_r7.stl` first; check the lower part slides fully under the lip and the rock is gone
+- [x] Rear mount r7 (split shoe: a lower part under the lip, pulled up by one M4 square to the surface, a 45° ramp that pushes it home and the V-nose forward, the nut sealed in at a print pause): five lower parts to get the space under the lip, the hole's real size and the fitting right; the final one is easy to fit and very stable (2026-11-27)
+- [x] **v1.3** (2026-11-27): receiver v7, front truck clamps m19, rear light mount r7
+- [ ] Ride r7, and check the lower part and its nut pocket for cracks
 - [ ] Later candidates, after m19 is ridden: a second nut, a nut slot in the saddle, other ways of holding the keeper
 
 ## License
