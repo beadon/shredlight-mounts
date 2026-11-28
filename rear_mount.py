@@ -43,7 +43,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from manifold3d import CrossSection, Manifold, OpType
+from manifold3d import CrossSection, JoinType, Manifold, OpType
 
 import charge_cover as cc
 import shredlight_mount as receiver
@@ -68,6 +68,11 @@ LIP_OVER = 2.0       # r2-r6 only: how far the space under the lip reaches past 
 # corner, on the diagonal). Its height is HOLE_D - LIP_T (lip 1.5-2.0, estimated). r7's lower part still
 # fits: its outline is the hole moved LOW_SLIDE back, trimmed to this box, so it reaches into both pockets.
 LIP_BACK = 1.0
+WALL_DRAFT = 5.0     # the side and back walls under the lip lean in 5 deg toward the top (~85 deg walls, widest at
+                     # the floor; user, 2026-11-27, after the first trimmed toe bound in the corners). LIP_BACK and the
+                     # flush side walls are taken at the floor, so under the lip each wall is ~0.48 mm further in
+TOE_CORNER_R = 2.5   # the toe's two rear corners are rounded (seen from above) to this radius, not square, so the
+                     # corners don't bind and the fit has a little give (user, 2026-11-27)
 # Only the rear end has a lip; the sides and the front are plain walls.
 
 # --- Behind the hole: the step up to the charging port (user's measurements, 2026-11-15) ---
@@ -117,7 +122,12 @@ WEDGE_H = 2.5        # height of the 45 deg face, up to LOW_TOP
 WEDGE_FRONT = -1.5   # the lower part's front face (s), below the 45 deg face
 WEDGE_CLR = 0.15     # 45 deg face, lower to upper, square to the face
 R7_SCREW_S = 4.2     # the screw's axis (s): the nut stays in front of the lip's edge, under 1.9 mm of plastic
-R7_NUT_FLOOR = 0.6   # plastic under the nut
+R7_NUT_MOUTH = 0.4   # the nut pocket opens through the lower part's bottom face (no side slot, 2026-11-27): its
+                     # ceiling is then a bridge walled all round and the part prints with NO supports (the side
+                     # slot's open end needed tree supports). The mouth has a 0.4 mm chamfer against elephant's
+                     # foot. Press the nut in from below; in hole A the floor, 0.2 mm under it, keeps it in.
+R7_MEMBRANE = 0.3    # a skin over the screw's hole at the pocket's ceiling, so the bridge has no hole in it;
+                     # push the screw (or a 4 mm drill) through it
 R7_SCREW_LEN = 16.0  # M4 x 16 socket head
 R7_TIP_GAP = 0.5     # the screw's end above the hole's floor
 R7_SLOT = 1.2        # the screw's hole in the upper part is a slot this long toward the tail: the lower part moves
@@ -299,6 +309,22 @@ def shoe(relief=0.0, runout=1.0, ribs=False):
     return body + at_hole(plug), screw, at_hole(cut)
 
 
+def under_lip_space(inset=0.0, rear_inset=0.0, corner_r=0.0, front=0.0):
+    """The space under the lip (hole-local): the box round the hole's rear half, from s = `front` back, its side
+    and back walls leaning in WALL_DRAFT toward the top (widest at the floor). `inset` and `rear_inset` move the
+    side and back walls in, and `corner_r` rounds the rear corners, for the lower part's toe. It runs on up past
+    the lip, still drafted, to the surface."""
+    t = np.tan(np.radians(WALL_DRAFT))
+    def rect(z):
+        d = (z + HOLE_D) * t                                    # how far the walls have come in at height z
+        w, r = HOLE_W / 2 - inset - d, HOLE_L / 2 + LIP_BACK - rear_inset - d
+        cs = CrossSection.square([2 * w, r - front]).translate([-w, front])
+        if corner_r > 0:
+            cs = cs.offset(-corner_r, circular_segments=64).offset(corner_r, circular_segments=64)
+        return cs.extrude(0.01).translate([0, 0, z])
+    return Manifold.hull(rect(-HOLE_D) + rect(-0.01))
+
+
 def lower_pieces(grow=0.0):
     """r7: the lower part's two convex pieces, in hole-local coordinates (X, s, h), in place under the lip:
     the tall piece in front of the lip's edge (up to LOW_TOP, its front a 45 deg face) and the toe that runs
@@ -318,6 +344,10 @@ def lower_pieces(grow=0.0):
         np.array([[0, 0, 1.0, 0], [1.0, 0, 0, 0], [0, 1.0, 0, 0]]))     # (s, h) sketch, extruded along X
     tall = (plan ^ oval).offset(grow, circular_segments=64).extrude(LOW_TOP - bottom + 2 * grow).translate([0, 0, bottom - grow]) ^ side
     toe = (plan ^ toe_rect).offset(grow, circular_segments=64).extrude(toe_top - bottom + 2 * grow).translate([0, 0, bottom - grow]) ^ side
+    if not grow:
+        # The toe's sides and back follow the drafted walls under the lip, and its rear corners are rounded.
+        # The upper part's clearance (grow > 0) keeps the plain toe, a little bigger, so it is unchanged.
+        toe = toe ^ under_lip_space(CLR, LOW_REAR, TOE_CORNER_R, front=-20)
     return [tall, toe]
 
 
@@ -327,14 +357,22 @@ def r7_screw():
     return {"s": R7_SCREW_S, "tip": tip, "seat": tip + R7_SCREW_LEN}
 
 
+def r7_nut_bottom():
+    return -HOLE_D + LOW_FLOOR                 # the nut sits flush with the lower part's bottom face
+
+
 def lower_part():
-    """r7: the lower part, with the nut pocket (slot out of its side, +X) and the screw's hole."""
+    """r7: the lower part, with the nut pocket (open through its bottom face) and the screw's hole above it."""
     sc = r7_screw()
     low = Manifold.batch_boolean(lower_pieces(), OpType.Add)
-    nb = -HOLE_D + LOW_FLOOR + R7_NUT_FLOOR
-    nut = nut_pocket(slot=20.0).translate([0, sc["s"], nb + NUT_T / 2])
-    hole = rod(40, BOLT_HOLE, -20).translate([0, sc["s"], 0])
-    return low - nut - hole
+    nb = r7_nut_bottom()
+    hexa = CrossSection.circle(NUT_AF / np.sqrt(3), 6)
+    pocket = hexa.extrude(NUT_T + 1).translate([0, 0, nb - 1])
+    # 45 deg chamfer at the mouth, run on 0.5 below the bottom face so no edge lands on it
+    mouth = Manifold.hull(hexa.offset(R7_NUT_MOUTH + 0.5, join_type=JoinType.Miter).extrude(0.01).translate([0, 0, nb - 0.5])
+                          + hexa.extrude(0.01).translate([0, 0, nb + R7_NUT_MOUTH]))
+    hole = rod(20, BOLT_HOLE, nb + NUT_T + R7_MEMBRANE)
+    return low - (pocket + mouth + hole).translate([0, sc["s"], 0])
 
 
 def upper_plug():
@@ -472,8 +510,8 @@ def hanger_schematic():
     """Schematic surroundings (ESTIMATES from photos, except the hole, the step, the port and bar C's height)."""
     floor = Manifold.cube([50, 52, 20]).translate([-25, -38, -20])
     hole = hole_section().extrude(HOLE_D + 1).translate([0, 0, -HOLE_D])
-    # the space under the lip: the box round the hole's rear half (see LIP_BACK)
-    under_lip = Manifold.cube([HOLE_W, HOLE_L / 2 + LIP_BACK, HOLE_D - LIP_T]).translate([-HOLE_W / 2, 0, -HOLE_D])
+    # the space under the lip: the box round the hole's rear half, drafted walls (see LIP_BACK, WALL_DRAFT)
+    under_lip = under_lip_space() ^ Manifold.cube([40, 40, HOLE_D - LIP_T]).translate([-20, -20, -HOLE_D])
     floor = at_hole(floor - hole - under_lip)
     rear_edge = (HOLE_L / 2 * A)[1]
     step = Manifold.cube([50, 40, STEP_Z + 20]).translate([-25, rear_edge - 40, -20]) - at_hole(hole + under_lip)
@@ -560,14 +598,17 @@ def main():
         assert (part.translate(list(dd * N)) ^ (sch["housing"] + lower)).volume() < 0.01, "upper part can't drop in"
     print("  the upper part drops straight in over it")
     screw = r7_screw_solid()
-    assert (screw ^ sch["housing"]).is_empty() and (screw ^ part).volume() < 0.01 and (screw ^ lower).volume() < 0.01
     sc = r7_screw()
-    nb = -HOLE_D + LOW_FLOOR + R7_NUT_FLOOR
+    nb = r7_nut_bottom()
+    membrane = np.pi * 2.0 ** 2 * R7_MEMBRANE          # the screw goes through the skin over its hole
+    assert (screw ^ sch["housing"]).is_empty() and (screw ^ part).volume() < 0.01
+    assert (screw ^ lower).volume() < membrane + 0.05, "the screw runs into the lower part"
     nut = at_hole(Manifold.cylinder(NUT_T - 0.3, 6.9 / np.sqrt(3), circular_segments=6).translate([0, sc["s"], nb]))
     lo_env = at_hole(Manifold.batch_boolean(lower_pieces(), OpType.Add))
     assert (nut - lo_env).volume() < 0.01, "the nut pokes out of the lower part"
     ceiling = LOW_TOP - (nb + NUT_T)
-    print(f"  M4 x {R7_SCREW_LEN:.0f} square to the surface, end {R7_TIP_GAP} mm above the floor; nut under {ceiling:.1f} mm of plastic")
+    print(f"  M4 x {R7_SCREW_LEN:.0f} square to the surface, end {R7_TIP_GAP} mm above the floor; nut under {ceiling:.1f} mm of plastic, "
+          f"{nb + NUT_T - 0.3 - max(sc['tip'], nb):.1f} mm of its thread on the screw")
     exit_ = at_hole(r7_cuts()) ^ part.hull()
     print(f"  counterbore top reaches z {exit_.bounding_box()[5]:.1f}, between the lights (x 0)")
     path = cover_lift_path()

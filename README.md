@@ -174,7 +174,7 @@ threadlocker.
 | File (in `out/rear/`) | |
 |---|---|
 | `rear_mount_r7.stl` | **r7, not yet printed:** the upper part of the split shoe with the light bar. Receiver faces down, like r6. The slicer wants one tree inside the counterbore, up to the screw head's seat: block it and let it bridge. |
-| `rear_lower_r7.stl` | **r7, not yet printed:** the lower part. Prints on its flat bottom. Block supports in the nut pocket (its ceiling bridges 6.9 mm). Takes a plain M4 nut. |
+| `rear_lower_r7.stl` | **r7, not yet printed:** the lower part. Prints on its flat bottom, **no supports**. Takes a plain M4 nut, pressed into a pocket in its bottom face; push the screw through the 0.3 mm skin over its hole first. |
 | `rear_shoe_test_r7.stl` | **Test part:** the r7 upper part without the light bar. Prints top face down, plug up, like the earlier test shoes; block the tree in the counterbore. |
 | `rear_mount_r6.stl` | Receiver faces down, the shoe and its plug pointing up, ready to slice. No supports: besides the two channel-roof bridges, what overhangs is the nut slot's ceiling and near-level round holes, as on the r4 shoe. |
 | `rear_shoe_test_vnose.stl` | **Test part:** the r6 shoe on its own (no light bar) with a V-block nose on the plug (`NOSE_RELIEF`, see below). Prints like `rear_mount_r6.stl`, top face down, no supports. |
@@ -201,8 +201,8 @@ its floor level with the hole's. So there is a ~1 mm strip at the hole's rear en
 
 r7 splits the plug in two, and no steel touches the lip any more:
 
-- The **lower part** (`rear_lower_r7.stl`, about 15.6 × 10.7 × 6 mm) carries a plain M4 nut, slid in through
-  a slot in its side. It goes in first, on its own: drop it into hole A 5.6 mm toward the nose, then
+- The **lower part** (`rear_lower_r7.stl`, about 15.6 × 10.7 × 6 mm) carries a plain M4 nut, pressed into a
+  pocket in its bottom face (in hole A the floor, 0.2 mm below, keeps it in). It goes in first, on its own: drop it into hole A 5.6 mm toward the nose, then
   push it toward the tail under the lip. Its outline is the hole moved 5.6 mm back and trimmed to the box,
   so its rear corners slide into both corner pockets, where the lip holds it down.
 - The **upper part** (the shoe and light bar, `rear_mount_r7.stl`) drops straight in, in front of and
@@ -218,7 +218,12 @@ r7 splits the plug in two, and no steel touches the lip any more:
 `rear_shoe_test_r7.stl` is the upper part without the light bar (24 × 17.5 × 25 mm), to try the split
 shoe in hole A cheaply. The first r7 (commit 6116c1f) modelled the space under the lip as a full-width
 T-slot reaching 5.5 mm back, which was wrong: its lower part's toe can't slide under the lip. The current
-r7 trims the toe to the real back wall (`LIP_BACK`, 1 mm behind the hole's rear end, estimated by eye).
+r7 trims the toe to the real back wall (`LIP_BACK`, 1 mm behind the hole's rear end, estimated by eye). That
+version bound in the corner pockets when tried: the walls under the lip aren't square to the floor but
+lean in about 5° toward the top (widest at the floor), so they are ~0.5 mm closer in under the lip. The
+toe's sides and back now follow that draft (`WALL_DRAFT`), with 0.2–0.3 mm clearance all the way up, and
+its two rear corners are rounded to 2.5 mm (`TOE_CORNER_R`) instead of square. The upper part is
+unchanged, so a printed r7 upper part only needs the new lower part.
 **Not yet measured, so check before relying on it:** the lip is taken as 1.5 mm thick
 (`LIP_T`, from an estimate of 1.5–2), so the lower part's toe stands 5.0 mm tall under it with 0.3 mm to
 spare. If the lip is really 2 mm, the toe catches its underside as it slides back: sand 0.5 mm off the
