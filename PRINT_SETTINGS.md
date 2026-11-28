@@ -63,7 +63,7 @@ All STLs are exported in their print orientation; slice them without rotating.
   Auto supports also grow one tree up into the screw-head recess, to the flat ring the head (and its
   spring washer) clamps on: as printed it faces down, tilted ~21°, but it's only 1.75 mm wide. Paint a
   **support blocker** on it: it prints fine unsupported, and a tree there would scar the clamping face.
-- **Front truck saddles m20** (`out/truck/truck_mount_*_m20_saddle.stl`): as m19, but print them **solid (100 % infill)**,
+- **Front truck saddles m21** (`out/truck/truck_mount_*_m21_saddle.stl`; m20 the same): as m19, but print them **solid (100 % infill)**,
   the same per-object override as the keepers below, or at least 5–6 perimeters. A 3D-honeycomb m19 saddle broke
   through its front arm when pushed into a post (2026-11-26), and the fracture face was mostly infill.
 - **Keepers** (`out/truck/truck_mount_*_m19_keeper.stl`, also used with m20): **standing on the keeper's upper end** (m17), screw

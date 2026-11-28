@@ -33,7 +33,7 @@ from manifold3d import CrossSection, FillRule, Manifold, OpType
 
 import shredlight_mount as receiver
 
-VERSION = 20
+VERSION = 21
 
 # --- Truck (measured by calipers unless noted) ---
 PLATE_T = 21.8       # hanger plate thickness, front to back (21.81 caliper, front truck, 2026-11-13)
@@ -41,7 +41,12 @@ STRUT_H = 7.66       # strut, window face to skyward face, in the hanger's plane
                      # angled strut, front truck, 2026-11-13; m1-m7 used ~9 from a ruler photo)
 WINDOW_FLAT = 11.0   # flat on the window-side face, front to back, between its chamfers
 TOP_CHAMFER = 5.5    # skyward-face chamfers, front to back (~6 measured; modelled smaller)
-CHAMFER_DEPTH = 1.5  # how far the chamfers cut into STRUT_H: unmeasured, kept small so they cannot bind
+TOP_CHAMFER_ANGLE = 40.0  # m21: the skyward-face chamfers slope 40 deg from the skyward face, so they cut
+                     # TOP_CHAMFER * tan(40) = 4.6 mm into STRUT_H. Found with test strips at 20-40 deg
+                     # (chamfer_gauge.py, 2026-11-28): the 40 deg strip is "a perfect fit". m1-m20 used
+                     # CHAMFER_DEPTH (~15 deg), which left a wedge gap between the saddle and the strut, so
+                     # the front arm bore on the strut's chamfer edge (the line m19's arm sheared along)
+CHAMFER_DEPTH = 1.5  # the window-side chamfers' depth into STRUT_H: unmeasured, kept small so they cannot bind
 TILT = 30.0          # plate tilted back from vertical: measured on the FRONT truck with a phone
                      # inclinometer (reads 0 against a wall), board on level ground. Matches Radium's
                      # 30 degree truck angle and the m6 test fit (built for 45, aimed ~15 degrees high).
@@ -183,8 +188,9 @@ def strut_profile(grow=0.0):
     cw = (PLATE_T - WINDOW_FLAT) / 2  # window-side chamfers, front to back
     ct = TOP_CHAMFER
     d = CHAMFER_DEPTH
-    pts = [(0, -HALF_T + cw), (0, HALF_T - cw), (d, HALF_T), (STRUT_H - d, HALF_T),
-           (STRUT_H, HALF_T - ct), (STRUT_H, -HALF_T + ct), (STRUT_H - d, -HALF_T), (d, -HALF_T)]
+    dt = TOP_CHAMFER * np.tan(np.radians(TOP_CHAMFER_ANGLE))   # m21 (m1-m20: CHAMFER_DEPTH)
+    pts = [(0, -HALF_T + cw), (0, HALF_T - cw), (d, HALF_T), (STRUT_H - dt, HALF_T),
+           (STRUT_H, HALF_T - ct), (STRUT_H, -HALF_T + ct), (STRUT_H - dt, -HALF_T), (d, -HALF_T)]
     cs = CrossSection([pts], FillRule.EvenOdd)
     return cs.offset(grow) if grow else cs
 

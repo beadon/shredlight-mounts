@@ -28,7 +28,7 @@ Ready-to-slice STLs, each exported in its print orientation (see [PRINT_SETTINGS
 | Folder | What |
 |---|---|
 | [`out/`](out) | The Shredlight mount itself (the receiver the light clips into), left and right, every fit version: `shredlight_mount_{left,right}_v1`…`v7`. **v7 is the mount to print.** |
-| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m19** (current; printed and fitted 2026-11-24), **m20** (built, not yet printed: a thicker front arm after an impact broke m19), plus `assembly_m*.obj` for Blender. |
+| [`out/truck/`](out/truck) | Front truck clamps: saddle and keeper per side, m6–**m19** (current; printed and fitted 2026-11-24), **m20** (built, not printed: a thicker front arm after an impact broke m19), **m21** (built, not yet printed: m20 with the saddle's chamfers matched to the strut), plus `assembly_m*.obj` for Blender. |
 | [`out/rear/`](out/rear) | Rear light mount: **r7** (current; printed and fitted 2026-11-27: a split shoe), `rear_mount_r7.stl` and `rear_lower_r7.stl`, the bar-less `rear_shoe_test_r7.stl`, and `rear_assembly_r7.obj` for Blender; r5 and r6 (one part, superseded); `dummy_charge_cover_v5.stl`, a stand-in for the charging-port cover. |
 
 Older versions are in the git history. The `*_art` engraved saddles aren't in the repo: the artwork
@@ -94,6 +94,10 @@ The renders come from `render_views.py`. A three-view silhouette drawing of one 
   - **prints on its upper end**, with the screw axis level, so the screw's pull and the keeper's bending run along the layers instead of across them. The keeper's screw hole has a 45° teardrop peak so it prints without support.
   
   The screw head now sits 1.2 mm higher in the front arm, with more arm under it. The light's position is unchanged. m17 keepers don't fit m16 saddles, and the other way round. A second nut, or a nut slot in the saddle, is left until m17's changes have been tested.
+- **Chamfers that fit (m21, built, not yet printed):** fitted on the truck, the saddle left a wedge-shaped gap over each of the strut's two skyward-face chamfers. m1–m20 modelled those chamfers at only ~15° (1.5 mm deep over 5.5 mm front to back), a guess kept shallow so they couldn't bind. So the saddle's front arm only touched the strut's chamfer at its edge, and a rearward hit loaded the arm along that edge: the line m19's arm sheared along. Test strips at 20–40° (`chamfer_gauge.py`) settled it: the **40°** strip is a perfect fit. m21 is m20 with those chamfers at 40° (`TOP_CHAMFER_ANGLE`, 4.6 mm deep), so the saddle bears on the whole chamfer face; it adds about 0.57 cm³ to each saddle, in the two gaps. Everything else (keeper, screw, receiver position, supports) is unchanged from m20, so m17–m20 keepers fit. Print the saddle solid, like m20.
+
+  ![m20 vs m21, cut across the strut: m20 leaves a wedge gap over each chamfer, m21 sits flush](docs/m21_chamfer.png)
+
 - **Thicker front arm (m20, built, not yet printed):** the right m19, with no light fitted, was pushed nose-first into a post and broke with fairly little force. The saddle's front arm sheared off straight across about 30 layers, along the line of the strut's top front chamfer: a hit on the receiver shoves the saddle toward the tail, and the strut's chamfer corner bears on the inside of the front arm like a blade. That arm was only 3 mm thick outside the screw (`CHEEK`), and the screw head's bore takes most of the rest where the screw passes. m20 makes the arm 5 mm thicker toward the nose (`CHEEK` 3 → 8), which gives the shear line about 1.5× the area (289 → 446 mm²). The keeper is unchanged (`KEEPER_CHEEK` keeps its front end where it was), so m17–m19 keepers fit, and the light's position is unchanged. The broken saddle was 3D honeycomb infill, so the fracture face was mostly air: **print the m20 saddle solid**, like the keepers (see [PRINT_SETTINGS.md](PRINT_SETTINGS.md)).
 
   ![m19 vs m20, cut across the strut through the screw and 10 mm beside it. Blue: the line the m19 arm sheared along](docs/m20_front_arm.png)
@@ -309,7 +313,7 @@ python3 -m venv .venv
 .venv/bin/python render_views.py           # shaded truck-mount renders (docs/truck_render.png)
 .venv/bin/python flyaround.py              # fly-around GIFs (docs/) and the browser-view STLs (needs Blender)
 .venv/bin/python chamfer_gauge.py           # strut chamfer test strips (out/truck/chamfer_gauge_*.stl)
-.venv/bin/python slice_check.py out/truck/truck_mount_left_m20_saddle.stl  # where PrusaSlicer puts supports (needs the PrusaSlicer Flatpak)
+.venv/bin/python slice_check.py out/truck/truck_mount_left_m21_saddle.stl  # where PrusaSlicer puts supports (needs the PrusaSlicer Flatpak)
 ```
 
 All receiver dimensions are named constants, in inches, at the top of `shredlight_mount.py`. The
@@ -398,7 +402,9 @@ clamp path (head, front arm, keeper, nut), or it will lose preload faster.
 - [ ] Ride m19 and r6, and check the keepers and nut pockets for cracks
 - [x] Rear test shoes, V-block nose and V-block nose plus crush ribs: both improved on r6; the V-block nose alone was best. Both plugs were ~2 mm too deep (hole A is 7 mm deep, not 9) (2026-11-26)
 - [x] m19 right, with no light, pushed nose-first into a post: the saddle's front arm sheared off along the strut's chamfer line (2026-11-26)
-- [ ] Truck mount m20 (front arm 5 mm thicker toward the nose): print the saddles solid and repeat the push test
+- [x] Truck mount m20 (front arm 5 mm thicker toward the nose): built; superseded by m21 before printing
+- [x] Chamfer test strips (`chamfer_gauge.py`), 20–40°: the strut's skyward chamfers are 40°, not ~15° (2026-11-28)
+- [ ] Truck mount m21 (m20 with the saddle's chamfers at 40°, flush on the strut): print the saddles solid and repeat the push test
 - [x] Rear mount r7 (split shoe: a lower part under the lip, pulled up by one M4 square to the surface, a 45° ramp that pushes it home and the V-nose forward, the nut sealed in at a print pause): five lower parts to get the space under the lip, the hole's real size and the fitting right; the final one is easy to fit and very stable (2026-11-27)
 - [x] **v1.3** (2026-11-27): receiver v7, front truck clamps m19, rear light mount r7
 - [ ] Ride r7, and check the lower part and its nut pocket for cracks
