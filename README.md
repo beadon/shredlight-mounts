@@ -201,7 +201,7 @@ its floor level with the hole's. So there is a ~1 mm strip at the hole's rear en
 
 r7 splits the plug in two, and no steel touches the lip any more:
 
-- The **lower part** (`rear_lower_r7.stl`, about 15.6 × 10.7 × 6 mm) carries a plain M4 nut, pressed into a
+- The **lower part** (`rear_lower_r7.stl`, about 14.9 × 10.4 × 6 mm) carries a plain M4 nut, pressed into a
   pocket in its bottom face (in hole A the floor, 0.2 mm below, keeps it in). It goes in first, on its own: drop it into hole A 5.6 mm toward the nose, then
   push it toward the tail under the lip. Its outline is the hole moved 5.6 mm back and trimmed to the box,
   so its rear corners slide into both corner pockets, where the lip holds it down.
@@ -223,7 +223,11 @@ version bound in the corner pockets when tried: the walls under the lip aren't s
 lean in about 5° toward the top (widest at the floor), so they are ~0.5 mm closer in under the lip. The
 toe's sides and back now follow that draft (`WALL_DRAFT`), with 0.2–0.3 mm clearance all the way up, and
 its two rear corners are rounded to 2.5 mm (`TOE_CORNER_R`) instead of square. The upper part is
-unchanged, so a printed r7 upper part only needs the new lower part.
+unchanged, so a printed r7 upper part only needs the new lower part. That one still bound on its sides: hole A measures **15.37 × 16.46 mm**
+(calipers, at the top), not 16 × 17, and this printer makes outside sizes ~0.3 mm small (which is why the
+upper part's plug, drawn 15.6 × 16.6, fits well). The lower part is now drawn from the measured hole
+(`HOLE_W_MEAS`, `HOLE_L_MEAS`) with the usual 0.2–0.3 mm clearances: 14.92 mm wide at the bottom, 14.1 at
+the top of the toe, its back 0.3 mm short of the back wall. The upper part still uses 16 × 17.
 **Not yet measured, so check before relying on it:** the lip is taken as 1.5 mm thick
 (`LIP_T`, from an estimate of 1.5–2), so the lower part's toe stands 5.0 mm tall under it with 0.3 mm to
 spare. If the lip is really 2 mm, the toe catches its underside as it slides back: sand 0.5 mm off the

@@ -55,6 +55,10 @@ VERSION = 7
 SURFACE_TILT = 30.0  # surface round the hole: tipped 30 deg from flat, facing the nose (inclinometer)
 HOLE_W = 16.0        # across the board ("probably 16"; the photo readings were 15.4-16.6)
 HOLE_L = 17.0        # along the surface, nose to tail
+HOLE_W_MEAS, HOLE_L_MEAS = 15.37, 16.46  # hole A measured with calipers at the top (2026-11-27): smaller than
+                     # HOLE_W x HOLE_L. Those stay for the shoe's plug, which fits as printed: this printer makes
+                     # outside sizes ~0.3 small (the lower part's toe, drawn 15.55 / 14.73, came out 15.26 / 14.43).
+                     # The lower part, which has to SLIDE, is drawn from the measured hole (lower_pieces(meas=True))
 HOLE_D = 7.0         # deep, square to the surface; solid floor. Measured 7 (2026-11-26); r2-r6 used 9, so their plugs
                      # (8.4 deep) bottomed out 1.4 mm early, the shoe stood proud and rocked on the plug
 LIP_T = 1.5          # the plate forming the lip at the hole's rear end (user's estimate 1.5-2; 2.0 looked thicker than
@@ -190,8 +194,8 @@ COVER_Y = HOLE_REAR_Y - COVER_GAP + cc.FRONT_DIP     # the cover's front corners
 BRIDGE_REAR = round(COVER_Y + cc.outline().bounds()[3] + COVER_CLEAR, 2)   # r5: -10.2
 
 
-def hole_section():
-    return CrossSection.circle(HOLE_W / 2, 96).scale([1, HOLE_L / HOLE_W])
+def hole_section(w=HOLE_W, l=HOLE_L):
+    return CrossSection.circle(w / 2, 96).scale([1, l / w])
 
 
 def at_hole(m):
@@ -309,7 +313,7 @@ def shoe(relief=0.0, runout=1.0, ribs=False):
     return body + at_hole(plug), screw, at_hole(cut)
 
 
-def under_lip_space(inset=0.0, rear_inset=0.0, corner_r=0.0, front=0.0):
+def under_lip_space(inset=0.0, rear_inset=0.0, corner_r=0.0, front=0.0, hw=HOLE_W, hl=HOLE_L):
     """The space under the lip (hole-local): the box round the hole's rear half, from s = `front` back, its side
     and back walls leaning in WALL_DRAFT toward the top (widest at the floor). `inset` and `rear_inset` move the
     side and back walls in, and `corner_r` rounds the rear corners, for the lower part's toe. It runs on up past
@@ -317,7 +321,7 @@ def under_lip_space(inset=0.0, rear_inset=0.0, corner_r=0.0, front=0.0):
     t = np.tan(np.radians(WALL_DRAFT))
     def rect(z):
         d = (z + HOLE_D) * t                                    # how far the walls have come in at height z
-        w, r = HOLE_W / 2 - inset - d, HOLE_L / 2 + LIP_BACK - rear_inset - d
+        w, r = hw / 2 - inset - d, hl / 2 + LIP_BACK - rear_inset - d
         cs = CrossSection.square([2 * w, r - front]).translate([-w, front])
         if corner_r > 0:
             cs = cs.offset(-corner_r, circular_segments=64).offset(corner_r, circular_segments=64)
@@ -325,16 +329,18 @@ def under_lip_space(inset=0.0, rear_inset=0.0, corner_r=0.0, front=0.0):
     return Manifold.hull(rect(-HOLE_D) + rect(-0.01))
 
 
-def lower_pieces(grow=0.0):
+def lower_pieces(grow=0.0, meas=False):
     """r7: the lower part's two convex pieces, in hole-local coordinates (X, s, h), in place under the lip:
     the tall piece in front of the lip's edge (up to LOW_TOP, its front a 45 deg face) and the toe that runs
     under the lip. `grow` enlarges both, for the clearance the upper part keeps from them. Its outline seen
     from above is the plug's, moved LOW_SLIDE toward the tail, so it drops into the hole that far forward
-    and slides back."""
-    plan = plug_section().translate([0, LOW_SLIDE])
-    oval = plug_section()                                   # in front of the lip's edge (CLR inside it)
-    rear = HOLE_L / 2 + LIP_BACK - LOW_REAR
-    toe_rect = CrossSection.square([HOLE_W - 2 * CLR, rear + 20]).translate([-HOLE_W / 2 + CLR, -20])
+    and slides back. `meas` draws it from the measured hole (HOLE_W_MEAS x HOLE_L_MEAS) instead of HOLE_W x
+    HOLE_L: the part itself uses that; the upper part's clearance uses the bigger outline."""
+    hw, hl = (HOLE_W_MEAS, HOLE_L_MEAS) if meas else (HOLE_W, HOLE_L)
+    oval = hole_section(hw, hl).offset(-CLR, circular_segments=64)   # in front of the lip's edge (CLR inside it)
+    plan = oval.translate([0, LOW_SLIDE])
+    rear = hl / 2 + LIP_BACK - LOW_REAR
+    toe_rect = CrossSection.square([hw - 2 * CLR, rear + 20]).translate([-hw / 2 + CLR, -20])
     bottom, toe_top = -HOLE_D + LOW_FLOOR, -LIP_T - TOE_GAP
     f, w = WEDGE_FRONT, WEDGE_H
     side = CrossSection([[(f, bottom), (40, bottom), (40, LOW_TOP), (f + w, LOW_TOP), (f, LOW_TOP - w)]])
@@ -347,7 +353,7 @@ def lower_pieces(grow=0.0):
     if not grow:
         # The toe's sides and back follow the drafted walls under the lip, and its rear corners are rounded.
         # The upper part's clearance (grow > 0) keeps the plain toe, a little bigger, so it is unchanged.
-        toe = toe ^ under_lip_space(CLR, LOW_REAR, TOE_CORNER_R, front=-20)
+        toe = toe ^ under_lip_space(CLR, LOW_REAR, TOE_CORNER_R, front=-20, hw=hw, hl=hl)
     return [tall, toe]
 
 
@@ -364,7 +370,8 @@ def r7_nut_bottom():
 def lower_part():
     """r7: the lower part, with the nut pocket (open through its bottom face) and the screw's hole above it."""
     sc = r7_screw()
-    low = Manifold.batch_boolean(lower_pieces(), OpType.Add)
+    # Drawn from the MEASURED hole: the 16 x 17 version bound on its sides as it slid back (2026-11-27).
+    low = Manifold.batch_boolean(lower_pieces(meas=True), OpType.Add)
     nb = r7_nut_bottom()
     hexa = CrossSection.circle(NUT_AF / np.sqrt(3), 6)
     pocket = hexa.extrude(NUT_T + 1).translate([0, 0, nb - 1])
@@ -604,7 +611,7 @@ def main():
     assert (screw ^ sch["housing"]).is_empty() and (screw ^ part).volume() < 0.01
     assert (screw ^ lower).volume() < membrane + 0.05, "the screw runs into the lower part"
     nut = at_hole(Manifold.cylinder(NUT_T - 0.3, 6.9 / np.sqrt(3), circular_segments=6).translate([0, sc["s"], nb]))
-    lo_env = at_hole(Manifold.batch_boolean(lower_pieces(), OpType.Add))
+    lo_env = at_hole(Manifold.batch_boolean(lower_pieces(meas=True), OpType.Add))
     assert (nut - lo_env).volume() < 0.01, "the nut pokes out of the lower part"
     ceiling = LOW_TOP - (nb + NUT_T)
     print(f"  M4 x {R7_SCREW_LEN:.0f} square to the surface, end {R7_TIP_GAP} mm above the floor; nut under {ceiling:.1f} mm of plastic, "
