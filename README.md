@@ -122,6 +122,7 @@ Files are in [`out/truck/`](out/truck):
 |---|---|
 | `truck_mount_{left,right}_m19_saddle.stl` | Print receiver-face down, so the lip and barbs are on the bed, as for v7. m9 is designed to need little or no support: the flange channel's roof is chamfered at 45° up to a ~15 mm bridge (m12), and the only other real overhang is the short hook lip at the top. Slice it without supports first and check the preview. |
 | `truck_mount_{left,right}_m19_keeper.stl` | Prints **standing on its upper end** with no supports (m17; m16 printed flat top down, m1–m15 nut pocket down), so the screw's pull runs along the layers. The footprint is small (about 39 × 6.5 mm, 20 mm tall), but it prints fine without a brim. The pocket takes a plain M4 nut (6.9 mm across flats, 3.2 mm thick). |
+| `chamfer_gauge_20.stl` … `chamfer_gauge_40.stl`, `chamfer_gauges_all.stl` | **Test strips** (`chamfer_gauge.py`): 5 mm slices of the saddle's channel with the strut's skyward chamfers at 20–40° (the angle is raised on each). m1–m20 model those chamfers at only ~15° (1.5 mm deep, unmeasured), which leaves a wedge gap between the saddle and the strut. Push each strip down onto the strut from the sky side; the one that sits with no gap is the angle for the next saddle. Print flat, label up, no supports. |
 | `assembly_m19.obj` (coloured, named parts, with a light-sized placeholder) and `assembly_m19_*.stl` | Both mounts on a **schematic** hanger, in mounted positions, for checking in Blender. Only the struts' cross-section is measured; the beam and pivot block are placeholder boxes. Not for printing. |
 
 **Engraved artwork (optional):** if `art/source.png` exists, `truck_mount.py` also writes `truck_mount_{left,right}_m19_saddle_art.stl` (and `assembly_m19_art.obj`), with the picture recessed 0.6 mm into the pedestal's tail-facing wall. Each groove's upper side slopes down 45° into the wall instead of being a flat little ceiling, so the engraving needs no supports (m14; m12's grooves drew supports onto the picture). The wall is the flat, roughly 28 mm square side you see from behind the board. `artwork.py` turns the picture into black-and-white ink with every line at least 0.4 mm wide, so a 0.4 mm nozzle can cut it. It's turned to fit the tipped wall as large as it can (about 21 mm) and mirrored on the left mount. The settings are in `ART` in `truck_mount.py`. The `*_art` files are gitignored, and the artwork in `art/` is not GPL (see [its notice](art/NOTICE.md)).
@@ -307,6 +308,7 @@ python3 -m venv .venv
 .venv/bin/python preview.py docs           # preview images
 .venv/bin/python render_views.py           # shaded truck-mount renders (docs/truck_render.png)
 .venv/bin/python flyaround.py              # fly-around GIFs (docs/) and the browser-view STLs (needs Blender)
+.venv/bin/python chamfer_gauge.py           # strut chamfer test strips (out/truck/chamfer_gauge_*.stl)
 .venv/bin/python slice_check.py out/truck/truck_mount_left_m20_saddle.stl  # where PrusaSlicer puts supports (needs the PrusaSlicer Flatpak)
 ```
 
